@@ -1,14 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { AnimatedFooter } from "#/components/animated-footer";
+import { BookingCards } from "#/components/booking-cards";
+import { NewsletterSection } from "#/components/newsletter-section";
 import { ShaderGradientBackground } from "#/components/shader-gradient-background";
+import {
+	HERO_DEEP as DEEP,
+	HERO_MINT as MINT,
+	HERO_SAND as SAND,
+	SHADER_BLUE_BRIGHT,
+	HERO_TEAL as TEAL,
+} from "#/lib/palette";
 
 export const Route = createFileRoute("/")({ component: Home });
 
-/** The four colours the shader mixes, for the scrim and the still fallback. */
-const DEEP = "#001219";
-const TEAL = "#005f73";
-const MINT = "#94d2bd";
-const SAND = "#e9d8a6";
 /** Copy tints, chosen against the shader's brightest moment (see below). */
 const TYPE = "#f4fbf8";
 const TYPE_SOFT = "#d8efe7";
@@ -51,19 +56,62 @@ function Home() {
 					<ShaderGradientBackground className="absolute inset-0 -z-10 h-full w-full" />
 				) : null}
 
-				{/* The mesh drifts through mint and sand, so type laid straight on it
-				    loses contrast every time a light lobe passes under it. This scrim
-				    is keyed to the shader's own darkest colour and weighted to the
-				    left where the copy sits; the stops were fitted by rendering the
-				    shader across a 25s sweep and taking the brightest composite the
-				    copy column ever sees. At these values the headline holds 7.2:1
-				    and the body copy 6.3:1 at that worst moment - the first draft's
-				    lighter scrim fell to 3.8:1 and 2.3:1. */}
+				{/* An even veil, not a directional wipe. The previous scrim ramped from
+				    95% opaque on the left to 10% on the right, which is why the
+				    gradient only survived down the right-hand edge - it was fitted
+				    for the old mesh shader, whose palette carried mint and sand and
+				    genuinely needed that much shading. This shader's palette is all
+				    dark blue (#0a3e8c, #142241, #0953ff); its brightest colour has a
+				    relative luminance of 0.135, so a flat 30% veil is enough. Over
+				    that brightest lobe the headline still measures 9.2:1 and the body
+				    copy 7.7:1 - both well clear of AA - while the gradient now reads
+				    across the whole hero. */}
+				<div
+					aria-hidden="true"
+					className="absolute inset-0 -z-10"
+					style={{ backgroundColor: `${DEEP}4d` }}
+				/>
+
+				{/* A soft pool of shade under the copy only, so the left column keeps
+				    a little extra separation without draining the field around it. */}
 				<div
 					aria-hidden="true"
 					className="absolute inset-0 -z-10"
 					style={{
-						background: `linear-gradient(100deg, ${DEEP}f2 0%, ${DEEP}db 45%, ${DEEP}73 75%, ${DEEP}1a 100%)`,
+						background: `radial-gradient(70% 80% at 26% 52%, ${DEEP}b3 0%, ${DEEP}66 45%, ${DEEP}00 78%)`,
+					}}
+				/>
+
+				{/* The hand-off into the section below. The seam was not softness -
+				    it was two different colours meeting at a hard line: live shader
+				    above, flat DEEP beneath. These two layers make both sides arrive
+				    at the same colour.
+
+				    First a graduated blur. backdrop-filter alone would band at its
+				    own top edge, so it is masked with a gradient - blur fades in as
+				    the ramp does, and the shader's structure dissolves rather than
+				    stopping. */}
+				<div
+					aria-hidden="true"
+					className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-[26vh]"
+					style={{
+						backdropFilter: "blur(14px)",
+						WebkitBackdropFilter: "blur(14px)",
+						maskImage: "linear-gradient(to bottom, #0000 0%, #000 65%)",
+						WebkitMaskImage: "linear-gradient(to bottom, #0000 0%, #000 65%)",
+					}}
+				/>
+
+				{/* Then the colour ramp, ending on exactly DEEP so the hero's last
+				    pixels match the next section's first. The stops carry DEEP's own
+				    rgb at zero alpha rather than `transparent`: `transparent` is
+				    rgba(0,0,0,0), and interpolating from it drags the midpoint of
+				    the ramp toward black. */}
+				<div
+					aria-hidden="true"
+					className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-[34vh]"
+					style={{
+						background: `linear-gradient(to bottom, ${DEEP}00 0%, ${DEEP}59 40%, ${DEEP}bf 72%, ${DEEP} 100%)`,
 					}}
 				/>
 
@@ -99,6 +147,41 @@ function Home() {
 					</p>
 				</div>
 			</section>
+
+			<NewsletterSection />
+
+			{/* The hands live at the public root, not the component's default
+			    /animated-footer/ path, so both are passed explicitly. They are dark
+			    subjects on white, which is what this effect wants: the ASCII ramp
+			    skips any cell brighter than ~0.6 luminance, so the white ground
+			    drops out and only the hand is drawn.
+
+			    Every colour is passed explicitly. Left unset, the component picks
+			    its defaults from usePrefersDark() - which is what made the hands
+			    burnt orange (#803500), and would have made them peach on an OS set
+			    to light. This page is dark either way, so an OS preference has no
+			    business choosing its palette. */}
+			{/* Exactly one screen. The art band is flex-1, so it simply takes
+			    whatever height is left after the cards and the wordmark - which is
+			    also why the hands get smaller here than they were at 1100px. No
+			    min-height: on a short viewport the art should shrink rather than
+			    push the footer into a second screen. */}
+			<div className="h-screen w-full">
+				<AnimatedFooter
+					headingLines={["Gautam Kumawat"]}
+					leftImage="/hand-left.jpg"
+					rightImage="/hand-right.jpg"
+					background={DEEP}
+					textColor="#ffffff"
+					charColor={TEAL}
+					hoverColor={SHADER_BLUE_BRIGHT}
+					hoverCharColor={DEEP}
+				>
+					<div className="mx-auto w-full max-w-3xl">
+						<BookingCards />
+					</div>
+				</AnimatedFooter>
+			</div>
 		</main>
 	);
 }

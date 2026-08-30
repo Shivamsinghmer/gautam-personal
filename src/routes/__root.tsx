@@ -1,6 +1,7 @@
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { ReactLenis } from "lenis/react";
 import signatureLogo from "#/assets/signature.svg";
 import type { MenuGroup } from "#/components/floating-menu";
 import { FloatingMenu } from "#/components/floating-menu";
@@ -66,7 +67,12 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<HeadContent />
 			</head>
 			<body>
-				{children}
+				<ReactLenis
+					root
+					options={{ lerp: 0.1, duration: 1.2, smoothWheel: true }}
+				>
+					{children}
+				</ReactLenis>
 				<FloatingMenu
 					menuGroups={menuGroups}
 					primaryButton={{ label: "Resume", href: "#" }}

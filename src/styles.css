@@ -4,6 +4,7 @@
 @plugin '@tailwindcss/typography';
 
 @import 'tw-animate-css';
+@import 'lenis/dist/lenis.css';
 
 @custom-variant dark (&:is(.dark *));
 

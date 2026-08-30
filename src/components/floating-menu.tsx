@@ -337,7 +337,15 @@ export function FloatingMenu({
 						{primaryButton ? (
 							<div
 								data-slot="primary-button"
-								className={cn("shrink-0", classes?.primaryButton)}
+								// `flex` rather than the default block: the button inside is
+								// inline-block, so a block parent lays it on a text baseline
+								// and reserves descender space beneath it. That was 6px of
+								// dead height under the button - and since this is the
+								// tallest thing in the header, all 6px went into the bar.
+								className={cn(
+									"flex shrink-0 items-center",
+									classes?.primaryButton,
+								)}
 							>
 								<LiquidMetalButton
 									label={primaryButton.label}
