@@ -4,6 +4,7 @@ import { SplitText } from "gsap/SplitText";
 import type { ReactNode } from "react";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { LiquidMetalButton } from "#/components/liquid-metal-button";
 import { ensureMotionCoreEase, registerPluginOnce } from "#/lib/gsap";
 import { cn } from "#/lib/utils";
 
@@ -237,7 +238,7 @@ export function FloatingMenu({
 				type="button"
 				data-slot="overlay"
 				className={cn(
-					"pointer-events-none fixed inset-0 z-40 cursor-default border-0 bg-black/50 p-0 opacity-0 data-[open=true]:pointer-events-auto",
+					"pointer-events-none fixed inset-0 z-40 cursor-default border-0 bg-[var(--sea-ink)]/40 p-0 opacity-0 data-[open=true]:pointer-events-auto",
 					classes?.overlay,
 				)}
 				data-open={isOpen}
@@ -256,7 +257,7 @@ export function FloatingMenu({
 				ref={containerRef}
 				data-slot="root"
 				className={cn(
-					"fixed top-2 left-1/2 z-50 w-full max-w-[95vw] -translate-x-1/2 rounded-md border border-border bg-background text-foreground shadow-md md:top-4 md:max-w-[70vw] lg:max-w-[50vw]",
+					"fixed top-2 left-1/2 z-50 w-full max-w-[95vw] -translate-x-1/2 rounded-md border border-[var(--line)] bg-[var(--header-bg)] text-[var(--sea-ink)] shadow-md backdrop-blur-sm md:top-4 md:max-w-[70vw] lg:max-w-[50vw]",
 					className,
 					classes?.root,
 				)}
@@ -264,7 +265,7 @@ export function FloatingMenu({
 				<div
 					data-slot="header"
 					className={cn(
-						"relative z-20 flex w-full items-center justify-between p-1",
+						"relative z-20 flex w-full items-center justify-between px-2 py-1.5",
 						classes?.header,
 					)}
 				>
@@ -273,7 +274,7 @@ export function FloatingMenu({
 						onClick={toggle}
 						data-slot="toggle-button"
 						className={cn(
-							"group relative flex h-10 items-center justify-center rounded-sm pr-2 transition-[background-color] duration-400 ease-[cubic-bezier(0.625,0.05,0,1)] hover:bg-accent/10",
+							"group relative flex h-10 items-center justify-center rounded-sm pr-2 transition-[background-color] duration-400 ease-[cubic-bezier(0.625,0.05,0,1)] hover:bg-[var(--lagoon)]/10",
 							classes?.toggleButton,
 						)}
 						aria-label="Toggle menu"
@@ -283,7 +284,7 @@ export function FloatingMenu({
 								ref={line1Ref}
 								data-slot="toggle-line"
 								className={cn(
-									"absolute h-px w-6 bg-foreground transition-[background-color] duration-400 ease-[cubic-bezier(0.625,0.05,0,1)] group-hover:bg-accent",
+									"absolute h-px w-6 bg-[var(--sea-ink)] transition-[background-color] duration-400 ease-[cubic-bezier(0.625,0.05,0,1)] group-hover:bg-[var(--lagoon-deep)]",
 									classes?.toggleLine,
 								)}
 								style={{ transform: "translateY(4px)" }}
@@ -292,13 +293,13 @@ export function FloatingMenu({
 								ref={line2Ref}
 								data-slot="toggle-line"
 								className={cn(
-									"absolute h-px w-6 bg-foreground transition-[background-color] duration-400 ease-[cubic-bezier(0.625,0.05,0,1)] group-hover:bg-accent",
+									"absolute h-px w-6 bg-[var(--sea-ink)] transition-[background-color] duration-400 ease-[cubic-bezier(0.625,0.05,0,1)] group-hover:bg-[var(--lagoon-deep)]",
 									classes?.toggleLine,
 								)}
 								style={{ transform: "translateY(-4px)" }}
 							/>
 						</div>
-						<span className="ml-1 text-sm font-medium text-foreground transition-[color] duration-400 ease-[cubic-bezier(0.625,0.05,0,1)] group-hover:text-accent">
+						<span className="ml-1 text-sm font-medium text-[var(--sea-ink)] transition-[color] duration-400 ease-[cubic-bezier(0.625,0.05,0,1)] group-hover:text-[var(--lagoon-deep)]">
 							Menu
 						</span>
 					</button>
@@ -326,7 +327,7 @@ export function FloatingMenu({
 								href={secondaryButton.href}
 								data-slot="secondary-button"
 								className={cn(
-									"hidden h-10 items-center justify-center rounded-sm px-4 text-sm font-medium text-foreground transition-[background-color,color] duration-400 ease-[cubic-bezier(0.625,0.05,0,1)] hover:bg-muted hover:text-foreground md:flex",
+									"hidden h-10 items-center justify-center rounded-sm px-4 text-sm font-medium text-[var(--sea-ink)]  duration-400 ease-[cubic-bezier(0.625,0.05,0,1)] hover:bg-[var(--surface)] hover:text-[var(--sea-ink)] md:flex",
 									classes?.secondaryButton,
 								)}
 							>
@@ -334,16 +335,19 @@ export function FloatingMenu({
 							</a>
 						) : null}
 						{primaryButton ? (
-							<a
-								href={primaryButton.href}
+							<div
 								data-slot="primary-button"
-								className={cn(
-									"flex h-10 items-center justify-center rounded-sm bg-accent/10 px-4 text-sm font-medium text-accent transition-[background-color] duration-400 ease-[cubic-bezier(0.625,0.05,0,1)] hover:bg-accent/20",
-									classes?.primaryButton,
-								)}
+								className={cn("shrink-0", classes?.primaryButton)}
 							>
-								{primaryButton.label}
-							</a>
+								<LiquidMetalButton
+									label={primaryButton.label}
+									onClick={() => {
+										if (primaryButton.href && primaryButton.href !== "#") {
+											window.location.assign(primaryButton.href);
+										}
+									}}
+								/>
+							</div>
 						) : null}
 					</div>
 				</div>
@@ -352,7 +356,7 @@ export function FloatingMenu({
 					ref={menuWrapperRef}
 					data-slot="menu-wrapper"
 					className={cn(
-						"h-0 w-full overflow-hidden border-t border-border opacity-0",
+						"h-0 w-full overflow-hidden border-t border-[var(--line)] opacity-0",
 						classes?.menuWrapper,
 					)}
 				>
@@ -369,7 +373,9 @@ export function FloatingMenu({
 								data-slot="group"
 								className={cn(
 									"flex flex-col gap-4 rounded-sm p-4 transition-colors ease-[cubic-bezier(0.625,0.05,0,1)]",
-									group.variant === "muted" ? "bg-muted" : "bg-transparent",
+									group.variant === "muted"
+										? "bg-[var(--sand)]"
+										: "bg-transparent",
 									classes?.group,
 									group.variant === "muted" && classes?.groupMuted,
 								)}
@@ -377,7 +383,7 @@ export function FloatingMenu({
 								<h3
 									data-slot="group-title"
 									className={cn(
-										"mono text-xs font-medium tracking-wider text-muted-foreground/50 uppercase",
+										"mono text-xs font-medium tracking-wider text-[var(--sea-ink-soft)]/70 uppercase",
 										classes?.groupTitle,
 									)}
 								>
@@ -390,7 +396,7 @@ export function FloatingMenu({
 												href={link.href}
 												data-slot="link"
 												className={cn(
-													"group/link relative block w-fit text-2xl font-normal text-muted-foreground transition-colors duration-400 ease-[cubic-bezier(0.625,0.05,0,1)] hover:text-foreground",
+													"group/link relative block w-fit text-2xl font-normal text-[var(--sea-ink-soft)] transition-colors duration-400 ease-[cubic-bezier(0.625,0.05,0,1)] hover:text-[var(--sea-ink)]",
 													classes?.link,
 												)}
 											>
@@ -408,7 +414,7 @@ export function FloatingMenu({
 												<span
 													data-slot="link-underline"
 													className={cn(
-														"absolute -bottom-1 left-0 h-px w-full origin-right scale-x-0 bg-foreground transition-transform duration-400 ease-[cubic-bezier(0.625,0.05,0,1)] group-hover/link:origin-left group-hover/link:scale-x-100",
+														"absolute -bottom-1 left-0 h-px w-full origin-right scale-x-0 bg-[var(--lagoon)] transition-transform duration-400 ease-[cubic-bezier(0.625,0.05,0,1)] group-hover/link:origin-left group-hover/link:scale-x-100",
 														classes?.linkUnderline,
 													)}
 												/>
@@ -416,7 +422,10 @@ export function FloatingMenu({
 											{i < group.links.length - 1 ? (
 												<hr
 													data-slot="divider"
-													className={cn("border-border", classes?.divider)}
+													className={cn(
+														"border-[var(--line)]",
+														classes?.divider,
+													)}
 												/>
 											) : null}
 										</Fragment>

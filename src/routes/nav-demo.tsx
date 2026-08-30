@@ -58,7 +58,7 @@ function NavDemo() {
 					logo={
 						<a href="/" className="flex items-center">
 							<span
-								className="inline-flex shrink-0 items-center text-accent [&>svg]:h-6 [&>svg]:w-auto [&>svg]:fill-current"
+								className="inline-flex shrink-0 items-center text-[var(--lagoon-deep)] [&>svg]:h-6 [&>svg]:w-auto [&>svg]:fill-current"
 								aria-hidden="true"
 								// biome-ignore lint/security/noDangerouslySetInnerHtml: static build-time SVG asset, not user input
 								dangerouslySetInnerHTML={{ __html: motionCoreLogo }}

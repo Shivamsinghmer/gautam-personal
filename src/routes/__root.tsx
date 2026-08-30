@@ -1,8 +1,7 @@
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-
-import motionCoreLogo from "#/assets/motion-core-logo.svg?raw";
+import signatureLogo from "#/assets/signature.svg";
 import type { MenuGroup } from "#/components/floating-menu";
 import { FloatingMenu } from "#/components/floating-menu";
 import { SignaturePreloader } from "../components/preloader/SignaturePreloader";
@@ -72,14 +71,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 					menuGroups={menuGroups}
 					primaryButton={{ label: "Resume", href: "#" }}
 					logo={
-						<a href="/" className="flex items-center">
-							<span
-								className="inline-flex shrink-0 items-center text-accent [&>svg]:h-6 [&>svg]:w-auto [&>svg]:fill-current"
-								aria-hidden="true"
-								// biome-ignore lint/security/noDangerouslySetInnerHtml: static build-time SVG asset, not user input
-								dangerouslySetInnerHTML={{ __html: motionCoreLogo }}
+						<a href="/" className="flex items-center" aria-label="Home">
+							<img
+								src={signatureLogo}
+								alt="Gautam Kumawat"
+								className="h-7 w-auto"
+								style={{ color: "var(--lagoon-deep)" }}
 							/>
-							<span className="sr-only">Home</span>
 						</a>
 					}
 				/>

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ShaderBackground } from "#/components/shader-background";
+import { ShaderGradientBackground } from "#/components/shader-gradient-background";
 
 export const Route = createFileRoute("/")({ component: Home });
 
@@ -48,7 +48,7 @@ function Home() {
 				/>
 
 				{motion ? (
-					<ShaderBackground className="absolute inset-0 -z-10 h-full w-full" />
+					<ShaderGradientBackground className="absolute inset-0 -z-10 h-full w-full" />
 				) : null}
 
 				{/* The mesh drifts through mint and sand, so type laid straight on it
