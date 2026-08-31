@@ -87,7 +87,11 @@ function useCanvasAnimation({
 		const st = stateRef.current;
 
 		const setup = () => {
-			const dpr = window.devicePixelRatio || 1;
+			// Uncapped, a 3x-DPR display was pushing 9x the pixel fill of a
+			// capped 1x one for a full-viewport background - capped at 2 to match
+			// every other canvas in this project, since retina sharpness tops out
+			// well before 3x and the arcs are thin strokes, not fine detail.
+			const dpr = Math.min(window.devicePixelRatio || 1, 2);
 			const rect = container.getBoundingClientRect();
 			st.width = rect.width;
 			st.height = rect.height;
@@ -252,7 +256,11 @@ export function WaveArcsBackground({
 				}
 
 				const c2 = Math.acos(Math.min(1, (h + 50) / a));
-				const segTotal = Math.max(Math.ceil(a / 120), 200);
+				// Uncapped, a tall/4K viewport could push this into the thousands
+				// for the one or two sampled angles that land nearest the tangent
+				// asymptote each frame - a periodic spike this size is what reads
+				// as a stutter rather than smooth motion.
+				const segTotal = Math.min(Math.max(Math.ceil(a / 120), 200), 320);
 				const spans: [number, number][] = [
 					[c2, Math.PI - c2],
 					[Math.PI + c2, TWO_PI - c2],

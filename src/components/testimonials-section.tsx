@@ -1,3 +1,4 @@
+import { Reveal, ScatterText } from "#/components/ui/scroll-reveal";
 import {
 	HoverExpand_001,
 	type HoverExpandItem,
@@ -91,22 +92,24 @@ const TESTIMONIALS: HoverExpandItem[] = [
 export function TestimonialsSection() {
 	return (
 		<section
-			className="relative overflow-hidden px-6 py-24 sm:px-10 sm:py-32"
+			className="relative overflow-hidden px-6 py-20 sm:px-10 sm:py-28"
 			style={{ backgroundColor: HERO_DEEP }}
 		>
-			<p className="text-center text-xs font-semibold uppercase tracking-[0.28em] text-white/40">
-				What people say
-			</p>
+			<Reveal>
+				<p className="text-center text-xs font-semibold uppercase tracking-[0.28em] text-white/40">
+					What people say
+				</p>
+			</Reveal>
 			<h2 className="mt-4 text-center text-4xl font-bold text-white sm:text-5xl">
-				About me
+				<ScatterText text="About me" spread={26} tilt={26} />
 			</h2>
 
 			{/* Nine portraits: eight collapsed at 3rem plus one open at 20rem is
 			    about 44rem, so the row fits a laptop without scrolling. The
 			    overflow-x stays as the escape hatch for narrow screens. */}
-			<div className="mt-14 overflow-x-auto pb-2">
+			<Reveal delay={0.1} className="mt-14 overflow-x-auto pb-2">
 				<HoverExpand_001 items={TESTIMONIALS} className="min-w-max px-4" />
-			</div>
+			</Reveal>
 		</section>
 	);
 }

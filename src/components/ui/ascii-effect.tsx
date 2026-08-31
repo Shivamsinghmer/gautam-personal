@@ -139,64 +139,35 @@ export function AsciiEffect({
 		let nextGlitchAt = 0;
 		let glitchUntil = 0;
 		let glitchBands = new Map<number, number>();
+		let wasGlitching = false;
 		let loaded = false;
 		const reduceMotion = window.matchMedia(
 			"(prefers-reduced-motion: reduce)",
 		).matches;
 
-		const resize = () => {
-			const rect = container.getBoundingClientRect();
-			const dpr = Math.min(window.devicePixelRatio || 1, 2);
-			width = Math.max(1, rect.width);
-			height = Math.max(1, rect.height);
-			canvas.width = Math.round(width * dpr);
-			canvas.height = Math.round(height * dpr);
-			canvas.style.width = `${width}px`;
-			canvas.style.height = `${height}px`;
-			context.setTransform(dpr, 0, 0, dpr, 0, 0);
-			if (loaded) draw(performance.now());
-		};
+		// The quantised, dithered read of the source image - the expensive part
+		// (drawImage + getImageData + a Floyd-Steinberg pass over every cell).
+		// None of it depends on time, so it is computed once per image/size/
+		// setting rather than inside the per-frame draw. Only the reveal mask,
+		// glitch offsets and (for `flow`) the sample-position drift are
+		// recomputed every frame.
+		let columns = 0;
+		let rows = 0;
+		let cellWidth = 1;
+		let cellHeight = 1;
+		let luminanceField = new Float32Array(0);
+		let sourcePixels = new Uint8ClampedArray(0);
 
-		const updateGlitch = (now: number, rows: number) => {
-			if (
-				variant !== "glitch" ||
-				reduceMotion ||
-				glitchFrequency <= 0 ||
-				now < nextGlitchAt
-			)
-				return;
-
-			glitchBands = new Map();
-			const bandCount = Math.max(1, Math.round(clamp(glitchIntensity) * 4));
-			for (let band = 0; band < bandCount; band++) {
-				const start = Math.floor(Math.random() * rows);
-				const size = 1 + Math.floor(Math.random() * 3);
-				const offset =
-					(Math.random() - 0.5) * fontSize * 12 * clamp(glitchIntensity);
-				for (let row = start; row < Math.min(rows, start + size); row++)
-					glitchBands.set(row, offset);
-			}
-			glitchUntil = now + 70 + 90 * clamp(glitchIntensity);
-			nextGlitchAt = now + 1000 / glitchFrequency;
-		};
-
-		const draw = (now: number) => {
-			if (!loaded || width === 0 || height === 0) return;
-
-			pointer.current.x += (pointer.current.targetX - pointer.current.x) * 0.08;
-			pointer.current.y += (pointer.current.targetY - pointer.current.y) * 0.08;
-
-			const cellHeight = Math.max(4, fontSize * Math.max(0.5, lineHeight));
+		const computeField = () => {
+			cellHeight = Math.max(4, fontSize * Math.max(0.5, lineHeight));
 			context.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
-			const cellWidth = Math.max(
+			cellWidth = Math.max(
 				2,
 				context.measureText("M").width * Math.max(0.5, characterSpacing),
 			);
-			const columns = Math.ceil(width / cellWidth) + 2;
-			const rows = Math.ceil(height / cellHeight) + 2;
-			const radians = (flowDirection * Math.PI) / 180;
-			const directionX = Math.cos(radians);
-			const directionY = Math.sin(radians);
+			columns = Math.ceil(width / cellWidth) + 2;
+			rows = Math.ceil(height / cellHeight) + 2;
+
 			sampleCanvas.width = columns;
 			sampleCanvas.height = rows;
 
@@ -229,20 +200,20 @@ export function AsciiEffect({
 				drawHeight,
 			);
 
-			const pixels = sampleContext.getImageData(0, 0, columns, rows).data;
+			sourcePixels = sampleContext.getImageData(0, 0, columns, rows).data;
 			const steps = Math.max(2, Math.round(posterize));
-			const luminanceField = new Float32Array(columns * rows);
-			for (let index = 0; index < luminanceField.length; index++) {
+			const field = new Float32Array(columns * rows);
+			for (let index = 0; index < field.length; index++) {
 				const pixel = index * 4;
-				const alpha = pixels[pixel + 3]! / 255;
+				const alpha = sourcePixels[pixel + 3]! / 255;
 				let luminance =
-					(pixels[pixel]! * 0.2126 +
-						pixels[pixel + 1]! * 0.7152 +
-						pixels[pixel + 2]! * 0.0722) /
+					(sourcePixels[pixel]! * 0.2126 +
+						sourcePixels[pixel + 1]! * 0.7152 +
+						sourcePixels[pixel + 2]! * 0.0722) /
 					255;
 				luminance = clamp((luminance - 0.5) * Math.max(0, contrast) + 0.5);
 				luminance = clamp(luminance * brightnessBoost * alpha);
-				luminanceField[index] =
+				field[index] =
 					luminance <= threshold
 						? 0
 						: (luminance - threshold) / Math.max(0.001, 1 - threshold);
@@ -252,20 +223,18 @@ export function AsciiEffect({
 				for (let row = 0; row < rows; row++) {
 					for (let column = 0; column < columns; column++) {
 						const index = row * columns + column;
-						const oldValue = clamp(luminanceField[index]!);
+						const oldValue = clamp(field[index]!);
 						const quantized = Math.round(oldValue * (steps - 1)) / (steps - 1);
 						const value =
 							oldValue + (quantized - oldValue) * clamp(ditherStrength);
 						const error = oldValue - value;
-						luminanceField[index] = value;
-						if (column + 1 < columns)
-							luminanceField[index + 1]! += (error * 7) / 16;
+						field[index] = value;
+						if (column + 1 < columns) field[index + 1]! += (error * 7) / 16;
 						if (row + 1 < rows) {
-							if (column > 0)
-								luminanceField[index + columns - 1]! += (error * 3) / 16;
-							luminanceField[index + columns]! += (error * 5) / 16;
+							if (column > 0) field[index + columns - 1]! += (error * 3) / 16;
+							field[index + columns]! += (error * 5) / 16;
 							if (column + 1 < columns)
-								luminanceField[index + columns + 1]! += error / 16;
+								field[index + columns + 1]! += error / 16;
 						}
 					}
 				}
@@ -278,24 +247,73 @@ export function AsciiEffect({
 							((matrix[(row % 4) * 4 + (column % 4)]! / 16 - 0.5) *
 								clamp(ditherStrength)) /
 							4;
-						luminanceField[index] = clamp(luminanceField[index]! + offset);
+						field[index] = clamp(field[index]! + offset);
 					}
 				}
 			} else {
-				for (let index = 0; index < luminanceField.length; index++) {
-					luminanceField[index] =
-						Math.round(clamp(luminanceField[index]!) * (steps - 1)) /
-						(steps - 1);
+				for (let index = 0; index < field.length; index++) {
+					field[index] =
+						Math.round(clamp(field[index]!) * (steps - 1)) / (steps - 1);
 				}
 			}
+
+			luminanceField = field;
+		};
+
+		const resize = () => {
+			const rect = container.getBoundingClientRect();
+			const dpr = Math.min(window.devicePixelRatio || 1, 2);
+			width = Math.max(1, rect.width);
+			height = Math.max(1, rect.height);
+			canvas.width = Math.round(width * dpr);
+			canvas.height = Math.round(height * dpr);
+			canvas.style.width = `${width}px`;
+			canvas.style.height = `${height}px`;
+			context.setTransform(dpr, 0, 0, dpr, 0, 0);
+			if (loaded) {
+				computeField();
+				draw(performance.now());
+			}
+		};
+
+		const updateGlitch = (now: number) => {
+			if (
+				variant !== "glitch" ||
+				reduceMotion ||
+				glitchFrequency <= 0 ||
+				now < nextGlitchAt
+			)
+				return;
+
+			glitchBands = new Map();
+			const bandCount = Math.max(1, Math.round(clamp(glitchIntensity) * 4));
+			for (let band = 0; band < bandCount; band++) {
+				const start = Math.floor(Math.random() * rows);
+				const size = 1 + Math.floor(Math.random() * 3);
+				const offset =
+					(Math.random() - 0.5) * fontSize * 12 * clamp(glitchIntensity);
+				for (let row = start; row < Math.min(rows, start + size); row++)
+					glitchBands.set(row, offset);
+			}
+			glitchUntil = now + 70 + 90 * clamp(glitchIntensity);
+			nextGlitchAt = now + 1000 / glitchFrequency;
+		};
+
+		const draw = (now: number) => {
+			if (!loaded || width === 0 || height === 0) return;
+
+			pointer.current.x += (pointer.current.targetX - pointer.current.x) * 0.08;
+			pointer.current.y += (pointer.current.targetY - pointer.current.y) * 0.08;
+
+			context.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
+			const radians = (flowDirection * Math.PI) / 180;
+			const directionX = Math.cos(radians);
+			const directionY = Math.sin(radians);
 
 			const reveal =
 				variant === "glitch" && !reduceMotion && revealDuration > 0
 					? clamp((now - startedAt) / revealDuration)
 					: 1;
-
-			updateGlitch(now, rows);
-			if (now > glitchUntil) glitchBands.clear();
 
 			context.fillStyle = backgroundColor;
 			context.fillRect(0, 0, width, height);
@@ -366,7 +384,7 @@ export function AsciiEffect({
 
 					context.fillStyle =
 						colorMode === "source"
-							? `rgb(${pixels[pixel]}, ${pixels[pixel + 1]}, ${pixels[pixel + 2]})`
+							? `rgb(${sourcePixels[pixel]}, ${sourcePixels[pixel + 1]}, ${sourcePixels[pixel + 2]})`
 							: gradientColor(colors, luminance);
 					context.fillText(
 						character,
@@ -378,7 +396,26 @@ export function AsciiEffect({
 		};
 
 		const animate = (now: number) => {
-			draw(now);
+			// `flow` genuinely changes every frame (the drift phase keeps moving).
+			// `glitch` mostly does not: between the reveal animation and the next
+			// burst, the frame is identical to the last one, so nothing here
+			// warrants redrawing ~7,000+ fillText calls at 60fps for no visible
+			// change. Draw only while the reveal is animating, a glitch burst is
+			// live, or one just ended (so the offset it left behind gets cleared).
+			updateGlitch(now);
+			if (now > glitchUntil) glitchBands.clear();
+			const isGlitching = glitchBands.size > 0;
+			const revealing =
+				variant === "glitch" &&
+				!reduceMotion &&
+				revealDuration > 0 &&
+				now - startedAt < revealDuration;
+
+			if (variant === "flow" || revealing || isGlitching || wasGlitching) {
+				draw(now);
+			}
+			wasGlitching = isGlitching;
+
 			if (!reduceMotion && variant !== "image")
 				frame = requestAnimationFrame(animate);
 		};

@@ -1,6 +1,7 @@
 import type { ClassValue } from "clsx";
 import { gsap } from "gsap";
 import { SplitText } from "gsap/SplitText";
+import { useLenis } from "lenis/react";
 import type { ReactNode } from "react";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -91,6 +92,7 @@ export function FloatingMenu({
 }: FloatingMenuProps) {
 	const [isOpen, setIsOpen] = useState(false);
 	const [mounted, setMounted] = useState(false);
+	const [hidden, setHidden] = useState(false);
 	const isOpenRef = useRef(isOpen);
 	isOpenRef.current = isOpen;
 
@@ -108,6 +110,17 @@ export function FloatingMenu({
 	useEffect(() => {
 		registerPluginOnce(SplitText);
 		ensureMotionCoreEase();
+	}, []);
+
+	// Hidden on the way down, back on the way up. Never below the header's own
+	// height - a couple of scrolled pixels near the top would otherwise hide
+	// it before the page has really moved - and never while the menu itself
+	// is open, or it could vanish out from under an in-progress interaction.
+	useLenis((lenis) => {
+		if (isOpenRef.current) return;
+		const pastHeader = lenis.scroll > 96;
+		if (lenis.direction === 1 && pastHeader) setHidden(true);
+		else if (lenis.direction === -1 || !pastHeader) setHidden(false);
 	}, []);
 
 	function toggle() {
@@ -257,7 +270,8 @@ export function FloatingMenu({
 				ref={containerRef}
 				data-slot="root"
 				className={cn(
-					"fixed top-2 left-1/2 z-50 w-full max-w-[95vw] -translate-x-1/2 rounded-md border border-[var(--line)] bg-[var(--header-bg)] text-[var(--sea-ink)] shadow-md backdrop-blur-sm md:top-4 md:max-w-[70vw] lg:max-w-[50vw]",
+					"fixed top-2 left-1/2 z-50 w-full max-w-[95vw] -translate-x-1/2 rounded-md border border-[var(--line)] bg-[var(--header-bg)] text-[var(--sea-ink)] shadow-md backdrop-blur-sm transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.625,0.05,0,1)] md:top-4 md:max-w-[70vw] lg:max-w-[50vw]",
+					hidden && "-translate-y-24 opacity-0 pointer-events-none",
 					className,
 					classes?.root,
 				)}

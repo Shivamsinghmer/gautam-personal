@@ -1,11 +1,12 @@
-import { ArrowRight, PhoneCall, ShieldCheck } from "lucide-react";
+import { ArrowRight, Mic, PhoneCall, ShieldCheck } from "lucide-react";
+import { RevealGroup, RevealItem } from "#/components/ui/scroll-reveal";
 import { SHADER_BLUE_BRIGHT } from "#/lib/palette";
 
 /**
- * The two booking CTAs above the footer's ASCII art.
+ * The three booking CTAs above the footer's ASCII art.
  *
- * `description` is optional: the first card was written as a single line with
- * no supporting copy. Rather than invent a sentence to balance it, the cards
+ * `description` is optional: one card was written as a single line with no
+ * supporting copy. Rather than invent a sentence to balance it, the cards
  * stretch to a shared height and each button sits after an `mt-auto` spacer,
  * so the buttons line up across the row whatever the copy above them does.
  */
@@ -17,27 +18,37 @@ const BOOKINGS: {
 	href: string;
 }[] = [
 	{
-		icon: ShieldCheck,
-		title: "Teach Your Kid Cybersecurity",
-		cta: "Book A Call With Expert",
-		href: "#",
-	},
-	{
 		icon: PhoneCall,
 		title: "1-on-1 Mentorship Call",
 		description: "Get Mentorship to achieve peak performance.",
 		cta: "Yes, Book My Mentorship Call",
 		href: "#",
 	},
+	{
+		icon: Mic,
+		title: "Book Me to Speak",
+		description:
+			"Keynotes, panels and workshops, built for the room in front of me.",
+		cta: "Check Speaking Availability",
+		href: "#",
+	},
+	{
+		icon: ShieldCheck,
+		title: "Teach Your Kid Cybersecurity",
+		description:
+			"Habits that keep children safe online, explained for parents.",
+		cta: "Book A Call With Expert",
+		href: "#",
+	},
 ];
 
 export function BookingCards({ className }: { className?: string }) {
 	return (
-		<div
-			className={`grid w-full grid-cols-1 items-stretch gap-5 sm:grid-cols-2 ${className ?? ""}`}
+		<RevealGroup
+			className={`grid w-full grid-cols-1 items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-3 ${className ?? ""}`}
 		>
 			{BOOKINGS.map(({ icon: Icon, title, description, cta, href }) => (
-				<div
+				<RevealItem
 					key={title}
 					className="flex flex-col rounded-2xl border border-white/10 bg-[#02171f]/85 p-7 text-left backdrop-blur-sm transition-colors hover:border-white/20"
 				>
@@ -66,8 +77,8 @@ export function BookingCards({ className }: { className?: string }) {
 							<ArrowRight className="h-4 w-4" aria-hidden="true" />
 						</a>
 					</div>
-				</div>
+				</RevealItem>
 			))}
-		</div>
+		</RevealGroup>
 	);
 }

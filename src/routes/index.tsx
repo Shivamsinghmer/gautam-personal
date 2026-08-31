@@ -1,12 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { ArrowRight, PhoneCall } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AboutSection } from "#/components/about-section";
 import { AnimatedFooter } from "#/components/animated-footer";
-import { BookingCards } from "#/components/booking-cards";
+import { BookSection } from "#/components/book-section";
+import { BookingSection } from "#/components/booking-section";
+import { CollageSection } from "#/components/collage-section";
 import { FeaturedInSection } from "#/components/featured-in-section";
-import { NewsletterSection } from "#/components/newsletter-section";
+import { ReachSection } from "#/components/reach-section";
+import { SocialLinks } from "#/components/social-links";
 import { TestimonialsSection } from "#/components/testimonials-section";
 import { AsciiEffect } from "#/components/ui/ascii-effect";
+import StatsCounter from "#/components/ui/stats-counter";
 import { WaveArcsBackground } from "#/components/wave-arcs-background";
 import {
 	HERO_DEEP as DEEP,
@@ -39,7 +44,7 @@ function Home() {
 	return (
 		<main>
 			<section
-				className="relative isolate flex min-h-screen items-center overflow-hidden px-6 sm:px-10"
+				className="relative isolate flex min-h-screen items-center overflow-hidden px-6 sm:px-10 lg:h-screen lg:min-h-0"
 				style={{ backgroundColor: DEEP }}
 			>
 				{/* Painted first so there is never a bare panel: the gradient holds the
@@ -105,9 +110,116 @@ function Home() {
 					}}
 				/>
 
-				<div className="relative mx-auto grid w-full max-w-6xl items-center gap-10 py-24 lg:grid-cols-[minmax(0,440px)_1fr] lg:gap-16">
+				{/* Copy left, portrait right, in the shape of the reference: a ruled
+				    eyebrow, a three-line headline that drops one line to grey, a
+				    subline with the facts bolded out of it, a filled primary next to
+				    a quiet text link, and a stat row along the bottom. */}
+				<div className="relative mx-auto grid w-full max-w-6xl items-center gap-12 py-20 lg:grid-cols-[1fr_minmax(0,460px)] lg:gap-14 lg:py-0">
+					<div className="order-2 lg:order-1">
+						<p
+							className="gk-reveal flex items-center gap-4 text-xs font-semibold uppercase tracking-[0.28em]"
+							style={{ color: SAND, ["--gk-delay" as string]: "0.05s" }}
+						>
+							<span
+								aria-hidden="true"
+								className="h-px w-8"
+								style={{ backgroundColor: SAND }}
+							/>
+							Cybersecurity Expert
+						</p>
+
+						{/* One line in grey rather than three in white - it gives the
+						    block a middle and stops it reading as a wall. */}
+						<h1
+							className="gk-reveal mt-6 text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-[clamp(2.4rem,7.4vh,4.2rem)]"
+							style={{ color: TYPE, ["--gk-delay" as string]: "0.14s" }}
+						>
+							From Law Enforcement
+							<br />
+							<span style={{ color: "#8fa3a8" }}>to 41,000 Students</span>
+							<br />
+							Across 162 Countries
+						</h1>
+
+						<p
+							className="gk-reveal mt-7 max-w-xl text-base leading-relaxed sm:text-lg"
+							style={{ color: TYPE_SOFT, ["--gk-delay" as string]: "0.22s" }}
+						>
+							Seven years training officials across{" "}
+							<strong className="font-semibold" style={{ color: TYPE }}>
+								law enforcement agencies
+							</strong>{" "}
+							in India and the US. Now teaching{" "}
+							<strong className="font-semibold" style={{ color: TYPE }}>
+								ethical hacking and darknet investigation
+							</strong>{" "}
+							— from field practice, not theory.
+						</p>
+
+						<div
+							className="gk-reveal mt-7 flex flex-wrap items-center gap-x-7 gap-y-4 lg:mt-9"
+							style={{ ["--gk-delay" as string]: "0.3s" }}
+						>
+							<a
+								href="#book"
+								className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-opacity hover:opacity-90"
+								// Inline colour: styles.css carries an unlayered `a { color }`
+								// rule that beats Tailwind's layered utilities.
+								style={{
+									backgroundColor: SHADER_BLUE_BRIGHT,
+									color: "#ffffff",
+								}}
+							>
+								<PhoneCall className="h-4 w-4" aria-hidden="true" />
+								Book a Call
+							</a>
+							<a
+								href="#about"
+								className="group inline-flex items-center gap-2 text-sm font-medium transition-colors"
+								style={{ color: TYPE_SOFT }}
+							>
+								Read the story
+								<ArrowRight
+									className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+									aria-hidden="true"
+								/>
+							</a>
+						</div>
+
+						<dl
+							className="gk-reveal mt-8 flex flex-wrap gap-x-10 gap-y-5 lg:mt-10"
+							style={{ ["--gk-delay" as string]: "0.38s" }}
+						>
+							{[
+								{ value: 41, suffix: "K+", label: "Students" },
+								{ value: 162, suffix: "", label: "Countries" },
+								{ value: 7, suffix: "+ yrs", label: "In the field" },
+							].map((stat) => (
+								<div key={stat.label}>
+									<dt
+										className="text-2xl font-bold sm:text-3xl"
+										style={{ color: TYPE }}
+									>
+										{/* Counts up off useInView, so the figures tick over as
+										    the hero lands rather than arriving already totalled. */}
+										<StatsCounter value={stat.value} duration={1.6} />
+										<span style={{ color: SHADER_BLUE_BRIGHT }}>
+											{stat.suffix}
+										</span>
+									</dt>
+									<dd
+										className="mt-1 text-xs uppercase tracking-wider"
+										style={{ color: TYPE_DIM }}
+									>
+										{stat.label}
+									</dd>
+								</div>
+							))}
+						</dl>
+					</div>
+
 					<div
-						className="gk-reveal relative mx-auto h-[420px] w-full max-w-[440px] overflow-hidden rounded-2xl border border-white/10 sm:h-[480px] lg:mx-0 lg:h-[560px]"
+						className="gk-reveal relative order-1 mx-auto h-[300px] w-full max-w-[460px] overflow-hidden rounded-2xl border border-white/10 sm:h-[420px] lg:order-2 lg:mx-0 lg:h-[min(560px,68vh)]"
 						style={{ ["--gk-delay" as string]: "0s" }}
 					>
 						<AsciiEffect
@@ -126,38 +238,6 @@ function Home() {
 							className="size-full"
 						/>
 					</div>
-
-					<div>
-						<p
-							className="gk-reveal text-xs font-semibold uppercase tracking-[0.28em]"
-							style={{ color: SAND, ["--gk-delay" as string]: "0.05s" }}
-						>
-							Portfolio
-						</p>
-
-						<h1
-							className="gk-reveal mt-6 max-w-3xl text-5xl font-bold leading-[1.03] sm:text-7xl"
-							style={{ color: TYPE, ["--gk-delay" as string]: "0.14s" }}
-						>
-							Gautam Kumawat
-						</h1>
-
-						<p
-							className="gk-reveal mt-7 max-w-xl text-lg leading-relaxed"
-							style={{ color: TYPE_SOFT, ["--gk-delay" as string]: "0.22s" }}
-						>
-							The signature writes itself in the middle of the page, then floods
-							the frame with its own ink — and the colour it settles on is the
-							deepest note of this field, so there is no curtain to lift.
-						</p>
-
-						<p
-							className="gk-reveal mt-12 text-sm"
-							style={{ color: TYPE_DIM, ["--gk-delay" as string]: "0.3s" }}
-						>
-							Add <code>?replay</code> to the URL to watch it again.
-						</p>
-					</div>
 				</div>
 			</section>
 
@@ -165,9 +245,15 @@ function Home() {
 
 			<FeaturedInSection />
 
+			<ReachSection />
+
+			<CollageSection />
+
 			<TestimonialsSection />
 
-			<NewsletterSection />
+			<BookSection />
+
+			<BookingSection />
 
 			{/* The hands live at the public root, not the component's default
 			    /animated-footer/ path, so both are passed explicitly. They are dark
@@ -180,13 +266,41 @@ function Home() {
 			    burnt orange (#803500), and would have made them peach on an OS set
 			    to light. This page is dark either way, so an OS preference has no
 			    business choosing its palette. */}
-			{/* Exactly one screen. The art band is flex-1, so it simply takes
-			    whatever height is left after the cards and the wordmark - which is
-			    also why the hands get smaller here than they were at 1100px. No
-			    min-height: on a short viewport the art should shrink rather than
-			    push the footer into a second screen. */}
+			{/* Exactly one screen. No children now: the booking cards used to sit
+			    here too, repeating what's now `BookingSection` above - one bookable
+			    grid, not two. Without them the art band (flex-1) simply takes the
+			    full height back. */}
+			{/* The hand-off into the footer. Same two-layer treatment as the hero
+			    seam: a graduated blur so the bars above dissolve rather than stop,
+			    then a colour ramp ending on exactly DEEP so both sides of the
+			    boundary arrive at the same value and there is no line to see.
+			    The blur is masked - unmasked, backdrop-filter bands at its own top
+			    edge and simply moves the seam upward. */}
+			<div className="relative" aria-hidden="true">
+				<div
+					className="pointer-events-none absolute inset-x-0 -top-40 h-40"
+					style={{
+						backdropFilter: "blur(16px)",
+						WebkitBackdropFilter: "blur(16px)",
+						maskImage: "linear-gradient(to bottom, #0000 0%, #000 70%)",
+						WebkitMaskImage: "linear-gradient(to bottom, #0000 0%, #000 70%)",
+					}}
+				/>
+				<div
+					className="pointer-events-none absolute inset-x-0 -top-48 h-48"
+					style={{
+						background: `linear-gradient(to bottom, ${DEEP}00 0%, ${DEEP}66 42%, ${DEEP}c4 74%, ${DEEP} 100%)`,
+					}}
+				/>
+			</div>
+
 			<div className="h-screen w-full">
 				<AnimatedFooter
+					// The slot renders directly above the wordmark, so the profiles and
+					// the name read as one sign-off block rather than a separate strip.
+					// Attribution note: the book model is "Stylized Book" by Kevin on
+					// Sketchfab (https://sketchfab.com/3d-models/stylized-book-dfe34d6fe2404c67a70c3703bff3ba69),
+					// licensed CC BY 4.0.
 					headingLines={["Gautam Kumawat"]}
 					leftImage="/hand-left.jpg"
 					rightImage="/hand-right.jpg"
@@ -196,9 +310,7 @@ function Home() {
 					hoverColor={SHADER_BLUE_BRIGHT}
 					hoverCharColor={DEEP}
 				>
-					<div className="mx-auto w-full max-w-3xl">
-						<BookingCards />
-					</div>
+					<SocialLinks heading="Find me here" />
 				</AnimatedFooter>
 			</div>
 		</main>

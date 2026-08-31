@@ -1,4 +1,5 @@
 import { ScrollBasedVelocity } from "#/components/ui/scroll-based-velocity";
+import { Reveal } from "#/components/ui/scroll-reveal";
 import { HERO_DEEP } from "#/lib/palette";
 import { cn } from "#/lib/utils";
 
@@ -8,7 +9,10 @@ interface Press {
 	/** Wikimedia/press-kit logos each arrive in their own ink (black, red,
 	 * blue…). Forced to a flat white silhouette via `brightness-0 invert` so
 	 * the strip reads as one system instead of a clash of outlet colours.
-	 * Thrive's own asset is already a light wordmark, so it's left alone. */
+	 * Thrive's asset is a pale two-tone wordmark that all but vanished on
+	 * this field, so it takes the same treatment: brightness-0 flattens any
+	 * colour to black while keeping alpha, and invert then lifts it to a solid
+	 * white silhouette - which works whatever ink the source arrived in. */
 	mono?: boolean;
 	/**
 	 * A logo drawn as a filled tile with its mark knocked out in white, rather
@@ -61,7 +65,12 @@ const PRESS: Press[] = [
 		mono: true,
 		size: "h-5 sm:h-6",
 	},
-	{ name: "Thriveglobal", src: "/logos/thriveglobal.svg", size: "h-5 sm:h-6" },
+	{
+		name: "Thriveglobal",
+		src: "/logos/thriveglobal.svg",
+		mono: true,
+		size: "h-5 sm:h-6",
+	},
 	{ name: "NDTV", src: "/logos/ndtv.svg", mono: true, size: "h-5 sm:h-7" },
 	{
 		name: "Times Now",
@@ -91,15 +100,20 @@ const PRESS: Press[] = [
 export function FeaturedInSection() {
 	return (
 		<section
-			className="relative overflow-hidden py-16 sm:py-20"
+			className="relative overflow-hidden py-14 sm:py-16"
 			style={{ backgroundColor: HERO_DEEP }}
 		>
-			<p className="text-center text-xs font-semibold uppercase tracking-[0.28em] text-white/40">
-				As featured in
-			</p>
+			<Reveal>
+				<p className="text-center text-xs font-semibold uppercase tracking-[0.28em] text-white/40">
+					As featured in
+				</p>
+			</Reveal>
 
 			{/* Masked so logos fade at the edges instead of clipping mid-mark. */}
-			<div className="relative mt-10 [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
+			<Reveal
+				delay={0.1}
+				className="relative mt-10 [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]"
+			>
 				<ScrollBasedVelocity
 					rows={2}
 					defaultVelocity={1}
@@ -123,7 +137,7 @@ export function FeaturedInSection() {
 						/>
 					))}
 				</ScrollBasedVelocity>
-			</div>
+			</Reveal>
 		</section>
 	);
 }
