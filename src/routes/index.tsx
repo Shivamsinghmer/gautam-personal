@@ -20,6 +20,7 @@ import {
 	SHADER_BLUE_BRIGHT,
 	HERO_TEAL as TEAL,
 } from "#/lib/palette";
+import { usePreloaderDone } from "#/lib/use-preloader-done";
 
 export const Route = createFileRoute("/")({ component: Home });
 
@@ -32,6 +33,10 @@ function Home() {
 	// The canvas is swapped in on the client only. Server-rendered markup keeps
 	// the still gradient, which is also what anyone asking for reduced motion
 	// keeps: the shader drifts continuously and has no resting frame to hold.
+	// The hero sits under the preloader while it plays, so anything that
+	// animates here has to wait for it - see use-preloader-done.ts.
+	const revealed = usePreloaderDone();
+
 	const [motion, setMotion] = useState(false);
 	useEffect(() => {
 		const q = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -66,15 +71,30 @@ function Home() {
 				) : null}
 
 				{/* An even veil, not a directional wipe. This shader's palette is all
-				    dark blue (#0a3e8c, #142241, #0953ff); its brightest colour has a
-				    relative luminance of 0.135, so a flat 30% veil is enough. Over
-				    that brightest lobe the headline still measures 9.2:1 and the body
-				    copy 7.7:1 - both well clear of AA - while the gradient still
-				    reads across the whole hero. */}
+				    dark blue (#0a3e8c, #142241, #0953ff) and its brightest colour has
+				    a relative luminance of only 0.135, so the veil can be light and
+				    still leave a wide contrast margin. Pulled back from 30% to 16% so
+				    the gradient reads as a lit field rather than something behind
+				    frosted glass; the copy keeps its own pool of shade below. */}
 				<div
 					aria-hidden="true"
 					className="absolute inset-0 -z-10"
-					style={{ backgroundColor: `${DEEP}4d` }}
+					style={{ backgroundColor: `${DEEP}29` }}
+				/>
+
+				{/* Bloom. Screen-blended so it adds light instead of painting over
+				    the shader, and placed in the two corners the copy does not use -
+				    top right, where the streak already runs, and bottom left. This
+				    is the glow the flat veil used to flatten out. */}
+				<div
+					aria-hidden="true"
+					className="pointer-events-none absolute inset-0 -z-10"
+					style={{
+						mixBlendMode: "screen",
+						background: `radial-gradient(46% 52% at 88% 8%, ${SHADER_BLUE_BRIGHT}59 0%, ${SHADER_BLUE_BRIGHT}1a 42%, transparent 72%),
+							radial-gradient(58% 46% at 72% 96%, ${SHADER_BLUE_BRIGHT}3d 0%, transparent 70%),
+							radial-gradient(40% 44% at 4% 88%, ${TEAL}47 0%, transparent 72%)`,
+					}}
 				/>
 
 				{/* A soft pool of shade under the copy only, so the left column keeps
@@ -83,7 +103,7 @@ function Home() {
 					aria-hidden="true"
 					className="absolute inset-0 -z-10"
 					style={{
-						background: `radial-gradient(70% 80% at 26% 52%, ${DEEP}b3 0%, ${DEEP}66 45%, ${DEEP}00 78%)`,
+						background: `radial-gradient(64% 76% at 26% 52%, ${DEEP}a6 0%, ${DEEP}54 45%, ${DEEP}00 76%)`,
 					}}
 				/>
 
@@ -212,7 +232,11 @@ function Home() {
 									>
 										{/* Counts up off useInView, so the figures tick over as
 										    the hero lands rather than arriving already totalled. */}
-										<StatsCounter value={stat.value} duration={1.6} />
+										<StatsCounter
+											value={stat.value}
+											duration={1.6}
+											start={revealed}
+										/>
 										<span style={{ color: SHADER_BLUE_BRIGHT }}>
 											{stat.suffix}
 										</span>

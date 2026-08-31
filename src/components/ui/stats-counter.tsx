@@ -16,6 +16,13 @@ interface StatsCounterProps {
 	suffix?: string;
 	decimals?: number;
 	className?: string;
+	/**
+	 * Hold the count until this is true, on top of the in-view check. For
+	 * counters that sit above the fold behind an intro overlay: they are "in
+	 * view" from the first frame, so without this they finish before anyone
+	 * can see them. Omit it and the counter runs on visibility alone.
+	 */
+	start?: boolean;
 }
 
 export default function StatsCounter({
@@ -25,6 +32,7 @@ export default function StatsCounter({
 	suffix = "",
 	decimals = 0,
 	className,
+	start = true,
 }: StatsCounterProps) {
 	const ref = useRef<HTMLSpanElement>(null);
 	const isInView = useInView(ref, { once: true, margin: "-100px" });
@@ -37,10 +45,10 @@ export default function StatsCounter({
 	const [displayValue, setDisplayValue] = useState(0);
 
 	useEffect(() => {
-		if (isInView) {
+		if (isInView && start) {
 			motionValue.set(value);
 		}
-	}, [isInView, value, motionValue]);
+	}, [isInView, start, value, motionValue]);
 
 	// A counter that never runs does not sit at "no animation" - it sits at 0,
 	// which is a wrong number rather than a missing effect. Anyone who asked for
@@ -52,6 +60,9 @@ export default function StatsCounter({
 			setDisplayValue(value);
 			return;
 		}
+		// Only arm once the gate is open, or the safety net would fire during
+		// the wait and hand over the finished figure before the count begins.
+		if (!start) return;
 		const t = setTimeout(
 			() => {
 				setDisplayValue((shown) => (shown === 0 ? value : shown));
@@ -59,7 +70,7 @@ export default function StatsCounter({
 			(duration + 0.6) * 1000,
 		);
 		return () => clearTimeout(t);
-	}, [still, value, duration]);
+	}, [still, value, duration, start]);
 
 	useEffect(() => {
 		const unsubscribe = springValue.on("change", (latest) => {

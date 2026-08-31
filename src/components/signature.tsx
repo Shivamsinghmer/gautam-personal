@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import opentype from "opentype.js";
 import { useEffect, useId, useState } from "react";
 import { cn } from "#/lib/utils";
@@ -37,6 +37,7 @@ export function Signature({
 	once = true,
 	fontUrl,
 }: SignatureProps) {
+	const still = useReducedMotion();
 	const [paths, setPaths] = useState<string[]>([]);
 	const [width, setWidth] = useState<number>(300);
 	const height = fontSize * 3; // Give plenty of vertical space
@@ -107,9 +108,12 @@ export function Signature({
 			viewBox={`0 0 ${width} ${height}`}
 			fill="none"
 			className={cn("text-foreground overflow-visible", className)}
-			initial="hidden"
-			whileInView={inView ? "visible" : undefined}
-			animate={inView ? undefined : "visible"}
+			// `hidden` is pathLength 0 AND opacity 0, so an animation that never
+			// runs leaves nothing on the page. Anyone who asked for reduced motion
+			// gets the finished mark instead of a blank box.
+			initial={still ? "visible" : "hidden"}
+			whileInView={inView && !still ? "visible" : undefined}
+			animate={inView && !still ? undefined : "visible"}
 			viewport={{ once }}
 		>
 			<defs>

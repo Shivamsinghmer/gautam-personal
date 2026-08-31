@@ -1,4 +1,5 @@
 import { Fragment } from "react";
+import { Signature } from "#/components/signature";
 import { CursorCard } from "#/components/ui/cursor-card";
 import {
 	type CarouselImage,
@@ -202,6 +203,21 @@ export function AboutSection() {
 						darknet from an experienced expert and trainer. Gautam Kumawat has
 						already taught over 41,000 students from more than 162 countries!
 					</p>
+				</div>
+
+				{/* Signs the panel off. The same hand the preloader writes, so the
+				    mark that opens the site closes the one section written in his
+				    own voice - and it writes itself as you reach it rather than
+				    sitting there as a finished graphic. */}
+				<div className="mt-10 flex justify-end">
+					<Signature
+						text="Gautam Kumawat"
+						color="#f4fbf8"
+						fontSize={40}
+						duration={0.9}
+						inView
+						className="h-auto w-[min(72%,320px)] opacity-90"
+					/>
 				</div>
 			</Reveal>
 		</section>
