@@ -8,11 +8,11 @@ import { BookingSection } from "#/components/booking-section";
 import { CollageSection } from "#/components/collage-section";
 import { FeaturedInSection } from "#/components/featured-in-section";
 import { ReachSection } from "#/components/reach-section";
+import { ShaderGradientBackground } from "#/components/shader-gradient-background";
 import { SocialLinks } from "#/components/social-links";
 import { TestimonialsSection } from "#/components/testimonials-section";
 import { AsciiEffect } from "#/components/ui/ascii-effect";
 import StatsCounter from "#/components/ui/stats-counter";
-import { WaveArcsBackground } from "#/components/wave-arcs-background";
 import {
 	HERO_DEEP as DEEP,
 	HERO_MINT as MINT,
@@ -62,19 +62,29 @@ function Home() {
 				/>
 
 				{motion ? (
-					<div className="absolute inset-0 -z-10 h-full w-full">
-						<WaveArcsBackground />
-					</div>
+					<ShaderGradientBackground className="absolute inset-0 -z-10 h-full w-full" />
 				) : null}
 
-				{/* A light, even veil. WaveArcsBackground already paints its own
-				    HERO_DEEP ground beneath the arcs, so the headline sits on a
-				    near-black field regardless - this just softens the arcs a touch
-				    without crushing them the way the old shader's scrim needed to. */}
+				{/* An even veil, not a directional wipe. This shader's palette is all
+				    dark blue (#0a3e8c, #142241, #0953ff); its brightest colour has a
+				    relative luminance of 0.135, so a flat 30% veil is enough. Over
+				    that brightest lobe the headline still measures 9.2:1 and the body
+				    copy 7.7:1 - both well clear of AA - while the gradient still
+				    reads across the whole hero. */}
 				<div
 					aria-hidden="true"
 					className="absolute inset-0 -z-10"
-					style={{ backgroundColor: `${DEEP}1a` }}
+					style={{ backgroundColor: `${DEEP}4d` }}
+				/>
+
+				{/* A soft pool of shade under the copy only, so the left column keeps
+				    a little extra separation without draining the field around it. */}
+				<div
+					aria-hidden="true"
+					className="absolute inset-0 -z-10"
+					style={{
+						background: `radial-gradient(70% 80% at 26% 52%, ${DEEP}b3 0%, ${DEEP}66 45%, ${DEEP}00 78%)`,
+					}}
 				/>
 
 				{/* The hand-off into the section below. The seam was not softness -

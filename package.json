@@ -16,6 +16,9 @@
   },
   "dependencies": {
     "@paper-design/shaders": "^0.0.80",
+    "@react-spring/three": "^10.1.2",
+    "@react-three/fiber": "^9.7.0",
+    "@shadergradient/react": "^2.4.20",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-devtools": "latest",
     "@tanstack/react-router": "latest",
