@@ -100,6 +100,11 @@ interface Hand {
 	cellSize: number;
 	baselineOffset: number;
 	direction: 1 | -1; // slide-in direction for the reveal curtain
+	/** Repaint bookkeeping - see the frame loop. The ASCII is static unless a
+	 *  cell is lit, so redrawing it every frame is almost entirely wasted. */
+	dirty: boolean;
+	wasLit: boolean;
+	lastKey: string;
 }
 
 /** Reads `prefers-color-scheme`, live - stands in for a theme provider this project doesn't have. */
@@ -338,6 +343,9 @@ export function AnimatedFooter({
 				cellSize,
 				baselineOffset,
 				direction,
+				dirty: true,
+				wasLit: false,
+				lastKey: "",
 			});
 		};
 
@@ -434,9 +442,38 @@ export function AnimatedFooter({
 
 		// ── Unified render loop: ASCII + parallax + reveal curtain ───────────
 		let rafId = 0;
+		// Nothing here is worth a frame while the footer is off screen or the tab
+		// is in the background. The reveal observer below is a separate concern -
+		// it only decides when the curtain plays.
+		let onScreen = true;
+		let tabVisible =
+			typeof document === "undefined" || document.visibilityState === "visible";
+		const running = () => onScreen && tabVisible;
 		const frame = () => {
 			const now = Date.now();
-			for (const hand of hands) renderHand(hand, now);
+
+			// The ASCII only changes when a cell is lit by the cursor or when a
+			// colour prop changes. Everything else about it is static, so redrawing
+			// it every frame cost ~2,800 fillText calls a frame for nothing. Now a
+			// hand repaints on its first draw, while any cell is lit, on the frame
+			// after the last one expires (to clear it), and on a colour change.
+			const live = liveRef.current;
+			const key = `${live.charColor}|${live.hoverColor}|${live.hoverCharColor}`;
+			for (const hand of hands) {
+				let lit = false;
+				for (const cell of hand.cellList) {
+					if (cell.highlightEndTime > now) {
+						lit = true;
+						break;
+					}
+				}
+				if (hand.dirty || lit || hand.wasLit || hand.lastKey !== key) {
+					renderHand(hand, now);
+					hand.dirty = false;
+					hand.lastKey = key;
+				}
+				hand.wasLit = lit;
+			}
 
 			drift.x += (pointer.x - drift.x) * PARALLAX_EASE;
 			drift.y += (pointer.y - drift.y) * PARALLAX_EASE;
@@ -452,9 +489,28 @@ export function AnimatedFooter({
 				wrapper.style.transform = `translateX(${revealX}%) translate(${x}px, ${y}px) scale(${scale})`;
 			});
 
-			rafId = requestAnimationFrame(frame);
+			rafId = running() ? requestAnimationFrame(frame) : 0;
 		};
 		rafId = requestAnimationFrame(frame);
+
+		const wake = () => {
+			if (running() && rafId === 0) rafId = requestAnimationFrame(frame);
+		};
+		const onVisibility = () => {
+			tabVisible = document.visibilityState === "visible";
+			wake();
+		};
+		document.addEventListener("visibilitychange", onVisibility);
+		const activity = new IntersectionObserver(
+			(entries) => {
+				onScreen = entries[0]?.isIntersecting ?? true;
+				// A hand may have been mid-highlight when it left; repaint on return.
+				for (const hand of hands) hand.dirty = true;
+				wake();
+			},
+			{ rootMargin: "200px" },
+		);
+		activity.observe(root);
 
 		// ── Reveal (chars + curtain) ─────────────────────────
 		const chars = gsap.utils.toArray<HTMLElement>(
@@ -543,6 +599,8 @@ export function AnimatedFooter({
 		// ── Cleanup ──────────────────────────────────────────────────────────
 		return () => {
 			cancelAnimationFrame(rafId);
+			activity.disconnect();
+			document.removeEventListener("visibilitychange", onVisibility);
 			window.removeEventListener("mousemove", onMouseMove);
 			observer?.disconnect();
 			gsap.killTweensOf([curtain, ...chars]);
@@ -581,7 +639,7 @@ export function AnimatedFooter({
 			    height follows its own width, so at w-2/5 over the full height the
 			    art ran straight through the heading. Narrower and top-anchored
 			    leaves a clear band beneath it for the slot and the wordmark. */}
-			<div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-between overflow-hidden px-4 pb-40">
+			<div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-between overflow-hidden px-4 pb-64">
 				<div
 					ref={leftWrapRef}
 					className="relative h-full w-[31%] min-w-[200px] will-change-transform"

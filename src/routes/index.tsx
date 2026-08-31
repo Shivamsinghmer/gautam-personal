@@ -1,9 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { AboutSection } from "#/components/about-section";
 import { AnimatedFooter } from "#/components/animated-footer";
 import { BookingCards } from "#/components/booking-cards";
+import { FeaturedInSection } from "#/components/featured-in-section";
 import { NewsletterSection } from "#/components/newsletter-section";
-import { ShaderGradientBackground } from "#/components/shader-gradient-background";
+import { TestimonialsSection } from "#/components/testimonials-section";
+import { AsciiEffect } from "#/components/ui/ascii-effect";
+import { WaveArcsBackground } from "#/components/wave-arcs-background";
 import {
 	HERO_DEEP as DEEP,
 	HERO_MINT as MINT,
@@ -53,33 +57,19 @@ function Home() {
 				/>
 
 				{motion ? (
-					<ShaderGradientBackground className="absolute inset-0 -z-10 h-full w-full" />
+					<div className="absolute inset-0 -z-10 h-full w-full">
+						<WaveArcsBackground />
+					</div>
 				) : null}
 
-				{/* An even veil, not a directional wipe. The previous scrim ramped from
-				    95% opaque on the left to 10% on the right, which is why the
-				    gradient only survived down the right-hand edge - it was fitted
-				    for the old mesh shader, whose palette carried mint and sand and
-				    genuinely needed that much shading. This shader's palette is all
-				    dark blue (#0a3e8c, #142241, #0953ff); its brightest colour has a
-				    relative luminance of 0.135, so a flat 30% veil is enough. Over
-				    that brightest lobe the headline still measures 9.2:1 and the body
-				    copy 7.7:1 - both well clear of AA - while the gradient now reads
-				    across the whole hero. */}
+				{/* A light, even veil. WaveArcsBackground already paints its own
+				    HERO_DEEP ground beneath the arcs, so the headline sits on a
+				    near-black field regardless - this just softens the arcs a touch
+				    without crushing them the way the old shader's scrim needed to. */}
 				<div
 					aria-hidden="true"
 					className="absolute inset-0 -z-10"
-					style={{ backgroundColor: `${DEEP}4d` }}
-				/>
-
-				{/* A soft pool of shade under the copy only, so the left column keeps
-				    a little extra separation without draining the field around it. */}
-				<div
-					aria-hidden="true"
-					className="absolute inset-0 -z-10"
-					style={{
-						background: `radial-gradient(70% 80% at 26% 52%, ${DEEP}b3 0%, ${DEEP}66 45%, ${DEEP}00 78%)`,
-					}}
+					style={{ backgroundColor: `${DEEP}1a` }}
 				/>
 
 				{/* The hand-off into the section below. The seam was not softness -
@@ -115,38 +105,67 @@ function Home() {
 					}}
 				/>
 
-				<div className="relative mx-auto w-full max-w-5xl py-24">
-					<p
-						className="gk-reveal text-xs font-semibold uppercase tracking-[0.28em]"
-						style={{ color: SAND, ["--gk-delay" as string]: "0.05s" }}
+				<div className="relative mx-auto grid w-full max-w-6xl items-center gap-10 py-24 lg:grid-cols-[minmax(0,440px)_1fr] lg:gap-16">
+					<div
+						className="gk-reveal relative mx-auto h-[420px] w-full max-w-[440px] overflow-hidden rounded-2xl border border-white/10 sm:h-[480px] lg:mx-0 lg:h-[560px]"
+						style={{ ["--gk-delay" as string]: "0s" }}
 					>
-						Portfolio
-					</p>
+						<AsciiEffect
+							variant="glitch"
+							imageSrc="/gautam.png"
+							alt="ASCII portrait of Gautam Kumawat"
+							backgroundColor={DEEP}
+							colors={[SHADER_BLUE_BRIGHT, TYPE]}
+							fit="cover"
+							fontSize={6}
+							contrast={1.2}
+							posterize={48}
+							glitchIntensity={0.65}
+							glitchFrequency={1.4}
+							revealDuration={1400}
+							className="size-full"
+						/>
+					</div>
 
-					<h1
-						className="gk-reveal mt-6 max-w-3xl text-5xl font-bold leading-[1.03] sm:text-7xl"
-						style={{ color: TYPE, ["--gk-delay" as string]: "0.14s" }}
-					>
-						Gautam Kumawat
-					</h1>
+					<div>
+						<p
+							className="gk-reveal text-xs font-semibold uppercase tracking-[0.28em]"
+							style={{ color: SAND, ["--gk-delay" as string]: "0.05s" }}
+						>
+							Portfolio
+						</p>
 
-					<p
-						className="gk-reveal mt-7 max-w-xl text-lg leading-relaxed"
-						style={{ color: TYPE_SOFT, ["--gk-delay" as string]: "0.22s" }}
-					>
-						The signature writes itself in the middle of the page, then floods
-						the frame with its own ink — and the colour it settles on is the
-						deepest note of this field, so there is no curtain to lift.
-					</p>
+						<h1
+							className="gk-reveal mt-6 max-w-3xl text-5xl font-bold leading-[1.03] sm:text-7xl"
+							style={{ color: TYPE, ["--gk-delay" as string]: "0.14s" }}
+						>
+							Gautam Kumawat
+						</h1>
 
-					<p
-						className="gk-reveal mt-12 text-sm"
-						style={{ color: TYPE_DIM, ["--gk-delay" as string]: "0.3s" }}
-					>
-						Add <code>?replay</code> to the URL to watch it again.
-					</p>
+						<p
+							className="gk-reveal mt-7 max-w-xl text-lg leading-relaxed"
+							style={{ color: TYPE_SOFT, ["--gk-delay" as string]: "0.22s" }}
+						>
+							The signature writes itself in the middle of the page, then floods
+							the frame with its own ink — and the colour it settles on is the
+							deepest note of this field, so there is no curtain to lift.
+						</p>
+
+						<p
+							className="gk-reveal mt-12 text-sm"
+							style={{ color: TYPE_DIM, ["--gk-delay" as string]: "0.3s" }}
+						>
+							Add <code>?replay</code> to the URL to watch it again.
+						</p>
+					</div>
 				</div>
 			</section>
+
+			<AboutSection />
+
+			<FeaturedInSection />
+
+			<TestimonialsSection />
 
 			<NewsletterSection />
 
