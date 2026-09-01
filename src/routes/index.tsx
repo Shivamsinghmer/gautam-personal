@@ -1,17 +1,27 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowRight, PhoneCall } from "lucide-react";
-import { useEffect, useState } from "react";
+import {
+	ArrowRight,
+	Award,
+	Building2,
+	Globe2,
+	PhoneCall,
+	Share2,
+	ShieldCheck,
+	Users,
+} from "lucide-react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { AboutSection } from "#/components/about-section";
 import { AnimatedFooter } from "#/components/animated-footer";
 import { BookSection } from "#/components/book-section";
 import { BookingSection } from "#/components/booking-section";
 import { CollageSection } from "#/components/collage-section";
 import { FeaturedInSection } from "#/components/featured-in-section";
+import { JourneySection } from "#/components/journey-section";
 import { ReachSection } from "#/components/reach-section";
-import { ShaderGradientBackground } from "#/components/shader-gradient-background";
 import { SocialLinks } from "#/components/social-links";
 import { TestimonialsSection } from "#/components/testimonials-section";
 import { AsciiEffect } from "#/components/ui/ascii-effect";
+import { ClientOnly } from "#/components/ui/deferred";
 import StatsCounter from "#/components/ui/stats-counter";
 import {
 	HERO_DEEP as DEEP,
@@ -22,12 +32,51 @@ import {
 } from "#/lib/palette";
 import { usePreloaderDone } from "#/lib/use-preloader-done";
 
+/**
+ * The page's two WebGL surfaces, each in its own chunk.
+ *
+ * Both are decoration over markup that already stands on its own - the hero
+ * keeps its painted gradient, the footer wordmark keeps real text - so
+ * deferring them costs nothing and takes @shadergradient/react, three.js and
+ * ogl out of the bundle that has to parse before the page is interactive.
+ */
+const ShaderGradientBackground = lazy(() =>
+	import("#/components/shader-gradient-background").then((m) => ({
+		default: m.ShaderGradientBackground,
+	})),
+);
+
+const WarpText = lazy(() =>
+	import("#/components/ui/warp-text").then((m) => ({ default: m.WarpText })),
+);
+
 export const Route = createFileRoute("/")({ component: Home });
 
 /** Copy tints, chosen against the shader's brightest moment (see below). */
 const TYPE = "#f4fbf8";
 const TYPE_SOFT = "#d8efe7";
 const TYPE_DIM = "#c3e2d9";
+
+/**
+ * The wordmark as plain type. This is what the server renders and what stands
+ * in until ogl arrives, so the footer is never headless.
+ */
+const FOOTER_NAME_FALLBACK = (
+	<span
+		className="flex w-full items-center justify-center text-center font-extrabold tracking-[-0.04em]"
+		style={{
+			color: TYPE,
+			fontSize: "clamp(2.4rem, 12vw, 9rem)",
+			height: "clamp(120px, 22vw, 320px)",
+			lineHeight: 0.9,
+		}}
+	>
+		Gautam Kumawat
+	</span>
+);
+
+const QUOTE =
+	"The internet doesn't wait for you to be ready. My job is to make sure you already are.";
 
 function Home() {
 	// The canvas is swapped in on the client only. Server-rendered markup keeps
@@ -49,7 +98,7 @@ function Home() {
 	return (
 		<main>
 			<section
-				className="relative isolate flex min-h-screen items-center overflow-hidden px-6 sm:px-10 lg:h-screen lg:min-h-0"
+				className="relative isolate flex min-h-screen items-center overflow-hidden px-6 sm:px-10 lg:min-h-screen"
 				style={{ backgroundColor: DEEP }}
 			>
 				{/* Painted first so there is never a bare panel: the gradient holds the
@@ -67,7 +116,11 @@ function Home() {
 				/>
 
 				{motion ? (
-					<ShaderGradientBackground className="absolute inset-0 -z-10 h-full w-full" />
+					<ClientOnly>
+						<Suspense fallback={null}>
+							<ShaderGradientBackground className="absolute inset-0 -z-10 h-full w-full" />
+						</Suspense>
+					</ClientOnly>
 				) : null}
 
 				{/* An even veil, not a directional wipe. This shader's palette is all
@@ -116,16 +169,13 @@ function Home() {
 				    own top edge, so it is masked with a gradient - blur fades in as
 				    the ramp does, and the shader's structure dissolves rather than
 				    stopping. */}
-				<div
-					aria-hidden="true"
-					className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-[26vh]"
-					style={{
-						backdropFilter: "blur(14px)",
-						WebkitBackdropFilter: "blur(14px)",
-						maskImage: "linear-gradient(to bottom, #0000 0%, #000 65%)",
-						WebkitMaskImage: "linear-gradient(to bottom, #0000 0%, #000 65%)",
-					}}
-				/>
+				{/* This was a masked backdrop-filter. A masked backdrop blur is one
+				    of the most expensive things a page can ask for - the compositor
+				    renders the region offscreen, blurs it, then masks it, on every
+				    frame it is on screen - and it sat across the full width of the
+				    hero. The colour ramp below already carries the hand-off; the
+				    blur was buying a softness nobody would name, at a cost that
+				    showed up in every scroll. */}
 
 				{/* Then the colour ramp, ending on exactly DEEP so the hero's last
 				    pixels match the next section's first. The stops carry DEEP's own
@@ -205,7 +255,7 @@ function Home() {
 							</a>
 							<a
 								href="#about"
-								className="group inline-flex items-center gap-2 text-sm font-medium transition-colors"
+								className="group inline-flex min-h-11 items-center gap-2 py-2 text-sm font-medium transition-colors"
 								style={{ color: TYPE_SOFT }}
 							>
 								Read the story
@@ -216,36 +266,97 @@ function Home() {
 							</a>
 						</div>
 
+						{/* Each figure gets an icon chip above it, so the block reads as
+						    six distinct proofs rather than one run of numbers. All six sit
+						    on a single line from sm up, which is what makes the labels
+						    one word each: the hero's left column is ~640px at lg, so a
+						    six-up row leaves under 100px per item and anything longer
+						    wraps to a second line and breaks the row's baseline. Below
+						    sm there is no width for six, so it falls back to two rows of
+						    three. Left aligned rather than centred like the reference:
+						    this sits in the hero's left column, and centring it would
+						    break the edge every other line in the column shares.
+
+						    Only the first three figures and the community total are
+						    sourced - the total is the sum of the channel counts in
+						    reach-section.tsx, which are themselves placeholders. Cases
+						    and agencies are stand-ins; swap them for the true figures
+						    before this goes anywhere public. */}
 						<dl
-							className="gk-reveal mt-8 flex flex-wrap gap-x-10 gap-y-5 lg:mt-10"
+							className="gk-reveal mt-8 grid grid-cols-3 gap-x-4 gap-y-5 sm:grid-cols-6 lg:mt-10"
 							style={{ ["--gk-delay" as string]: "0.38s" }}
 						>
 							{[
-								{ value: 41, suffix: "K+", label: "Students" },
-								{ value: 162, suffix: "", label: "Countries" },
-								{ value: 7, suffix: "+ yrs", label: "In the field" },
-							].map((stat) => (
-								<div key={stat.label}>
+								{
+									icon: Users,
+									value: 41,
+									suffix: "K+",
+									label: "Students",
+								},
+								{
+									icon: Globe2,
+									value: 162,
+									suffix: "",
+									label: "Countries",
+								},
+								{
+									icon: Award,
+									value: 7,
+									suffix: "+",
+									label: "Years",
+								},
+								{
+									icon: ShieldCheck,
+									value: 500,
+									suffix: "+",
+									label: "Cases",
+								},
+								{
+									icon: Building2,
+									value: 30,
+									suffix: "+",
+									label: "Agencies",
+								},
+								{
+									icon: Share2,
+									value: 750,
+									suffix: "K+",
+									label: "Community",
+								},
+							].map(({ icon: Icon, value, suffix, label }) => (
+								<div key={label}>
+									<span
+										aria-hidden="true"
+										className="mb-2 flex h-9 w-9 items-center justify-center rounded-full"
+										style={{
+											backgroundColor: `${SHADER_BLUE_BRIGHT}1f`,
+											color: SHADER_BLUE_BRIGHT,
+										}}
+									>
+										<Icon className="h-4 w-4" />
+									</span>
+									{/* nowrap on both rows: at six-up the columns are narrow
+									    enough that "750K+" would otherwise break between the
+									    figure and its suffix. */}
 									<dt
-										className="text-2xl font-bold sm:text-3xl"
+										className="whitespace-nowrap text-lg font-bold sm:text-xl lg:text-2xl"
 										style={{ color: TYPE }}
 									>
-										{/* Counts up off useInView, so the figures tick over as
-										    the hero lands rather than arriving already totalled. */}
+										{/* Held until the preloader lifts - see
+										    use-preloader-done.ts - so the figures tick over in
+										    front of the visitor instead of behind the overlay. */}
 										<StatsCounter
-											value={stat.value}
+											value={value}
 											duration={1.6}
 											start={revealed}
 										/>
-										<span style={{ color: SHADER_BLUE_BRIGHT }}>
-											{stat.suffix}
-										</span>
+										<span style={{ color: SHADER_BLUE_BRIGHT }}>{suffix}</span>
 									</dt>
 									<dd
-										className="mt-1 text-xs uppercase tracking-wider"
+										className="mt-0.5 whitespace-nowrap text-[11px] uppercase tracking-wider sm:text-xs"
 										style={{ color: TYPE_DIM }}
 									>
-										{stat.label}
+										{label}
 									</dd>
 								</div>
 							))}
@@ -276,6 +387,8 @@ function Home() {
 			</section>
 
 			<AboutSection />
+
+			<JourneySection />
 
 			<FeaturedInSection />
 
@@ -311,15 +424,9 @@ function Home() {
 			    The blur is masked - unmasked, backdrop-filter bands at its own top
 			    edge and simply moves the seam upward. */}
 			<div className="relative" aria-hidden="true">
-				<div
-					className="pointer-events-none absolute inset-x-0 -top-40 h-40"
-					style={{
-						backdropFilter: "blur(16px)",
-						WebkitBackdropFilter: "blur(16px)",
-						maskImage: "linear-gradient(to bottom, #0000 0%, #000 70%)",
-						WebkitMaskImage: "linear-gradient(to bottom, #0000 0%, #000 70%)",
-					}}
-				/>
+				{/* Second masked backdrop blur, removed for the same reason as the
+				    hero seam. The ramp below it is what actually joins the two
+				    sections. */}
 				<div
 					className="pointer-events-none absolute inset-x-0 -top-48 h-48"
 					style={{
@@ -336,6 +443,37 @@ function Home() {
 					// Sketchfab (https://sketchfab.com/3d-models/stylized-book-dfe34d6fe2404c67a70c3703bff3ba69),
 					// licensed CC BY 4.0.
 					headingLines={["Gautam Kumawat"]}
+					// The wordmark is drawn through WarpText's glass shader instead of
+					// the footer's own per-character unmask. `headingLines` stays for
+					// the accessible name and as the fallback path.
+					headingSlot={
+						<ClientOnly fallback={FOOTER_NAME_FALLBACK}>
+							<Suspense fallback={FOOTER_NAME_FALLBACK}>
+								<WarpText
+									text="Gautam Kumawat"
+									// Manrope is the site's own face; the component's default
+									// "inherit" would pick up whatever the footer sets, and the
+									// example's monospace is not this brand's voice.
+									fontFamily="Manrope, ui-sans-serif, system-ui, sans-serif"
+									fontWeight={800}
+									fontSize="clamp(2.4rem, 12vw, 9rem)"
+									letterSpacing="-0.04em"
+									color={TYPE}
+									warpStrength={0.15}
+									warpScale={2.5}
+									speed={0.95}
+									pointerInfluence={0.66}
+									pointerStrength={0.71}
+									refraction={0.045}
+									// The ambient warp is already the effect; a ripple chasing the
+									// cursor on top of it is the fidget PRODUCT.md rules out.
+									ripple={false}
+									className="pointer-events-auto min-h-0"
+									style={{ height: "clamp(120px, 22vw, 320px)" }}
+								/>
+							</Suspense>
+						</ClientOnly>
+					}
 					leftImage="/hand-left.jpg"
 					rightImage="/hand-right.jpg"
 					background={DEEP}
@@ -344,7 +482,22 @@ function Home() {
 					hoverColor={SHADER_BLUE_BRIGHT}
 					hoverCharColor={DEEP}
 				>
-					<SocialLinks heading="Find me here" />
+					{/* The sign-off, stacked: what he says, where to find him, then
+					    the name. Moved out of the booking section - a closing line
+					    reads as a closing line at the end of the page, not halfway
+					    down it above a CTA. */}
+					<div className="flex flex-col items-center  gap-9">
+						<figure className="m-0 max-w-2xl text-center">
+							<blockquote className="text-balance font-serif text-lg italic leading-relaxed text-white/80 sm:text-2xl">
+								“{QUOTE}”
+							</blockquote>
+							<figcaption className="mt-4 text-sm text-white/50">
+								— Gautam Kumawat
+							</figcaption>
+						</figure>
+
+						<SocialLinks heading="Find me here" />
+					</div>
 				</AnimatedFooter>
 			</div>
 		</main>

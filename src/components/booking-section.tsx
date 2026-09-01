@@ -1,6 +1,6 @@
-import { BookingCards } from "#/components/booking-cards";
+import { BookingInvite } from "#/components/booking-invite";
 import { GradientBars } from "#/components/gradient-bars";
-import { Reveal, ScatterText } from "#/components/ui/scroll-reveal";
+
 import {
 	HERO_DEEP,
 	SHADER_BLUE_BRIGHT,
@@ -11,36 +11,42 @@ import {
 /**
  * What this section replaced: a generic template "join our waitlist" block -
  * fake beta-access perks, an email capture form, social icons - none of it
- * about Gautam. Same shell (the bars, the hand-off gradients, the grain),
- * real content: the three things he's actually booked for, each with its own
- * CTA. `BookingCards` used to repeat in the footer too - one bookable grid,
- * not two, so it lives here now and `#book` (the hero's "Book a Call" target)
- * points at this section instead.
+ * about Gautam. The shell is unchanged (the bars, the hand-off gradients, the
+ * grain); the content inside it now is a single invitation rather than a row
+ * of CTAs, since only one of the three offers survived.
+ *
+ * The section heading went with them. `BookingInvite` opens on its own <h2>,
+ * and a centred "Three Ways to Book Gautam" above a left-right composition was
+ * announcing a layout that no longer exists. One heading, on the copy column,
+ * where the eye lands after the photograph.
  */
-const QUOTE =
-	"The internet doesn't wait for you to be ready. My job is to make sure you already are.";
-
 export function BookingSection() {
 	return (
 		<section
 			id="book"
-			className="relative isolate scroll-mt-24 overflow-hidden px-6 py-24 sm:px-10"
+			className="relative isolate scroll-mt-24 overflow-hidden px-6 pt-24 pb-52 sm:px-10 sm:pb-72"
 			style={{ backgroundColor: HERO_DEEP }}
 		>
-			{/* A finer comb of shorter bars: more of them so the row reads as a
-			    texture rather than as counted columns, and capped well below full
-			    height so they sit under the copy instead of framing it. The scale
-			    curve is a valley - shortest at the centre, tallest at the edges -
-			    so lowering maxScale is what takes the height out of the edges. */}
+			{/* A finer comb: more bars, so the row reads as a texture rather than
+			    as counted columns. The scale curve is a valley - shortest at the
+			    centre, tallest at the edges.
+
+			    The comb is a band along the bottom edge, not the whole section.
+			    Full height, it ran up through the copy: the formats row sat
+			    directly on a bright blue bar, which is both a collision and a
+			    contrast failure. The band is shorter than the section's bottom
+			    padding, so the bars have the floor to themselves and the copy has
+			    clear ground - and because nothing needs scrimming down there, the
+			    bars can read at full strength right to the bottom edge. */}
 			<GradientBars
 				animation="wave"
 				duration={2}
-				numBars={25}
-				minScale={0.05}
-				maxScale={0.75}
+				numBars={30}
+				minScale={0.5}
+				maxScale={2.5}
 				delayStep={0.04}
 				colors={[SHADER_BLUE_DEEP, SHADER_BLUE_INK, SHADER_BLUE_BRIGHT]}
-				className="-z-20 opacity-90"
+				className="top-auto -z-20 h-40 opacity-90 sm:h-56"
 				raiseOnView
 			/>
 			{/* The other half of the hand-off. The hero fades down to DEEP; this
@@ -55,20 +61,28 @@ export function BookingSection() {
 				}}
 			/>
 
-			{/* Scrim keeps the copy readable over the bars, built from the hero's
-			    own deep tone (hex + alpha suffix) so the hand-off reads as one field. */}
+			{/* Scrim over the copy, built from the hero's own deep tone (hex +
+			    alpha suffix) so the hand-off reads as one field. It clears before
+			    the bars start: it used to end on d9 - 85% opaque - which is what
+			    blacked the comb out exactly where it met the bottom edge and made
+			    the bars look cut short. */}
 			<div
 				aria-hidden="true"
-				className="absolute inset-0 -z-10"
+				className="absolute inset-x-0 top-0 bottom-40 -z-10 sm:bottom-56"
 				style={{
-					background: `linear-gradient(180deg, ${HERO_DEEP}1a 0%, ${HERO_DEEP}80 55%, ${HERO_DEEP}d9 100%)`,
+					background: `linear-gradient(180deg, ${HERO_DEEP}1a 0%, ${HERO_DEEP}73 60%, ${HERO_DEEP}00 100%)`,
 				}}
 			/>
-			{/* Grain: SVG feTurbulence noise, overlay-blended to texture the field
-			    and break up banding across the bars/scrim. */}
+			{/* Grain: SVG feTurbulence noise, to texture the field and break up
+			    banding across the bars and scrim.
+
+			    Plain alpha rather than mix-blend-overlay. A blend mode over a
+			    full-bleed section forces the whole thing onto its own layer and
+			    re-blends it every frame it is on screen, which is a real cost for
+			    a texture you only notice if you look for it. */}
 			<div
 				aria-hidden="true"
-				className="pointer-events-none absolute inset-0 z-0 opacity-25 mix-blend-overlay"
+				className="pointer-events-none absolute inset-0 z-0 opacity-[0.07]"
 				style={{
 					backgroundImage:
 						"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
@@ -76,33 +90,8 @@ export function BookingSection() {
 				}}
 			/>
 
-			<div className="relative mx-auto flex max-w-5xl flex-col items-center text-center">
-				<Reveal>
-					<p
-						className="text-xs font-semibold uppercase tracking-[0.28em]"
-						style={{ color: "#e9d8a6" }}
-					>
-						Work Together
-					</p>
-				</Reveal>
-
-				<Reveal>
-					<h2 className="mt-6 max-w-2xl text-3xl font-bold leading-tight text-white sm:text-5xl">
-						Three Ways to{" "}
-						<em className="font-serif italic font-thin text-white/90">
-							<ScatterText text="Book Gautam" />
-						</em>
-					</h2>
-				</Reveal>
-
-				<BookingCards className="mt-14" />
-
-				<Reveal>
-					<blockquote className="mt-16 max-w-xl text-balance font-serif text-xl italic leading-relaxed text-white/80 sm:text-2xl">
-						“{QUOTE}”
-					</blockquote>
-					<p className="mt-4 text-sm text-white/50">— Gautam Kumawat</p>
-				</Reveal>
+			<div className="relative mx-auto w-full max-w-6xl">
+				<BookingInvite />
 			</div>
 		</section>
 	);

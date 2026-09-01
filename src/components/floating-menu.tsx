@@ -3,11 +3,40 @@ import { gsap } from "gsap";
 import { SplitText } from "gsap/SplitText";
 import { useLenis } from "lenis/react";
 import type { ReactNode } from "react";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, lazy, Suspense, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { LiquidMetalButton } from "#/components/liquid-metal-button";
+import { ClientOnly } from "#/components/ui/deferred";
 import { ensureMotionCoreEase, registerPluginOnce } from "#/lib/gsap";
 import { cn } from "#/lib/utils";
+
+const LiquidMetalButton = lazy(() =>
+	import("#/components/liquid-metal-button").then((m) => ({
+		default: m.LiquidMetalButton,
+	})),
+);
+
+/**
+ * What stands in for the shader button before - or instead of - the canvas:
+ * the same label, the same action, styled flat. The nav's primary action must
+ * never be waiting on a WebGL library to arrive.
+ */
+function PlainPrimaryButton({
+	label,
+	onClick,
+}: {
+	label: string;
+	onClick: () => void;
+}) {
+	return (
+		<button
+			type="button"
+			onClick={onClick}
+			className="rounded-full bg-neutral-900 px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+		>
+			{label}
+		</button>
+	);
+}
 
 type MenuVariant = "default" | "muted";
 
@@ -92,6 +121,14 @@ export function FloatingMenu({
 }: FloatingMenuProps) {
 	const [isOpen, setIsOpen] = useState(false);
 	const [mounted, setMounted] = useState(false);
+
+	// Shared by the shader button and the plain one that stands in for it, so
+	// the primary action behaves the same whichever is on screen.
+	const goToPrimary = () => {
+		if (primaryButton?.href && primaryButton.href !== "#") {
+			window.location.assign(primaryButton.href);
+		}
+	};
 	const [hidden, setHidden] = useState(false);
 	const isOpenRef = useRef(isOpen);
 	isOpenRef.current = isOpen;
@@ -270,7 +307,7 @@ export function FloatingMenu({
 				ref={containerRef}
 				data-slot="root"
 				className={cn(
-					"fixed top-2 left-1/2 z-50 w-full max-w-[95vw] -translate-x-1/2 rounded-md border border-[var(--line)] bg-[var(--header-bg)] text-[var(--sea-ink)] shadow-md backdrop-blur-sm transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.625,0.05,0,1)] md:top-4 md:max-w-[70vw] lg:max-w-[50vw]",
+					"fixed top-2 left-1/2 z-50 w-full max-w-[95vw] -translate-x-1/2 rounded-md border border-[var(--line)] bg-[var(--header-bg)] text-[var(--sea-ink)] shadow-md transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.625,0.05,0,1)] md:top-4 md:max-w-[70vw] lg:max-w-[50vw]",
 					hidden && "-translate-y-24 opacity-0 pointer-events-none",
 					className,
 					classes?.root,
@@ -361,14 +398,33 @@ export function FloatingMenu({
 									classes?.primaryButton,
 								)}
 							>
-								<LiquidMetalButton
-									label={primaryButton.label}
-									onClick={() => {
-										if (primaryButton.href && primaryButton.href !== "#") {
-											window.location.assign(primaryButton.href);
+								{/* The one shader on the page that is always on screen, since
+								    the menu is fixed. It stays - but its library is no longer
+								    part of the first chunk, and the fallback is a real button
+								    so the nav works from the first paint rather than after
+								    a shader compiles. */}
+								<ClientOnly
+									fallback={
+										<PlainPrimaryButton
+											label={primaryButton.label}
+											onClick={goToPrimary}
+										/>
+									}
+								>
+									<Suspense
+										fallback={
+											<PlainPrimaryButton
+												label={primaryButton.label}
+												onClick={goToPrimary}
+											/>
 										}
-									}}
-								/>
+									>
+										<LiquidMetalButton
+											label={primaryButton.label}
+											onClick={goToPrimary}
+										/>
+									</Suspense>
+								</ClientOnly>
 							</div>
 						) : null}
 					</div>

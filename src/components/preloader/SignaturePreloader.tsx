@@ -1,5 +1,20 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Signature } from "#/components/signature";
+import {
+	lazy,
+	Suspense,
+	useEffect,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from "react";
+
+/**
+ * Lazy, so opentype.js is not on the path to first paint. The overlay is a
+ * flat field either way; the mark simply arrives into it a beat later, well
+ * inside the hold this component already schedules.
+ */
+const Signature = lazy(() =>
+	import("#/components/signature").then((m) => ({ default: m.Signature })),
+);
 
 /**
  * Preloader: the Componentry `Signature` component writing the name across a
@@ -50,11 +65,25 @@ export function SignaturePreloader({
 	const [leaving, setLeaving] = useState(false);
 	const finish = useRef(onDone);
 	finish.current = onDone;
+	/**
+	 * Records the skip decision synchronously.
+	 *
+	 * `setActive(false)` below only takes effect on the *next* render, but the
+	 * first commit's passive effect still runs with `active` captured as true -
+	 * so the play-the-animation effect would fire on a visit that is meant to
+	 * skip, and leave `data-preloader="writing"` set forever with no overlay on
+	 * screen. Everything keyed off "done" (the hero's `.gk-reveal` entrance,
+	 * `usePreloaderDone`) then waits for a signal that never arrives. A ref is
+	 * readable immediately, so the effect can see the decision that was made
+	 * microseconds earlier.
+	 */
+	const skipped = useRef(false);
 
 	// Decide before first paint whether this visit gets the animation at all.
 	useLayoutEffect(() => {
 		const replay = window.location.search.includes("replay");
 		if (once && !replay && sessionStorage.getItem(SEEN_KEY) === "1") {
+			skipped.current = true;
 			document.documentElement.dataset.preloader = "done";
 			setActive(false);
 			finish.current?.();
@@ -62,7 +91,11 @@ export function SignaturePreloader({
 	}, [once]);
 
 	useEffect(() => {
-		if (!active) return;
+		if (!active || skipped.current) {
+			// Whatever happens, the page must not be left waiting on "writing".
+			document.documentElement.dataset.preloader = "done";
+			return;
+		}
 		sessionStorage.setItem(SEEN_KEY, "1");
 		const prevOverflow = document.body.style.overflow;
 		document.body.style.overflow = "hidden";
@@ -97,8 +130,20 @@ export function SignaturePreloader({
 	// scroll lock is always released.
 	useEffect(() => {
 		if (!leaving) return;
+
+		// Flip to "done" as the fade BEGINS, not when it ends.
+		//
+		// `.gk-reveal` has no hidden resting state - it renders in its final
+		// position - and the entrance is `animation: gk-rise ... both`, which
+		// only attaches under `[data-preloader='done']`. Setting the flag after
+		// the fade meant the hero was fully visible underneath the overlay for
+		// the whole 0.45s, and then every element snapped back to opacity 0 and
+		// re-entered: the section appeared to render twice. Starting it here
+		// runs the entrance behind the clearing overlay, which is the
+		// choreography that was intended.
+		document.documentElement.dataset.preloader = "done";
+
 		const t = window.setTimeout(() => {
-			document.documentElement.dataset.preloader = "done";
 			setActive(false);
 			finish.current?.();
 		}, FADE * 1000);
@@ -118,13 +163,15 @@ export function SignaturePreloader({
 				transition: `opacity ${FADE}s cubic-bezier(0.4, 0, 1, 1)`,
 			}}
 		>
-			<Signature
-				text={TEXT}
-				color={INK}
-				fontSize={64}
-				duration={DURATION}
-				className="h-auto w-[min(86vw,900px)]"
-			/>
+			<Suspense fallback={null}>
+				<Signature
+					text={TEXT}
+					color={INK}
+					fontSize={64}
+					duration={DURATION}
+					className="h-auto w-[min(86vw,900px)]"
+				/>
+			</Suspense>
 		</output>
 	);
 }

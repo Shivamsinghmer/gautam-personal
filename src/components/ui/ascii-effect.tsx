@@ -416,17 +416,54 @@ export function AsciiEffect({
 			}
 			wasGlitching = isGlitching;
 
-			if (!reduceMotion && variant !== "image")
-				frame = requestAnimationFrame(animate);
+			if (running()) frame = requestAnimationFrame(animate);
 		};
+
+		// The loop used to run for the life of the page. It has a dirty check, so
+		// most frames drew nothing - but `glitchFrequency` still fired a burst
+		// over a second, and each burst repaints ~7,000 fillText calls. Ten
+		// screens down, with the hero long gone, that cost was still being paid
+		// every second. Now the loop only turns while the portrait is actually
+		// on screen and the tab is in front.
+		let onScreen = true;
+		let tabVisible = document.visibilityState === "visible";
+		const running = () =>
+			!reduceMotion && variant !== "image" && loaded && onScreen && tabVisible;
+		const wake = () => {
+			if (running() && !frame) frame = requestAnimationFrame(animate);
+		};
+		const sleep = () => {
+			cancelAnimationFrame(frame);
+			frame = 0;
+		};
+
+		const visibility = new IntersectionObserver(
+			(entries) => {
+				onScreen = entries[0]?.isIntersecting ?? true;
+				if (onScreen) wake();
+				else sleep();
+			},
+			{ rootMargin: "150px" },
+		);
+		visibility.observe(container);
+
+		const onTabVisibility = () => {
+			tabVisible = document.visibilityState === "visible";
+			if (tabVisible) wake();
+			else sleep();
+		};
+		document.addEventListener("visibilitychange", onTabVisibility);
 
 		const start = () => {
 			if (loaded) return;
 			loaded = true;
 			startedAt = performance.now();
 			resize();
-			if (!reduceMotion && variant !== "image")
-				frame = requestAnimationFrame(animate);
+			// Paint once regardless of the gate, so a portrait that is off screen
+			// (or in a browser whose observer never reports) is still drawn rather
+			// than left as an empty canvas.
+			draw(performance.now());
+			wake();
 		};
 		image.onload = start;
 		image.src = imageSrc;
@@ -438,6 +475,8 @@ export function AsciiEffect({
 		return () => {
 			cancelAnimationFrame(frame);
 			observer.disconnect();
+			visibility.disconnect();
+			document.removeEventListener("visibilitychange", onTabVisibility);
 			image.onload = null;
 		};
 	}, [

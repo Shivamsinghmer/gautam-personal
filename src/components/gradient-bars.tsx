@@ -70,6 +70,38 @@ export function GradientBars({
 		io.observe(el);
 		return () => io.disconnect();
 	}, [raiseOnView]);
+	// Separate from the one-shot `risen` observer above: this one toggles, and
+	// drives `animation-play-state` so the comb stops costing anything once it
+	// is off screen or the tab goes to the background.
+	const [onScreen, setOnScreen] = useState(true);
+	useEffect(() => {
+		const el = rootRef.current;
+		if (!el) return;
+		let inView = true;
+		let tabVisible = document.visibilityState === "visible";
+		const sync = () => setOnScreen(inView && tabVisible);
+
+		const io = new IntersectionObserver(
+			(entries) => {
+				inView = entries[0]?.isIntersecting ?? true;
+				sync();
+			},
+			{ rootMargin: "150px" },
+		);
+		io.observe(el);
+
+		const onVisibility = () => {
+			tabVisible = document.visibilityState === "visible";
+			sync();
+		};
+		document.addEventListener("visibilitychange", onVisibility);
+
+		return () => {
+			io.disconnect();
+			document.removeEventListener("visibilitychange", onVisibility);
+		};
+	}, []);
+
 	const bars = useMemo(() => Array.from({ length: numBars }), [numBars]);
 	const gradient = `linear-gradient(${
 		orientation === "vertical" ? "to top" : "to right"
@@ -136,6 +168,11 @@ export function GradientBars({
 									: undefined,
 						animationDelay:
 							animation !== "none" ? `${index * delayStep}s` : undefined,
+						// 25 bars, each on an `infinite` keyframe animation. Cheap per
+						// bar, but they never stopped - the comb kept animating while
+						// the visitor was nowhere near this section. Frozen in place
+						// off screen, resumed where it left off.
+						animationPlayState: onScreen ? "running" : "paused",
 					};
 					// biome-ignore lint/suspicious/noArrayIndexKey: bars are a fixed, ordered, positionless decorative list
 					return <div key={index} className="gradient-bar" style={style} />;

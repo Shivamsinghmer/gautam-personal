@@ -1,7 +1,14 @@
 import { ArrowRight } from "lucide-react";
-import { ModelViewer } from "#/components/ui/model-viewer";
+import { lazy, Suspense } from "react";
+import { ClientOnly, InView } from "#/components/ui/deferred";
 import { Reveal } from "#/components/ui/scroll-reveal";
 import { HERO_DEEP, SHADER_BLUE_BRIGHT } from "#/lib/palette";
+
+const ModelViewer = lazy(() =>
+	import("#/components/ui/model-viewer").then((m) => ({
+		default: m.ModelViewer,
+	})),
+);
 
 /**
  * The book, announced with a 3D model rather than a mockup.
@@ -106,12 +113,23 @@ export function BookSection() {
 				<Reveal delay={0.1} direction="left">
 					{/* aspect-ratio rather than a fixed height, so the model keeps its
 					    proportions from a phone up to a wide monitor. */}
-					<ModelViewer
-						src="/stylized_book.glb"
-						alt="A stylised 3D book, slowly turning"
-						zoom={1.15}
-						className="aspect-[4/3] w-full"
-					/>
+					{/* three.js and the GLTF loader are the single heaviest import on
+					    the page, for one decorative object below the fold. Loaded when
+					    the section is approaching, and released again when it is well
+					    behind - a WebGL context spinning for a book nobody is looking
+					    at is what made the page feel like it was dragging. */}
+					<ClientOnly fallback={<div className="aspect-[4/3] w-full" />}>
+						<InView rootMargin="800px" className="aspect-[4/3] w-full">
+							<Suspense fallback={<div className="size-full" />}>
+								<ModelViewer
+									src="/stylized_book.glb"
+									alt="A stylised 3D book, slowly turning"
+									zoom={1.15}
+									className="size-full"
+								/>
+							</Suspense>
+						</InView>
+					</ClientOnly>
 				</Reveal>
 			</div>
 		</section>

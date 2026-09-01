@@ -49,7 +49,7 @@ const SOCIALS: {
 
 export function SocialLinks({ heading }: { heading?: string }) {
 	return (
-		<div className="flex flex-col items-center gap-5 sm:gap-6">
+		<div className="flex pt-10 flex-col items-center gap-5 sm:gap-6">
 			{/* Sized well below the wordmark underneath it. The name is the footer's
 			    display type; this is a line of speech pointing at the row, and it
 			    would fight the wordmark if it competed on scale. */}

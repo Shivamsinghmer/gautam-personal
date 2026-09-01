@@ -17,17 +17,26 @@ export function ShaderGradientBackground({
 
 	return (
 		<div className={cn("fixed inset-0 -z-10", className)} aria-hidden="true">
-			{/* lazyLoad defaults to true, and it does not merely pause the canvas -
-			    it unmounts it: the library renders the R3F <Canvas> only while
-			    `(!lazyLoad || isInView)`. Scrolling the hero out of view therefore
-			    tore down the WebGL context and the "city" environment map, and
-			    scrolling back mounted a fresh one, which paints flat until the
-			    HDR reloads. That blank pass is what showed through as the static
-			    gradient beneath. Mounting once and keeping it costs an offscreen
-			    render loop; a hero that is blank when you scroll back to it costs
-			    more. */}
+			{/* lazyLoad unmounts the canvas rather than pausing it - the library
+			    renders the R3F <Canvas> only while `(!lazyLoad || isInView)` - and
+			    it was turned off here because a fresh mount paints flat until the
+			    "city" environment map reloads, which showed as a blank hero when
+			    you scrolled back up.
+
+			    Off, though, it never stops: the canvas is still drawing a
+			    full-screen shader when the visitor is ten screens down, behind
+			    sections that are all opaque. Measured, it was still issuing draw
+			    calls at scrollY 10145.
+
+			    So it is back on with a large rootMargin instead. The observer
+			    watches this element, which the caller sizes to the hero, so the
+			    canvas only tears down once the hero is a full screen behind you -
+			    and it remounts a screen early, giving the HDR time to load before
+			    anything is visible. The blank-on-return case is what rootMargin is
+			    for; switching the whole thing off was the wrong lever. */}
 			<ShaderGradientCanvas
-				lazyLoad={false}
+				lazyLoad
+				rootMargin="1200px"
 				style={{ width: "100%", height: "100%" }}
 				pixelDensity={1}
 				pointerEvents="auto"

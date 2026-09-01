@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
+import { useActiveInView } from "#/lib/use-active-in-view";
 import { cn } from "#/lib/utils";
 
 export interface CarouselImage {
@@ -35,6 +36,11 @@ export const CylinderCarousel = React.forwardRef<
 	) => {
 		const N = images.length;
 
+		// Only spin while the carousel is actually on screen and the tab is in
+		// front. The forwarded ref still has to reach the same node, so the two
+		// are merged in the callback ref below.
+		const [viewRef, spinning] = useActiveInView<HTMLDivElement>("150px");
+
 		// We compute the CSS variables here instead of polluting the global CSS
 		// --n: number of cards
 		// --w: card width
@@ -52,7 +58,11 @@ export const CylinderCarousel = React.forwardRef<
 
 		return (
 			<div
-				ref={ref}
+				ref={(node) => {
+					viewRef.current = node;
+					if (typeof ref === "function") ref(node);
+					else if (ref) ref.current = node;
+				}}
 				className={cn(
 					"grid h-full min-h-[500px] w-full place-items-center overflow-hidden",
 					className,
@@ -66,6 +76,13 @@ export const CylinderCarousel = React.forwardRef<
 				}}
 				{...props}
 			>
+				{/* The rotation is `infinite`, and a rotating preserve-3d subtree
+				    keeps the compositor busy for every card in it. Ungated it spun
+				    for the life of the page, including while the visitor was many
+				    screens past About - which is a large, permanent cost for
+				    something nobody is looking at. Paused off screen and on a
+				    hidden tab; `animation-play-state` freezes it in place, so it
+				    resumes from where it was rather than snapping back. */}
 				<div
 					className={cn(
 						"grid place-items-center [transform-style:preserve-3d] motion-reduce:animate-[ry_128s_linear_infinite]!",
@@ -74,6 +91,7 @@ export const CylinderCarousel = React.forwardRef<
 					style={{
 						...customStyle,
 						animation: "ry var(--anim-dur) linear infinite",
+						animationPlayState: spinning ? "running" : "paused",
 					}}
 				>
 					{/* We define the keyframes inline via a style block to ensure it works without global CSS config */}

@@ -67,10 +67,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				<HeadContent />
 			</head>
 			<body>
-				<ReactLenis
-					root
-					options={{ lerp: 0.1, duration: 1.2, smoothWheel: true }}
-				>
+				{/* `lerp` and `duration` are alternative smoothing modes in Lenis,
+				    not settings that combine - passing both left which one applied
+				    ambiguous. Keeping `lerp` alone, and raising it from 0.1, which
+				    is heavy smoothing: the page kept gliding well after the wheel
+				    stopped, which reads as the page lagging behind you rather than
+				    as smoothness. 0.18 still smooths without the drag. */}
+				<ReactLenis root options={{ lerp: 0.18, smoothWheel: true }}>
 					{children}
 				</ReactLenis>
 				<FloatingMenu
@@ -87,7 +90,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 						</a>
 					}
 				/>
-				<SignaturePreloader />
+				{/* `once` per browser session. The overlay locks scrolling and holds
+				    the page for the length of the writing plus the hold and fade -
+				    about four and a half seconds - and paying that on every single
+				    navigation is most of what made the site feel like it was hanging.
+				    First visit still gets the full mark; after that it is out of the
+				    way. `?replay` in the URL brings it back. */}
+				<SignaturePreloader once />
 				<TanStackDevtools
 					config={{
 						position: "bottom-right",

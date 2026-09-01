@@ -34,6 +34,12 @@ export interface AnimatedFooterProps {
 	children?: React.ReactNode;
 	/** The large display words along the bottom edge. Defaults to ["VengeanceUI"]. */
 	headingLines?: string[];
+	/**
+	 * Replaces the per-character display heading with custom content, for
+	 * callers that want to set the wordmark some other way. `headingLines` is
+	 * still used for the accessible name, so pass it either way.
+	 */
+	headingSlot?: React.ReactNode;
 	/** Left image URL, sampled into ASCII art. Must be same-origin or CORS-enabled. */
 	leftImage?: string;
 	/** Right image URL, sampled into ASCII art. Must be same-origin or CORS-enabled. */
@@ -76,6 +82,12 @@ export interface AnimatedFooterProps {
 	/** Extra class names for the root element. */
 	className?: string;
 }
+
+/**
+ * Ceiling on a hand canvas's longest edge in device pixels. Past this the
+ * compositor is moving more texture per frame than the effect is worth.
+ */
+const MAX_CANVAS_PX = 1600;
 
 const DEFAULT_ASCII_CHARS = "........:::=+xX#0369";
 
@@ -215,6 +227,7 @@ function getScrollParent(node: HTMLElement | null): HTMLElement | null {
 export function AnimatedFooter({
 	children,
 	headingLines = ["VengeanceUI"],
+	headingSlot,
 	leftImage = "/animated-footer/hand-left.jpg",
 	rightImage = "/animated-footer/hand-right.jpg",
 	background,
@@ -316,9 +329,22 @@ export function AnimatedFooter({
 			const { rows, cells } = buildHandCells(image, columns, asciiChars);
 			if (cells.size === 0) return;
 
-			const dpr = Math.min(window.devicePixelRatio || 1, 2);
-			canvas.width = columns * cellSize * dpr;
-			canvas.height = rows * cellSize * dpr;
+			// The backing store is capped by total pixels, not by device ratio.
+			// At the defaults this layout is 1600 CSS px wide, so a plain dpr of 2
+			// produced a 3200x3200 canvas - ten megapixels, twice over, for two
+			// hands - and the parallax loop below re-composites both every frame.
+			// That was the single most expensive thing on the page: hiding the
+			// canvases took the worst frame from 5.6s to 0.35s. ASCII glyphs are
+			// flat monospace shapes and lose very little at 1x, so the cap costs
+			// almost nothing to look at and roughly quarters the pixels.
+			const cssWidth = columns * cellSize;
+			const dpr = Math.min(
+				window.devicePixelRatio || 1,
+				2,
+				MAX_CANVAS_PX / Math.max(cssWidth, 1),
+			);
+			canvas.width = Math.round(cssWidth * dpr);
+			canvas.height = Math.round(rows * cellSize * dpr);
 
 			const ctx = canvas.getContext("2d");
 			if (!ctx) return;
@@ -437,6 +463,9 @@ export function AnimatedFooter({
 			pointer.x = ((event.clientX - rect.left) / w - 0.5) * strength * 2;
 			pointer.y = ((event.clientY - rect.top) / h - 0.5) * strength * 2;
 			for (const hand of hands) hoverHand(hand, event.clientX, event.clientY);
+			// The loop parks itself once everything settles, so movement has to
+			// start it again.
+			wake();
 		};
 		window.addEventListener("mousemove", onMouseMove);
 
@@ -486,10 +515,28 @@ export function AnimatedFooter({
 				const x = drift.x * dir || 0;
 				const y = -drift.y || 0;
 				// Apply reveal via translateX, then apply parallax via translate, avoiding calc() mixed-unit bugs
-				wrapper.style.transform = `translateX(${revealX}%) translate(${x}px, ${y}px) scale(${scale})`;
+				const next = `translateX(${revealX}%) translate(${x}px, ${y}px) scale(${scale})`;
+				// Each of these wrappers carries a multi-megapixel canvas. Writing
+				// the same transform again still dirties the layer, so the pair was
+				// being re-composited on every frame for the whole time the footer
+				// was on screen - including long after the drift had settled.
+				if (wrapper.dataset.afTransform !== next) {
+					wrapper.style.transform = next;
+					wrapper.dataset.afTransform = next;
+				}
 			});
 
-			rafId = running() ? requestAnimationFrame(frame) : 0;
+			// With nothing left moving - the drift settled, no cell lit, the
+			// curtain finished - there is nothing for the next frame to do, so the
+			// loop stops until something wakes it. `wake` is already wired to
+			// pointer movement, scroll and tab visibility.
+			const settled =
+				Math.abs(pointer.x - drift.x) < 0.01 &&
+				Math.abs(pointer.y - drift.y) < 0.01 &&
+				curtain.offset === 0 &&
+				!hands.some((hand) => hand.wasLit || hand.dirty);
+
+			rafId = running() && !settled ? requestAnimationFrame(frame) : 0;
 		};
 		rafId = requestAnimationFrame(frame);
 
@@ -678,27 +725,34 @@ export function AnimatedFooter({
 					<div className="pointer-events-auto w-full">{children}</div>
 				) : null}
 				<div className="flex w-full items-end justify-center gap-4">
-					{headingLines.map((word, wi) => (
-						<h2
-							// biome-ignore lint/suspicious/noArrayIndexKey: headingLines is a fixed, ordered list
-							key={`${word}-${wi}`}
-							aria-label={word}
-							className="overflow-hidden whitespace-nowrap pb-[0.15em] -mb-[0.15em] font-medium leading-none tracking-tight"
-							style={{ fontSize: "clamp(2rem, 13cqw, 11rem)" }}
-						>
-							{Array.from(word).map((ch, ci) => (
-								<span
-									// biome-ignore lint/suspicious/noArrayIndexKey: characters are a fixed, ordered list per word
-									key={ci}
-									data-af-char
-									aria-hidden="true"
-									className="inline-block"
+					{headingSlot ? (
+						/* The slot still sits inside a heading, so the page keeps its
+						   outline; whatever is passed supplies the accessible name. */
+						<h2 className="w-full">{headingSlot}</h2>
+					) : null}
+					{headingSlot
+						? null
+						: headingLines.map((word, wi) => (
+								<h2
+									// biome-ignore lint/suspicious/noArrayIndexKey: headingLines is a fixed, ordered list
+									key={`${word}-${wi}`}
+									aria-label={word}
+									className="overflow-hidden whitespace-nowrap pb-[0.15em] -mb-[0.15em] font-medium leading-none tracking-tight"
+									style={{ fontSize: "clamp(2rem, 13cqw, 11rem)" }}
 								>
-									{ch === " " ? " " : ch}
-								</span>
+									{Array.from(word).map((ch, ci) => (
+										<span
+											// biome-ignore lint/suspicious/noArrayIndexKey: characters are a fixed, ordered list per word
+											key={ci}
+											data-af-char
+											aria-hidden="true"
+											className="inline-block"
+										>
+											{ch === " " ? " " : ch}
+										</span>
+									))}
+								</h2>
 							))}
-						</h2>
-					))}
 				</div>
 			</div>
 		</footer>

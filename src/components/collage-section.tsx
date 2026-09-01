@@ -62,7 +62,8 @@ const PANELS: Panel[] = [
 export function CollageSection() {
 	return (
 		<section
-			className="relative flex flex-col justify-center overflow-hidden px-6 py-20 sm:px-10 sm:py-28"
+			id="the-room"
+			className="relative flex flex-col justify-center overflow-hidden scroll-mt-24 px-6 py-20 sm:px-10 sm:py-28"
 			style={{ backgroundColor: HERO_DEEP }}
 		>
 			{/* Bottom-aligned behind the row so the photographs overlap his
@@ -72,7 +73,7 @@ export function CollageSection() {
 				className="pointer-events-none absolute inset-x-0 bottom-0 hidden justify-center lg:flex"
 			>
 				<img
-					src="/collage/middle.webp"
+					src="/collage/middle.jpg"
 					alt=""
 					loading="lazy"
 					decoding="async"
