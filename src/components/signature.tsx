@@ -95,6 +95,9 @@ export function Signature({
 		load();
 	}, [text, fontSize, baseline, horizontalPadding, fontUrl]);
 
+	/** Drawn, not written: no stroke-on animation at all. */
+	const isStatic = still || duration <= 0;
+
 	const variants = {
 		hidden: { pathLength: 0, opacity: 0 },
 		visible: { pathLength: 1, opacity: 1 },
@@ -109,11 +112,13 @@ export function Signature({
 			fill="none"
 			className={cn("text-foreground overflow-visible", className)}
 			// `hidden` is pathLength 0 AND opacity 0, so an animation that never
-			// runs leaves nothing on the page. Anyone who asked for reduced motion
-			// gets the finished mark instead of a blank box.
-			initial={still ? "visible" : "hidden"}
-			whileInView={inView && !still ? "visible" : undefined}
-			animate={inView && !still ? undefined : "visible"}
+			// runs leaves nothing on the page. Reduced motion, and `duration={0}`
+			// for callers that want the mark simply drawn, both start at the
+			// finished state - not at a zero-length tween, which still costs a
+			// frame at pathLength 0 and can flash.
+			initial={isStatic ? "visible" : "hidden"}
+			whileInView={inView && !isStatic ? "visible" : undefined}
+			animate={inView && !isStatic ? undefined : "visible"}
 			viewport={{ once }}
 		>
 			<defs>

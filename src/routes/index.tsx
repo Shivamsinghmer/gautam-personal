@@ -22,12 +22,14 @@ import { SocialLinks } from "#/components/social-links";
 import { TestimonialsSection } from "#/components/testimonials-section";
 import { AsciiEffect } from "#/components/ui/ascii-effect";
 import { ClientOnly } from "#/components/ui/deferred";
+import { Reveal } from "#/components/ui/scroll-reveal";
 import StatsCounter from "#/components/ui/stats-counter";
 import {
 	HERO_DEEP as DEEP,
-	HERO_MINT as MINT,
 	HERO_SAND as SAND,
 	SHADER_BLUE_BRIGHT,
+	SHADER_BLUE_DEEP,
+	SHADER_BLUE_INK,
 	HERO_TEAL as TEAL,
 } from "#/lib/palette";
 import { usePreloaderDone } from "#/lib/use-preloader-done";
@@ -103,14 +105,22 @@ function Home() {
 			>
 				{/* Painted first so there is never a bare panel: the gradient holds the
 				    frame before WebGL has a context, and stays the whole picture where
-				    WebGL is unavailable or motion is unwelcome. */}
+				    WebGL is unavailable or motion is unwelcome.
+
+				    Built from the shader's own three blues. It used to be teal, mint
+				    and sand - the site's older palette - which was fine as long as
+				    you never saw it. But the canvas is unmounted once the hero is a
+				    screen behind you, so jumping straight back to the top from the
+				    footer showed this layer bare for the moment before WebGL had a
+				    context again: the hero flashed green. Same colours as the
+				    shader, and the swap stops being visible. */}
 				<div
 					aria-hidden="true"
 					className="absolute inset-0 -z-20"
 					style={{
-						background: `radial-gradient(120% 90% at 18% 12%, ${TEAL} 0%, transparent 55%),
-							radial-gradient(90% 70% at 82% 78%, ${MINT}55 0%, transparent 60%),
-							radial-gradient(70% 60% at 62% 22%, ${SAND}33 0%, transparent 65%),
+						background: `radial-gradient(120% 90% at 18% 12%, ${SHADER_BLUE_DEEP} 0%, transparent 58%),
+							radial-gradient(95% 75% at 84% 74%, ${SHADER_BLUE_BRIGHT}40 0%, transparent 62%),
+							radial-gradient(80% 65% at 60% 20%, ${SHADER_BLUE_INK}cc 0%, transparent 68%),
 							${DEEP}`,
 					}}
 				/>
@@ -486,7 +496,7 @@ function Home() {
 					    the name. Moved out of the booking section - a closing line
 					    reads as a closing line at the end of the page, not halfway
 					    down it above a CTA. */}
-					<div className="flex flex-col items-center  gap-9">
+					<Reveal className="flex flex-col items-center gap-9" amount={0.15}>
 						<figure className="m-0 max-w-2xl text-center">
 							<blockquote className="text-balance font-serif text-lg italic leading-relaxed text-white/80 sm:text-2xl">
 								“{QUOTE}”
@@ -497,7 +507,7 @@ function Home() {
 						</figure>
 
 						<SocialLinks heading="Find me here" />
-					</div>
+					</Reveal>
 				</AnimatedFooter>
 			</div>
 		</main>

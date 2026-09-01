@@ -1,11 +1,21 @@
-import { Fragment } from "react";
+import { Fragment, lazy, Suspense } from "react";
 import { CursorCard } from "#/components/ui/cursor-card";
 import {
 	type CarouselImage,
 	CylinderCarousel,
 } from "#/components/ui/cylinder-carousel";
+import { ClientOnly, InView } from "#/components/ui/deferred";
 import { Reveal, ScatterText } from "#/components/ui/scroll-reveal";
 import { HERO_DEEP } from "#/lib/palette";
+
+/**
+ * opentype.js parses a font file to draw the mark, which is ~340kB - far too
+ * much to put in the first chunk for a flourish at the foot of one panel. It
+ * loads only as the panel comes near.
+ */
+const Signature = lazy(() =>
+	import("#/components/signature").then((m) => ({ default: m.Signature })),
+);
 
 /**
  * About, sitting under the hero.
@@ -202,6 +212,26 @@ export function AboutSection() {
 						darknet from an experienced expert and trainer. Gautam Kumawat has
 						already taught over 41,000 students from more than 162 countries!
 					</p>
+				</div>
+
+				{/* Signs the panel off with the same hand the preloader writes.
+				    Static: `duration={0}` puts the component in its drawn mode, so
+				    the mark is simply there. Tracing it on scroll would replay the
+				    preloader's animation halfway down the page. */}
+				<div className="mt-10 flex justify-end">
+					<ClientOnly>
+						<InView rootMargin="400px" once>
+							<Suspense fallback={null}>
+								<Signature
+									text="Gautam Kumawat"
+									color="#f4fbf8"
+									fontSize={40}
+									duration={0}
+									className="h-auto w-[min(72%,320px)] opacity-90"
+								/>
+							</Suspense>
+						</InView>
+					</ClientOnly>
 				</div>
 			</Reveal>
 		</section>

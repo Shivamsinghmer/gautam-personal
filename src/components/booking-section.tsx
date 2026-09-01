@@ -42,11 +42,18 @@ export function BookingSection() {
 				animation="wave"
 				duration={2}
 				numBars={30}
-				minScale={0.5}
-				maxScale={2.5}
+				// Full height, not a strip along the bottom. `top-auto` plus a fixed
+				// h-64 pinned the comb to a shallow band, so the tallest bars still
+				// only reached a fraction of the section - which is what read as
+				// "half". Left to fill the section, maxScale 1 puts the outer bars
+				// at the full height and the valley does the rest.
+				minScale={0.12}
+				maxScale={1}
 				delayStep={0.04}
-				colors={[SHADER_BLUE_DEEP, SHADER_BLUE_INK, SHADER_BLUE_BRIGHT]}
-				className="top-auto -z-20 h-40 opacity-90 sm:h-56"
+				// Bright at the foot, fading out toward each bar's top edge, so the
+				// comb dissolves into the field instead of ending on a hard line.
+				colors={[SHADER_BLUE_BRIGHT, SHADER_BLUE_DEEP, `${SHADER_BLUE_INK}00`]}
+				className="-z-20 opacity-90"
 				raiseOnView
 			/>
 			{/* The other half of the hand-off. The hero fades down to DEEP; this
