@@ -1,143 +1,199 @@
-import { ScrollBasedVelocity } from "#/components/ui/scroll-based-velocity";
-import { Reveal } from "#/components/ui/scroll-reveal";
-import { HERO_DEEP } from "#/lib/palette";
+import { Reveal, RevealGroup, RevealItem } from "#/components/ui/scroll-reveal";
+import { PAPER, PAPER_INK, PAPER_INK_SOFT } from "#/lib/palette";
 import { cn } from "#/lib/utils";
+
+/**
+ * The press wall - and the page's one cut to daylight.
+ *
+ * Two things were wrong here, and they were the same thing twice.
+ *
+ * The logos were knocked back to white silhouettes on black and set moving in
+ * a two-row marquee that never stops. A masthead is evidence; hiding its ink
+ * and sliding it past at walking pace is presenting evidence as wallpaper. The
+ * drift is also the perpetual ambient motion PRODUCT.md rules out - the row
+ * moves whether or not anyone is reading it.
+ *
+ * So: cut to paper. Mastheads live on white, which is where they are printed
+ * and where a reader has seen every one of them before, and the wall holds
+ * still so they can actually be read. It is also the page's structural relief
+ * - nine consecutive sections on one ink was the single thing making a long
+ * scroll feel like a template, and this is the beat where the lights come up
+ * before the reach section drops them again into full brand blue.
+ *
+ * Logo treatment, per the same reasoning the marquee used, inverted for a
+ * light ground: `brightness-0` flattens any colour to black while keeping
+ * alpha, so a wordmark reads as one ink whatever it arrived in. The two
+ * broadcast bugs are filled tiles with the mark knocked out in white -
+ * `brightness-0` would fill them solid and swallow the mark - so they are
+ * desaturated instead and stay as tiles, which is how a channel bug is
+ * supposed to look anyway.
+ */
 
 interface Press {
 	name: string;
 	src: string;
-	/** Wikimedia/press-kit logos each arrive in their own ink (black, red,
-	 * blue…). Forced to a flat white silhouette via `brightness-0 invert` so
-	 * the strip reads as one system instead of a clash of outlet colours.
-	 * Thrive's asset is a pale two-tone wordmark that all but vanished on
-	 * this field, so it takes the same treatment: brightness-0 flattens any
-	 * colour to black while keeping alpha, and invert then lifts it to a solid
-	 * white silhouette - which works whatever ink the source arrived in. */
+	/** A mark on transparency: flattened to a single ink. */
 	mono?: boolean;
-	/**
-	 * A logo drawn as a filled tile with its mark knocked out in white, rather
-	 * than a mark on transparency. `brightness-0 invert` destroys these - every
-	 * filled pixel goes white, so the tile becomes a solid block and swallows
-	 * the mark. Desaturated instead: the tile drops to grey, the knocked-out
-	 * mark stays white.
-	 */
+	/** A filled tile with the mark knocked out of it: desaturated, not flattened. */
 	tile?: boolean;
 	/**
-	 * Height, per logo. A single fixed box cannot serve both a wide wordmark and
-	 * a near-square tile - matched on height, wordmarks read tiny; matched on
-	 * width, tiles tower. These are set so each mark reads at about the same
+	 * Height, per logo. A single fixed box cannot serve both a wide wordmark
+	 * and a near-square tile - matched on height, wordmarks read tiny; matched
+	 * on width, tiles tower. These are set so each mark carries about the same
 	 * optical weight.
 	 */
 	size: string;
 }
 
-/** Same outlets already named in the About copy, plus five national news
- * channels. Logos are sourced from Wikimedia Commons (public domain /
- * freely-licensed uploads) and, for Thrive, its own site CDN. */
+/**
+ * Eleven outlets. Logos are sourced from Wikimedia Commons (public domain /
+ * freely-licensed uploads) and, for Thrive, its own site CDN.
+ */
 const PRESS: Press[] = [
 	{
 		name: "Hindustan Times",
 		src: "/logos/hindustan-times.svg",
 		mono: true,
-		size: "h-5 sm:h-6",
+		size: "h-6 sm:h-7",
 	},
 	{
 		name: "India Today",
 		src: "/logos/india-today.png",
 		mono: true,
-		size: "h-8 sm:h-10",
+		size: "h-9 sm:h-11",
 	},
 	{
 		name: "The Hindu",
 		src: "/logos/the-hindu.svg",
 		mono: true,
-		size: "h-5 sm:h-7",
+		size: "h-6 sm:h-8",
 	},
 	{
 		name: "Times of India",
 		src: "/logos/times-of-india.svg",
 		mono: true,
-		size: "h-4 sm:h-5",
+		size: "h-5 sm:h-6",
 	},
 	{
 		name: "Economic Times",
 		src: "/logos/economic-times.svg",
 		mono: true,
-		size: "h-5 sm:h-6",
+		size: "h-6 sm:h-7",
 	},
 	{
-		name: "Thriveglobal",
-		src: "/logos/thriveglobal.svg",
+		name: "NDTV",
+		src: "/logos/ndtv.svg",
 		mono: true,
-		size: "h-5 sm:h-6",
+		size: "h-6 sm:h-8",
 	},
-	{ name: "NDTV", src: "/logos/ndtv.svg", mono: true, size: "h-5 sm:h-7" },
 	{
 		name: "Times Now",
 		src: "/logos/times-now.svg",
 		tile: true,
-		size: "h-7 sm:h-9",
+		size: "h-8 sm:h-10",
 	},
 	{
 		name: "Republic TV",
 		src: "/logos/republic-tv.svg",
 		tile: true,
-		size: "h-9 sm:h-11",
+		size: "h-10 sm:h-12",
 	},
 	{
 		name: "Zee News",
 		src: "/logos/zee-news.svg",
 		mono: true,
-		size: "h-6 sm:h-8",
+		size: "h-7 sm:h-9",
 	},
 	{
 		name: "ABP News",
 		src: "/logos/abp-news.svg",
 		mono: true,
-		size: "h-8 sm:h-10",
+		size: "h-9 sm:h-11",
+	},
+	{
+		name: "Thriveglobal",
+		src: "/logos/thriveglobal.svg",
+		mono: true,
+		size: "h-6 sm:h-7",
 	},
 ];
+
 export function FeaturedInSection() {
 	return (
 		<section
-			className="relative overflow-hidden py-14 sm:py-16"
-			style={{ backgroundColor: HERO_DEEP }}
+			id="press"
+			className="band-tight scroll-mt-24 px-6 sm:px-10"
+			style={{ backgroundColor: PAPER }}
 		>
-			<Reveal>
-				<p className="text-center text-xs font-semibold uppercase tracking-[0.28em] text-white/40">
-					As featured in
-				</p>
-			</Reveal>
+			<div className="mx-auto max-w-6xl">
+				{/* Statement and supporting line share one baseline from lg, so the
+				    head costs one row of height rather than two. No eyebrow: the
+				    section says what it is in the heading. */}
+				<div className="lg:flex lg:items-end lg:justify-between lg:gap-16">
+					<Reveal>
+						<h2
+							className="display text-[clamp(1.95rem,3.8vw,3.1rem)]"
+							style={{ color: PAPER_INK }}
+						>
+							National press.
+							<br />
+							National television.
+						</h2>
+					</Reveal>
 
-			{/* Masked so logos fade at the edges instead of clipping mid-mark. */}
-			<Reveal
-				delay={0.1}
-				className="relative mt-10 [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]"
-			>
-				<ScrollBasedVelocity
-					rows={2}
-					defaultVelocity={1}
-					className="items-center"
+					<Reveal delay={0.08}>
+						<p
+							className="mt-5 max-w-[38ch] text-[0.95rem] leading-relaxed text-pretty lg:mt-0 lg:pb-2 lg:text-right"
+							style={{ color: PAPER_INK_SOFT }}
+						>
+							Eleven outlets running the same subject he trains on — the
+							coverage came to the work, not the other way round.
+						</p>
+					</Reveal>
+				</div>
+
+				{/* Twelve cells, not eleven. Eleven logos leave a ragged last row at
+				    every column count; the closing line completes the grid at 2, 3
+				    and 4 across and gives the wall somewhere to end. The rules are
+				    drawn container-top-left plus cell-right-bottom, which is what
+				    keeps a single hairline between neighbours instead of two. */}
+				<RevealGroup
+					className="mt-12 grid grid-cols-2 border-t border-l border-[color:var(--rule-paper)] sm:mt-16 sm:grid-cols-3 lg:grid-cols-4"
+					stagger={0.045}
 				>
 					{PRESS.map((press) => (
-						<img
+						<RevealItem
 							key={press.name}
-							src={press.src}
-							alt={press.name}
-							className={cn(
-								// Height per logo, width free. The previous fixed h-8 w-20
-								// box squeezed every wordmark into the same 80px, which made
-								// the wide ones (Times of India, Economic Times) render as
-								// slivers while the square marks filled the box.
-								"w-auto max-w-[180px] shrink-0 object-contain opacity-70 transition-opacity hover:opacity-100",
-								press.size,
-								press.mono && "brightness-0 invert",
-								press.tile && "rounded-[3px] grayscale",
-							)}
-						/>
+							className="flex items-center justify-center border-r border-b border-[color:var(--rule-paper)] px-5 py-9 sm:px-7 sm:py-11"
+						>
+							<img
+								src={press.src}
+								alt={press.name}
+								loading="lazy"
+								decoding="async"
+								className={cn(
+									// Height per logo, width free. A fixed box squeezes every
+									// wordmark into the same width, which renders the wide ones
+									// as slivers and lets the square marks fill it.
+									"w-auto max-w-full object-contain opacity-[0.88]",
+									press.size,
+									press.mono && "brightness-0",
+									press.tile && "rounded-[3px] grayscale",
+								)}
+							/>
+						</RevealItem>
 					))}
-				</ScrollBasedVelocity>
-			</Reveal>
+
+					<RevealItem className="flex items-center justify-center border-r border-b border-[color:var(--rule-paper)] px-5 py-9 text-center sm:px-7 sm:py-11">
+						<span
+							className="text-[0.72rem] font-medium uppercase"
+							style={{ color: PAPER_INK_SOFT, letterSpacing: "0.16em" }}
+						>
+							and others
+						</span>
+					</RevealItem>
+				</RevealGroup>
+			</div>
 		</section>
 	);
 }

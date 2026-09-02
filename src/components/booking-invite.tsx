@@ -1,22 +1,32 @@
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { Reveal } from "#/components/ui/scroll-reveal";
-import { SHADER_BLUE_BRIGHT } from "#/lib/palette";
+import { INK_DEEP, SIGNAL } from "#/lib/palette";
 
 /**
  * The booking invitation.
  *
- * This was a row of three cards, then two of the three were cut. Rather than
- * leave one card sitting in a grid built for three, the section is rebuilt as
- * a single composition: the room on the left, the ask on the right.
+ * The room on the left, the ask on the right. The photograph does the arguing:
+ * a full auditorium is a stronger case for booking him than any sentence about
+ * being engaging, so the image gets real size and the copy stays short beside
+ * it.
  *
- * The photograph does the arguing. "The room is the proof" - a full auditorium
- * is a stronger case for booking him than any sentence about being engaging,
- * so the image is given real size and the copy stays short beside it. Two
- * panels overlap its edges to break the rectangle and stop the photo reading
- * as a stock plate dropped into a slot.
+ * What changed:
  *
- * The panels are solid, not frosted. Glass over a photograph is decoration;
- * these carry text that has to stay readable over whatever is behind them.
+ * - **The two floating panels** that used to hang off the photograph's corners
+ *   are down to one, and it is a nameplate rather than a card. The first held
+ *   "41,000+ students / 162 countries", which by this point in the page is the
+ *   third time those two figures have been stated - the hero indexes them and
+ *   the about copy says them in a sentence. Repeating a number does not make
+ *   it larger.
+ * - **What is left is the lower-third**: a short signal rule, the name, the
+ *   role. It is the one place on the page that motif appears, on the one
+ *   photograph that needs the person in it identified, which is what keeps it
+ *   a piece of art direction instead of a decoration applied to every frame.
+ *   Drawn as a rule above the type, never as a coloured stripe down the side
+ *   of a box.
+ * - **The formats** are ruled rather than bulleted. Two items do not need
+ *   chrome to be two items, but they do need a structure that matches the rest
+ *   of the page.
  */
 const FORMATS = [
 	{
@@ -32,58 +42,48 @@ const FORMATS = [
 export function BookingInvite({ className }: { className?: string }) {
 	return (
 		<div
-			className={`grid w-full items-center gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.02fr)] lg:gap-16 ${className ?? ""}`}
+			className={`grid w-full items-center gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.02fr)] lg:gap-20 ${className ?? ""}`}
 		>
 			{/* ── The room ────────────────────────────────────────────────────── */}
 			<Reveal direction="right" className="relative">
-				{/* Padding on the wrapper reserves the space the two panels hang
-				    into, so they overlap the photograph without ever leaving the
-				    column and colliding with the copy beside it. */}
-				<div className="relative pb-14 pl-4 sm:pb-16 sm:pl-8">
+				<figure className="relative m-0">
 					<img
 						src="/collage/t1.webp"
 						alt="A full auditorium of students watching Gautam Kumawat speak from the stage"
 						loading="lazy"
 						decoding="async"
-						className="aspect-[4/3] w-full rounded-2xl object-cover"
+						className="aspect-[4/3] w-full object-cover"
 					/>
 
-					{/* Top left, hanging off the photograph's edge. Both figures are
-					    the ones the page already stands behind; stated flat, at the
-					    moment someone is deciding whether to ask. */}
-					<div
-						className="absolute top-6 left-0 rounded-xl border border-white/10 px-5 py-4 shadow-[0_18px_40px_-16px_rgba(0,0,0,0.9)]"
-						style={{ backgroundColor: "#02171f" }}
+					{/* The nameplate. Solid, not frosted: glass over a photograph is
+					    decoration, and this carries text that has to stay readable
+					    over whatever is behind it. */}
+					<figcaption
+						className="absolute bottom-0 left-0 px-6 py-5 sm:px-7 sm:py-6"
+						style={{ backgroundColor: INK_DEEP }}
 					>
-						<p className="text-xl font-extrabold leading-none text-white">
-							41,000+
-						</p>
-						<p className="mt-1.5 text-xs text-white/55">Students trained</p>
-						<p className="mt-4 text-xl font-extrabold leading-none text-white">
-							162
-						</p>
-						<p className="mt-1.5 text-xs text-white/55">Countries reached</p>
-					</div>
-
-					{/* Bottom right, the counterweight. */}
-					<div
-						className="absolute right-4 bottom-0 rounded-xl border border-white/10 px-5 py-4 shadow-[0_18px_40px_-16px_rgba(0,0,0,0.9)] sm:right-10"
-						style={{ backgroundColor: "#02171f" }}
-					>
-						<p className="text-base font-bold leading-tight text-white">
+						<span
+							aria-hidden="true"
+							className="block h-[3px] w-10"
+							style={{ backgroundColor: SIGNAL }}
+						/>
+						<span className="display-tight mt-4 block text-[1.4rem] text-white sm:text-[1.7rem]">
 							Gautam Kumawat
-						</p>
-						<p className="mt-1 text-xs text-white/55">
+						</span>
+						<span
+							className="mt-2 block text-[0.68rem] font-medium uppercase text-white/55"
+							style={{ letterSpacing: "0.14em" }}
+						>
 							Cybersecurity trainer &amp; investigator
-						</p>
-					</div>
-				</div>
+						</span>
+					</figcaption>
+				</figure>
 			</Reveal>
 
 			{/* ── The ask ─────────────────────────────────────────────────────── */}
 			<div>
 				<Reveal>
-					<h2 className="text-balance text-4xl font-extrabold leading-[1.05] tracking-[-0.03em] text-white sm:text-5xl lg:text-[clamp(2.6rem,4vw,3.6rem)]">
+					<h2 className="display text-[clamp(2.3rem,4.6vw,3.7rem)] text-white">
 						Book me for{" "}
 						{/* The one underlined phrase, in the accent. Emphasis by rule and
 						    weight rather than a second colour of text. */}
@@ -91,7 +91,7 @@ export function BookingInvite({ className }: { className?: string }) {
 							className="decoration-[5px] underline-offset-[10px]"
 							style={{
 								textDecorationLine: "underline",
-								textDecorationColor: SHADER_BLUE_BRIGHT,
+								textDecorationColor: SIGNAL,
 							}}
 						>
 							your event
@@ -101,7 +101,7 @@ export function BookingInvite({ className }: { className?: string }) {
 				</Reveal>
 
 				<Reveal delay={0.08}>
-					<p className="mt-6 max-w-[46ch] text-base leading-relaxed text-white/65 sm:text-lg">
+					<p className="prose-measure mt-7 max-w-[46ch] text-base leading-relaxed text-white/70 sm:text-[1.0625rem]">
 						Seven years of casework, told to the room in front of me. No slide
 						deck of generic threats — the material is rebuilt for whoever is
 						sitting there, whether that is a hall of first-years or a room of
@@ -110,14 +110,14 @@ export function BookingInvite({ className }: { className?: string }) {
 				</Reveal>
 
 				<Reveal delay={0.14}>
-					<div className="mt-9 flex flex-wrap items-center gap-x-7 gap-y-4">
+					<div className="mt-9 flex flex-wrap items-center gap-x-8 gap-y-4">
 						<a
 							href="#book"
 							className="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold transition-opacity hover:opacity-90"
 							// styles.css carries an unlayered `a { color }` rule, which beats
 							// Tailwind's layered utilities whatever the specificity - so the
 							// label colour is set here or it renders teal on blue.
-							style={{ backgroundColor: SHADER_BLUE_BRIGHT, color: "#ffffff" }}
+							style={{ backgroundColor: SIGNAL, color: "#ffffff" }}
 						>
 							Check availability
 							<ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -133,11 +133,8 @@ export function BookingInvite({ className }: { className?: string }) {
 						>
 							<span
 								aria-hidden="true"
-								className="flex h-10 w-10 items-center justify-center rounded-full border transition-colors group-hover:bg-white/5"
-								style={{
-									borderColor: `${SHADER_BLUE_BRIGHT}66`,
-									color: SHADER_BLUE_BRIGHT,
-								}}
+								className="flex h-10 w-10 items-center justify-center rounded-full border transition-colors group-hover:bg-white/10"
+								style={{ borderColor: `${SIGNAL}80`, color: SIGNAL }}
 							>
 								<ArrowUpRight className="h-4 w-4" />
 							</span>
@@ -148,21 +145,18 @@ export function BookingInvite({ className }: { className?: string }) {
 					</div>
 				</Reveal>
 
-				{/* Two formats, set as type with a small accent marker. Not cards -
-				    two items do not need chrome to be two items. */}
 				<Reveal delay={0.2}>
-					<dl className="mt-12 grid gap-8 sm:grid-cols-2">
+					<dl className="mt-14 grid gap-x-10 gap-y-8 sm:grid-cols-2">
 						{FORMATS.map(({ title, note }) => (
-							<div key={title}>
-								<dt className="flex items-center gap-2.5 text-base font-bold text-white">
-									<span
-										aria-hidden="true"
-										className="h-2.5 w-2.5 rounded-[3px]"
-										style={{ backgroundColor: SHADER_BLUE_BRIGHT }}
-									/>
+							<div
+								key={title}
+								className="border-t pt-4"
+								style={{ borderColor: "rgb(255 255 255 / 0.22)" }}
+							>
+								<dt className="display-tight text-[1.35rem] text-white sm:text-[1.55rem]">
 									{title}
 								</dt>
-								<dd className="mt-2 text-sm leading-relaxed text-white/55">
+								<dd className="mt-2.5 text-sm leading-relaxed text-white/55">
 									{note}
 								</dd>
 							</div>

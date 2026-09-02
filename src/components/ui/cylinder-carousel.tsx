@@ -15,7 +15,14 @@ export interface CylinderCarouselProps
 	containerClassName?: string;
 	cardClassName?: string;
 	animationDuration?: number; // in seconds
-	cardWidth?: number; // in pixels
+	/** Ring radius, in pixels. Drives translateZ, not the size of the picture. */
+	cardWidth?: number;
+	/**
+	 * How much of the stage each photograph fills, as a CSS width. This is the
+	 * size of the picture itself - `cardWidth` only pushes the cards further
+	 * out from the centre.
+	 */
+	imageWidth?: string;
 }
 
 export const CylinderCarousel = React.forwardRef<
@@ -30,6 +37,7 @@ export const CylinderCarousel = React.forwardRef<
 			cardClassName,
 			animationDuration = 32,
 			cardWidth = 250,
+			imageWidth = "60%",
 			...props
 		},
 		ref,
@@ -115,7 +123,7 @@ export const CylinderCarousel = React.forwardRef<
 							)}
 							style={
 								{
-									width: "60%",
+									width: imageWidth,
 									aspectRatio: "7/10",
 									"--i": i,
 									// transform: rotateY(calc(var(--i) * var(--ba))) translateZ(calc(-1 * (0.5 * var(--w) + 0.5em) / tan(0.5 * var(--ba))))

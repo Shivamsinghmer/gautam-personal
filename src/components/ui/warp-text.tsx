@@ -576,20 +576,38 @@ export function WarpText({
 			renderOnce();
 		};
 
+		/**
+		 * Where there is no pointer, drive the lens itself.
+		 *
+		 * The idle path already sweeps a slow figure across the wordmark, but at
+		 * `active` 0.18 - a fifth of the strength a real cursor gets - which on a
+		 * phone reads as nothing happening at all. On a hover-less device the
+		 * sweep runs wide and near full strength, so the effect people get by
+		 * moving a mouse over the name happens on its own. Reduced motion keeps
+		 * the quiet original.
+		 */
+		const autoDrive =
+			typeof window !== "undefined" &&
+			window.matchMedia("(hover: none)").matches;
+
 		const loop = (now: number): void => {
 			if (disposed || contextLost) return;
 
 			const elapsed = (now - startTime) * 0.001;
-			const idleX = 0.5 + Math.sin(elapsed * 0.33) * 0.12;
-			const idleY = 0.5 + Math.cos(elapsed * 0.27) * 0.1;
+			const sweep = autoDrive && !reduceMotion;
+			const idleX =
+				0.5 + Math.sin(elapsed * (sweep ? 0.5 : 0.33)) * (sweep ? 0.3 : 0.12);
+			const idleY =
+				0.5 + Math.cos(elapsed * (sweep ? 0.38 : 0.27)) * (sweep ? 0.16 : 0.1);
 			const targetX = pointer.activeTarget > 0 ? pointer.tx : idleX;
 			const targetY = pointer.activeTarget > 0 ? pointer.ty : idleY;
-			const damping = pointer.activeTarget > 0 ? 0.12 : 0.035;
+			const damping = pointer.activeTarget > 0 ? 0.12 : sweep ? 0.09 : 0.035;
 
 			pointer.x += (targetX - pointer.x) * damping;
 			pointer.y += (targetY - pointer.y) * damping;
+			const idleActive = sweep ? 0.85 : 0.18;
 			pointer.active +=
-				((pointer.activeTarget > 0 ? 1 : 0.18) - pointer.active) * 0.06;
+				((pointer.activeTarget > 0 ? 1 : idleActive) - pointer.active) * 0.06;
 
 			program.uniforms.uPointer.value[0] = pointer.x;
 			program.uniforms.uPointer.value[1] = pointer.y;

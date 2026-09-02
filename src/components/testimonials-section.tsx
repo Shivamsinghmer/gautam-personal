@@ -92,7 +92,7 @@ const TESTIMONIALS: HoverExpandItem[] = [
 export function TestimonialsSection() {
 	return (
 		<section
-			className="relative overflow-hidden px-6 py-20 sm:px-10 sm:py-28"
+			className="relative overflow-hidden px-6 py-14 sm:px-10 sm:py-28"
 			style={{ backgroundColor: HERO_DEEP }}
 		>
 			<Reveal>
@@ -107,8 +107,12 @@ export function TestimonialsSection() {
 			{/* Nine portraits: eight collapsed at 3rem plus one open at 20rem is
 			    about 44rem, so the row fits a laptop without scrolling. The
 			    overflow-x stays as the escape hatch for narrow screens. */}
-			<Reveal delay={0.1} className="mt-14 overflow-x-auto pb-2">
-				<HoverExpand_001 items={TESTIMONIALS} className="min-w-max px-4" />
+			{/* The scroll container moved inside the component, around the row of
+			    portraits only. Wrapping the whole thing meant `min-w-max` applied
+			    to the quote too, so it ran off the side of a phone instead of
+			    wrapping. */}
+			<Reveal delay={0.1} className="mt-12 sm:mt-14">
+				<HoverExpand_001 items={TESTIMONIALS} />
 			</Reveal>
 		</section>
 	);

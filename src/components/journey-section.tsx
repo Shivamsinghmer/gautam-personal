@@ -118,21 +118,20 @@ export function JourneySection() {
 			className="relative scroll-mt-24"
 			style={{ backgroundColor: HERO_DEEP }}
 		>
-			<div className="mx-auto max-w-6xl px-6 pt-20 sm:px-10 sm:pt-28">
+			<div className="mx-auto max-w-6xl px-6 pt-[var(--band)] sm:px-10">
 				<div className="grid gap-8 lg:grid-cols-[1fr_minmax(0,24rem)] lg:items-end lg:gap-16">
 					<Reveal>
-						<h2 className="text-4xl font-bold leading-[1.05] tracking-tight text-balance text-white sm:text-5xl lg:text-[3.25rem]">
-							Six rooms,
-							<br />
-							<span style={{ color: "#8fa3a8" }}>
-								in the order they happened
-							</span>
+						{/* One colour. The white-line/grey-line split belongs to the hero
+						    and only the hero - it was running in three separate headings,
+						    which turns a device into a tic. */}
+						<h2 className="display max-w-[13ch] text-[clamp(2.3rem,5vw,4.1rem)] text-white">
+							Six rooms, in the order they happened
 						</h2>
 					</Reveal>
 
 					<Reveal delay={0.08}>
 						<div>
-							<p className="text-base leading-relaxed text-pretty text-white/60 sm:text-lg">
+							<p className="text-[0.95rem] leading-relaxed text-pretty text-white/60 sm:text-base">
 								None of it started in a classroom. The sequence runs from case
 								work inside law-enforcement agencies to 41,000 students in 162
 								countries.

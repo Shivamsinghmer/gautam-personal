@@ -1,21 +1,23 @@
+import { ArrowUpRight } from "lucide-react";
 import { Reveal } from "#/components/ui/scroll-reveal";
-import { HERO_DEEP } from "#/lib/palette";
+import { INK, SHADER_BLUE_BRIGHT } from "#/lib/palette";
 
 /**
- * The rooms he has worked: one row of photographs, held to one screen.
+ * The rooms he has worked, as a 2x2 with him standing in the middle of it.
  *
- * Design notes:
+ * The frames sit in the outer thirds of a twelve-column field and the figure
+ * fills the four columns between them, so he is *inside* the composition
+ * rather than behind a row of tiles. That centre gutter is the whole idea: the
+ * photographs are the rooms, and the man between them is the reason they were
+ * full.
  *
- * - Every frame shares the same 4:3 crop and the same column span, so the row
- *   reads as one set rather than four differently shaped tiles. What keeps it
- *   from being the identical-card-grid reflex is that these are photographs
- *   carrying their own subject, not repeated icon/heading/text cards.
- * - No tracked-uppercase eyebrow. The section states its claim in a headline
- *   instead; an eyebrow over every section is scaffolding, not voice.
- * - Each caption carries evidence, not an adjective - the venue, the format,
- *   the masthead - so the photographs argue rather than decorate.
- * - The figure stands behind the row, bottom-aligned, so the photographs
- *   overlap him and the layers read as depth.
+ * Each frame carries its format as display type over the picture, right
+ * aligned, with a bottom scrim so the words never sit on bare photograph.
+ *
+ * Hovering lifts the card and swaps the format for the action. They are real
+ * links to the booking block - keynotes, workshops, talks and panels are all
+ * things he is actually booked for - because a card that animates like a
+ * button and then does nothing is worse than one that never moved.
  */
 
 interface Panel {
@@ -25,7 +27,7 @@ interface Panel {
 	title: string;
 	/** What the frame actually shows. Verifiable, not adjectival. */
 	note: string;
-	/** Column span on the 12-column composition at lg. */
+	/** Placement on the twelve-column field at lg. */
 	place: string;
 }
 
@@ -35,109 +37,144 @@ const PANELS: Panel[] = [
 		alt: "A full auditorium of students watching Gautam Kumawat speak from the stage",
 		title: "Keynotes",
 		note: "Full auditoriums, school and college circuits",
-		place: "lg:col-span-3",
-	},
-	{
-		src: "/collage/t2.webp",
-		alt: "Students at a lectern asking questions during a session",
-		title: "Workshops",
-		note: "Questions from the floor",
-		place: "lg:col-span-3",
-	},
-	{
-		src: "/collage/b2.webp",
-		alt: "Gautam Kumawat delivering a talk under stage lighting",
-		title: "Talks",
-		note: "Stage sets, no slides",
-		place: "lg:col-span-3",
+		place: "lg:col-span-4 lg:col-start-1 lg:row-start-1",
 	},
 	{
 		src: "/collage/b1.webp",
 		alt: "Gautam Kumawat on the India Today Future Talk panel, name card visible",
 		title: "Panels",
 		note: "India Today · Future Talk",
-		place: "lg:col-span-3",
+		place: "lg:col-span-4 lg:col-start-9 lg:row-start-1",
+	},
+	{
+		src: "/collage/b2.webp",
+		alt: "Gautam Kumawat delivering a talk under stage lighting",
+		title: "Talks",
+		note: "Stage sets, no slides",
+		place: "lg:col-span-4 lg:col-start-1 lg:row-start-2",
+	},
+	{
+		src: "/collage/t2.webp",
+		alt: "Students at a lectern asking questions during a session",
+		title: "Workshops",
+		note: "Questions from the floor",
+		place: "lg:col-span-4 lg:col-start-9 lg:row-start-2",
 	},
 ];
+
 export function CollageSection() {
 	return (
 		<section
 			id="the-room"
-			className="relative flex flex-col justify-center overflow-hidden scroll-mt-24 px-6 py-20 sm:px-10 sm:py-28"
-			style={{ backgroundColor: HERO_DEEP }}
+			className="band relative flex flex-col justify-center overflow-hidden scroll-mt-24 px-6 sm:px-10"
+			style={{ backgroundColor: INK }}
 		>
-			{/* Bottom-aligned behind the row so the photographs overlap his
-			    shoulders. Hidden below lg, where the panels stack over him. */}
-			<div
-				aria-hidden="true"
-				className="pointer-events-none absolute inset-x-0 bottom-0 hidden justify-center lg:flex"
-			>
-				<img
-					src="/collage/middle.jpg"
-					alt=""
-					loading="lazy"
-					decoding="async"
-					className="h-[78vh] w-auto max-w-none object-contain object-bottom opacity-55 [mask-image:linear-gradient(to_bottom,transparent,black_22%,black_88%,transparent)]"
-				/>
-			</div>
-
-			<div className="relative mx-auto max-w-6xl">
-				{/* Headline and its line sit on one baseline at lg, so the block
-				    costs one row of height instead of two and the photographs keep
-				    the rest of the screen. */}
-				<div className="lg:flex lg:items-end lg:justify-between lg:gap-12">
+			<div className="relative mx-auto w-full max-w-6xl">
+				{/* Headline and its line share one baseline at lg, so the block costs
+				    one row of height instead of two. */}
+				<div className="lg:flex lg:items-end lg:justify-between lg:gap-16">
 					<Reveal>
-						<h2 className="max-w-[13ch] text-pretty text-4xl font-extrabold leading-[1.02] tracking-[-0.03em] text-white sm:text-6xl lg:text-[clamp(2.6rem,4.6vw,4rem)]">
+						<h2 className="display max-w-[12ch] text-[clamp(2.3rem,5vw,4.1rem)] text-white">
 							The room is the proof
 						</h2>
 					</Reveal>
 
 					<Reveal delay={0.08}>
-						<p className="mt-5 max-w-[42ch] text-base leading-relaxed text-white/60 lg:mt-0 lg:pb-2 lg:text-right">
+						<p className="mt-5 max-w-[40ch] text-[0.95rem] leading-relaxed text-pretty text-white/60 sm:text-base lg:mt-0 lg:pb-3 lg:text-right">
 							The work happens in front of people. Easier to show than to claim.
 						</p>
 					</Reveal>
 				</div>
 
-				{/* One column on a phone, two on a tablet, four across from lg.
-				    Every frame carries the same 4:3 crop and the same span, so the
-				    row reads as one set of photographs rather than four differently
-				    shaped tiles. */}
-				<div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:mt-14 lg:grid-cols-12 lg:items-end lg:gap-5">
-					{PANELS.map((panel, index) => (
-						<Reveal
-							key={panel.src}
-							delay={index * 0.09}
-							direction={index % 2 === 0 ? "right" : "left"}
-							className={panel.place}
-						>
-							<figure className="group relative m-0 overflow-hidden rounded-lg">
-								<img
-									src={panel.src}
-									alt={panel.alt}
-									loading="lazy"
-									decoding="async"
-									className={`aspect-[4/3] w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100`}
-								/>
+				<div className="relative mt-12 lg:mt-16">
+					{/* He stands in the gutter the grid leaves for him - four of the
+					    twelve columns, floor-aligned so the frames meet him at the
+					    shoulder. Masked top and bottom so he emerges from the field
+					    instead of ending on a cut. Hidden below lg, where the frames
+					    stack and there is no gutter to stand in. */}
+					{/* A fixed column down the middle of the grid rather than a
+					    centred image: `middle.jpg` is landscape (1024x637), so sizing
+					    it by height made it 887px wide and it ran behind both columns
+					    of cards, and capping its width made it small. Given a tall
+					    column and object-cover it crops to the subject instead - he
+					    fills the gutter at full height, which is what the composition
+					    wants. Masked on every edge so the photo's own pale studio
+					    background feathers into the field rather than reading as a
+					    bright rectangle. */}
+					<div
+						aria-hidden="true"
+						className="pointer-events-none absolute inset-y-0 left-1/2 z-0 hidden w-[min(30rem,36%)] -translate-x-1/2 lg:block"
+					>
+						<img
+							src="/collage/middle.jpg"
+							alt=""
+							loading="lazy"
+							decoding="async"
+							className="h-full w-full object-cover object-top opacity-80 [mask-image:radial-gradient(72%_62%_at_50%_46%,black_58%,transparent_100%)]"
+						/>
+					</div>
 
-								{/* Scrim only where the type sits. Bottom-weighted, so the top
-								    two thirds of every photograph stay untouched. */}
-								<span
-									aria-hidden="true"
-									className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/90 via-black/45 to-transparent"
-								/>
+					<div className="relative z-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-12 lg:gap-x-8 lg:gap-y-14">
+						{PANELS.map((panel, index) => (
+							<Reveal
+								key={panel.src}
+								delay={index * 0.07}
+								direction={index % 2 === 0 ? "right" : "left"}
+								className={panel.place}
+							>
+								<a
+									href="#book"
+									aria-label={`${panel.title} — ${panel.note}. Check availability.`}
+									className="group relative block overflow-hidden rounded-xl ring-1 ring-white/10 transition-[transform,box-shadow,--tw-ring-color] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:-translate-y-1.5 hover:shadow-[0_28px_60px_-24px_rgba(0,0,0,0.95)] focus-visible:outline-2 focus-visible:outline-offset-4 motion-reduce:transition-none motion-reduce:hover:translate-y-0"
+									style={{ outlineColor: SHADER_BLUE_BRIGHT }}
+								>
+									<img
+										src={panel.src}
+										alt={panel.alt}
+										loading="lazy"
+										decoding="async"
+										className="aspect-[4/3] w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.06] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+									/>
 
-								<figcaption className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
-									<span className="block text-2xl font-bold leading-none tracking-[-0.02em] text-white sm:text-3xl">
-										{panel.title}
+									{/* Scrim only where the type sits, so the top of every
+									    photograph is left alone. */}
+									<span
+										aria-hidden="true"
+										className="pointer-events-none absolute inset-0 bg-gradient-to-l from-black/85 via-black/45 to-transparent"
+									/>
+
+									{/* The label. Format by default; the action on hover, in
+									    the same slot so the card reads as one thing changing
+									    rather than two labels stacked. */}
+									<span className="pointer-events-none absolute inset-0 flex flex-col items-end justify-center p-6 text-right sm:p-7">
+										{/* Both states share one grid cell, so the box is as wide
+										    as the wider of the two and neither can wrap. As an
+										    absolutely-positioned overlay the CTA inherited the
+										    title's width, broke onto two lines and collided with
+										    the note underneath. */}
+										<span className="grid justify-items-end">
+											<span className="display-tight [grid-area:1/1] text-[clamp(1.6rem,3.2vw,2.4rem)] text-white transition-[opacity,transform] duration-300 group-hover:-translate-y-1 group-hover:opacity-0 motion-reduce:transition-none motion-reduce:group-hover:translate-y-0 motion-reduce:group-hover:opacity-100">
+												{panel.title}
+											</span>
+
+											<span className="flex translate-y-1 [grid-area:1/1] items-center gap-2 self-center whitespace-nowrap text-[clamp(1.4rem,2.8vw,2rem)] font-extrabold tracking-tight text-white opacity-0 transition-[opacity,transform] duration-300 group-hover:translate-y-0 group-hover:opacity-100 motion-reduce:transition-none">
+												Book this
+												<ArrowUpRight
+													className="h-6 w-6 shrink-0"
+													style={{ color: SHADER_BLUE_BRIGHT }}
+													aria-hidden="true"
+												/>
+											</span>
+										</span>
+
+										<span className="mt-2 block max-w-[22ch] text-xs leading-snug text-white/70 sm:text-[0.8rem]">
+											{panel.note}
+										</span>
 									</span>
-									<span className="mt-2 block text-xs leading-snug text-white/65 sm:text-sm">
-										{panel.note}
-									</span>
-								</figcaption>
-							</figure>
-						</Reveal>
-					))}
+								</a>
+							</Reveal>
+						))}
+					</div>
 				</div>
 			</div>
 		</section>

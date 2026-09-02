@@ -1,14 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import {
-	ArrowRight,
-	Award,
-	Building2,
-	Globe2,
-	PhoneCall,
-	Share2,
-	ShieldCheck,
-	Users,
-} from "lucide-react";
+import { ArrowRight, PhoneCall } from "lucide-react";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { AboutSection } from "#/components/about-section";
 import { AnimatedFooter } from "#/components/animated-footer";
@@ -23,7 +14,7 @@ import { TestimonialsSection } from "#/components/testimonials-section";
 import { AsciiEffect } from "#/components/ui/ascii-effect";
 import { ClientOnly } from "#/components/ui/deferred";
 import { Reveal } from "#/components/ui/scroll-reveal";
-import StatsCounter from "#/components/ui/stats-counter";
+import { StatIndex } from "#/components/ui/stat-index";
 import {
 	HERO_DEEP as DEEP,
 	HERO_SAND as SAND,
@@ -57,7 +48,6 @@ export const Route = createFileRoute("/")({ component: Home });
 /** Copy tints, chosen against the shader's brightest moment (see below). */
 const TYPE = "#f4fbf8";
 const TYPE_SOFT = "#d8efe7";
-const TYPE_DIM = "#c3e2d9";
 
 /**
  * The wordmark as plain type. This is what the server renders and what stands
@@ -204,35 +194,39 @@ function Home() {
 				    eyebrow, a three-line headline that drops one line to grey, a
 				    subline with the facts bolded out of it, a filled primary next to
 				    a quiet text link, and a stat row along the bottom. */}
-				<div className="relative mx-auto grid w-full max-w-6xl items-center gap-12 py-20 lg:grid-cols-[1fr_minmax(0,460px)] lg:gap-14 lg:py-0">
+				<div className="relative mx-auto grid w-full max-w-6xl items-center gap-5 pt-20 pb-8 sm:gap-10 sm:pt-28 sm:pb-16 lg:grid-cols-[1fr_minmax(0,460px)] lg:gap-14 lg:py-0">
 					<div className="order-2 lg:order-1">
 						<p
-							className="gk-reveal flex items-center gap-4 text-xs font-semibold uppercase tracking-[0.28em]"
-							style={{ color: SAND, ["--gk-delay" as string]: "0.05s" }}
+							className="gk-reveal flex items-center gap-4 text-[0.7rem] font-semibold uppercase sm:text-xs"
+							style={{
+								color: SAND,
+								letterSpacing: "0.2em",
+								["--gk-delay" as string]: "0.05s",
+							}}
 						>
 							<span
 								aria-hidden="true"
-								className="h-px w-8"
+								className="h-px w-8 shrink-0"
 								style={{ backgroundColor: SAND }}
 							/>
-							Cybersecurity Expert
+							Cybercrime investigator · Trainer to law enforcement
 						</p>
 
 						{/* One line in grey rather than three in white - it gives the
 						    block a middle and stops it reading as a wall. */}
 						<h1
-							className="gk-reveal mt-6 text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-[clamp(2.4rem,7.4vh,4.2rem)]"
+							className="gk-reveal display mt-[clamp(0.9rem,3.2vh,1.75rem)] max-w-[19ch] text-[clamp(1.95rem,min(5vw,8vh),3.5rem)]"
 							style={{ color: TYPE, ["--gk-delay" as string]: "0.14s" }}
 						>
-							From Law Enforcement
+							From law enforcement
 							<br />
-							<span style={{ color: "#8fa3a8" }}>to 41,000 Students</span>
+							<span style={{ color: "#8fa3a8" }}>to 41,000 students</span>
 							<br />
-							Across 162 Countries
+							across 162 countries
 						</h1>
 
 						<p
-							className="gk-reveal mt-7 max-w-xl text-base leading-relaxed sm:text-lg"
+							className="gk-reveal prose-measure mt-[clamp(0.9rem,3.2vh,1.75rem)] max-w-xl text-[0.95rem] leading-relaxed sm:text-lg"
 							style={{ color: TYPE_SOFT, ["--gk-delay" as string]: "0.22s" }}
 						>
 							Seven years training officials across{" "}
@@ -247,7 +241,7 @@ function Home() {
 						</p>
 
 						<div
-							className="gk-reveal mt-7 flex flex-wrap items-center gap-x-7 gap-y-4 lg:mt-9"
+							className="gk-reveal mt-[clamp(1rem,3.4vh,2.25rem)] flex flex-wrap items-center gap-x-7 gap-y-4"
 							style={{ ["--gk-delay" as string]: "0.3s" }}
 						>
 							<a
@@ -276,105 +270,40 @@ function Home() {
 							</a>
 						</div>
 
-						{/* Each figure gets an icon chip above it, so the block reads as
-						    six distinct proofs rather than one run of numbers. All six sit
-						    on a single line from sm up, which is what makes the labels
-						    one word each: the hero's left column is ~640px at lg, so a
-						    six-up row leaves under 100px per item and anything longer
-						    wraps to a second line and breaks the row's baseline. Below
-						    sm there is no width for six, so it falls back to two rows of
-						    three. Left aligned rather than centred like the reference:
-						    this sits in the hero's left column, and centring it would
-						    break the edge every other line in the column shares.
+						{/* The figures, as a ruled index rather than the six circular icon
+						    chips that were here. Big number, small label, supporting stats,
+						    accent tint is the hero-metric template, and a lucide shield next
+						    to "500 cases" was decoration standing in for information.
 
-						    Only the first three figures and the community total are
-						    sourced - the total is the sum of the channel counts in
-						    reach-section.tsx, which are themselves placeholders. Cases
-						    and agencies are stand-ins; swap them for the true figures
-						    before this goes anywhere public. */}
-						<dl
-							className="gk-reveal mt-8 grid grid-cols-3 gap-x-4 gap-y-5 sm:grid-cols-6 lg:mt-10"
+						    Four figures, not six. "750K community" was the sum of the channel
+						    counts the reach section lists in full a few screens down, and
+						    "500+ cases" was a stand-in with no source behind it - so the row
+						    now carries only what the page can actually stand behind, at
+						    roughly twice the size. Agencies survives over cases because the
+						    institutional buyer is the audience that needs it.
+
+						    Held until the preloader lifts - see use-preloader-done.ts - so
+						    the figures tick over in front of the visitor rather than behind
+						    the overlay. */}
+						<div
+							className="gk-reveal mt-[clamp(1.25rem,4.4vh,3rem)]"
 							style={{ ["--gk-delay" as string]: "0.38s" }}
 						>
-							{[
-								{
-									icon: Users,
-									value: 41,
-									suffix: "K+",
-									label: "Students",
-								},
-								{
-									icon: Globe2,
-									value: 162,
-									suffix: "",
-									label: "Countries",
-								},
-								{
-									icon: Award,
-									value: 7,
-									suffix: "+",
-									label: "Years",
-								},
-								{
-									icon: ShieldCheck,
-									value: 500,
-									suffix: "+",
-									label: "Cases",
-								},
-								{
-									icon: Building2,
-									value: 30,
-									suffix: "+",
-									label: "Agencies",
-								},
-								{
-									icon: Share2,
-									value: 750,
-									suffix: "K+",
-									label: "Community",
-								},
-							].map(({ icon: Icon, value, suffix, label }) => (
-								<div key={label}>
-									<span
-										aria-hidden="true"
-										className="mb-2 flex h-9 w-9 items-center justify-center rounded-full"
-										style={{
-											backgroundColor: `${SHADER_BLUE_BRIGHT}1f`,
-											color: SHADER_BLUE_BRIGHT,
-										}}
-									>
-										<Icon className="h-4 w-4" />
-									</span>
-									{/* nowrap on both rows: at six-up the columns are narrow
-									    enough that "750K+" would otherwise break between the
-									    figure and its suffix. */}
-									<dt
-										className="whitespace-nowrap text-lg font-bold sm:text-xl lg:text-2xl"
-										style={{ color: TYPE }}
-									>
-										{/* Held until the preloader lifts - see
-										    use-preloader-done.ts - so the figures tick over in
-										    front of the visitor instead of behind the overlay. */}
-										<StatsCounter
-											value={value}
-											duration={1.6}
-											start={revealed}
-										/>
-										<span style={{ color: SHADER_BLUE_BRIGHT }}>{suffix}</span>
-									</dt>
-									<dd
-										className="mt-0.5 whitespace-nowrap text-[11px] uppercase tracking-wider sm:text-xs"
-										style={{ color: TYPE_DIM }}
-									>
-										{label}
-									</dd>
-								</div>
-							))}
-						</dl>
+							<StatIndex
+								start={revealed}
+								className="grid-cols-4 gap-x-3 gap-y-0 sm:gap-x-8"
+								items={[
+									{ value: 41, suffix: "K+", label: "Students" },
+									{ value: 162, label: "Countries" },
+									{ value: 7, suffix: "+", label: "Years" },
+									{ value: 30, suffix: "+", label: "Agencies" },
+								]}
+							/>
+						</div>
 					</div>
 
 					<div
-						className="gk-reveal relative order-1 mx-auto h-[300px] w-full max-w-[460px] overflow-hidden rounded-2xl border border-white/10 sm:h-[420px] lg:order-2 lg:mx-0 lg:h-[min(560px,68vh)]"
+						className="gk-reveal relative order-1 mx-auto aspect-square w-full max-w-[210px] overflow-hidden rounded-2xl border border-white/10 sm:max-w-[300px] lg:order-2 lg:mx-0 lg:aspect-auto lg:h-[min(560px,68vh)] lg:max-w-[460px]"
 						style={{ ["--gk-delay" as string]: "0s" }}
 					>
 						<AsciiEffect
@@ -445,7 +374,9 @@ function Home() {
 				/>
 			</div>
 
-			<div className="h-screen w-full">
+			{/* The nav's "Let's Connect" points here: the sign-off block carries
+			    the social row and the address, so it is where "connect" lands. */}
+			<div id="connect" className="h-screen w-full scroll-mt-0">
 				<AnimatedFooter
 					// The slot renders directly above the wordmark, so the profiles and
 					// the name read as one sign-off block rather than a separate strip.
@@ -497,12 +428,15 @@ function Home() {
 					    reads as a closing line at the end of the page, not halfway
 					    down it above a CTA. */}
 					<Reveal className="flex flex-col items-center gap-9" amount={0.15}>
-						<figure className="m-0 max-w-2xl text-center">
-							<blockquote className="text-balance font-serif text-lg italic leading-relaxed text-white/80 sm:text-2xl">
-								“{QUOTE}”
+						<figure className="m-0 max-w-3xl text-center">
+							<blockquote className="display-wide text-[clamp(1.35rem,3vw,2.1rem)] text-white/90">
+								{QUOTE}
 							</blockquote>
-							<figcaption className="mt-4 text-sm text-white/50">
-								— Gautam Kumawat
+							<figcaption
+								className="mt-6 text-[0.7rem] font-medium uppercase text-white/45"
+								style={{ letterSpacing: "0.18em" }}
+							>
+								Gautam Kumawat
 							</figcaption>
 						</figure>
 

@@ -38,6 +38,32 @@ export function ModelViewer({
 	const hostRef = useRef<HTMLDivElement>(null);
 	const [state, setState] = useState<"loading" | "ready" | "failed">("loading");
 
+	/**
+	 * Rebuild counter, bumped when the WebGL context is lost.
+	 *
+	 * This page runs several WebGL canvases - the hero's shader gradient, the
+	 * footer wordmark, and this - and a browser will drop a context to make room
+	 * when too many are alive at once. Scrolling quickly to this section, or
+	 * landing on #the-book directly, is enough to do it: the shader is still up
+	 * when the model asks for its own context.
+	 *
+	 * That is exactly what was making the book "not show". The context died, the
+	 * animation loop stopped on a dead canvas, and nothing ever brought it back -
+	 * while `state` stayed "ready", so even the failure message never appeared.
+	 * A blank stage, permanently, with no error.
+	 *
+	 * three.js cannot repair a renderer whose GPU resources were all invalidated,
+	 * so recovery is a full teardown and rebuild: bumping this re-runs the whole
+	 * effect, whose cleanup already disposes everything correctly.
+	 */
+	const [generation, setGeneration] = useState(0);
+	const retries = useRef(0);
+
+	// biome-ignore lint/correctness/useExhaustiveDependencies: `generation` is a
+	// reset key, not a value the effect reads. Bumping it is the whole recovery
+	// mechanism - it forces this effect to tear down a renderer whose GPU
+	// resources were invalidated by a lost context and build a fresh one, which
+	// three.js has no way to do in place.
 	useEffect(() => {
 		const host = hostRef.current;
 		if (!host) return;
@@ -61,6 +87,31 @@ export function ModelViewer({
 		renderer.domElement.style.width = "100%";
 		renderer.domElement.style.height = "100%";
 		renderer.domElement.style.display = "block";
+
+		// preventDefault is what makes the context restorable at all - without it
+		// the browser will never fire webglcontextrestored. The rebuild is then
+		// scheduled directly rather than waiting on that event, because a browser
+		// under context pressure may simply never restore, and waiting for an
+		// event that is not coming is how this failed silently in the first place.
+		const canvas = renderer.domElement;
+		let rebuild = 0;
+		const onContextLost = (event: Event) => {
+			event.preventDefault();
+			cancelAnimationFrame(raf);
+			raf = 0;
+			if (disposed || rebuild) return;
+			// Three attempts. If the page genuinely has no context to spare, stop
+			// asking and show the fallback copy instead of thrashing the GPU.
+			if (retries.current >= 3) {
+				setState("failed");
+				return;
+			}
+			retries.current += 1;
+			rebuild = window.setTimeout(() => {
+				if (!disposed) setGeneration((g) => g + 1);
+			}, 450);
+		};
+		canvas.addEventListener("webglcontextlost", onContextLost);
 
 		const scene = new THREE.Scene();
 		const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
@@ -172,6 +223,8 @@ export function ModelViewer({
 		return () => {
 			disposed = true;
 			cancelAnimationFrame(raf);
+			clearTimeout(rebuild);
+			canvas.removeEventListener("webglcontextlost", onContextLost);
 			io.disconnect();
 			ro.disconnect();
 			document.removeEventListener("visibilitychange", onVisibility);
@@ -194,7 +247,7 @@ export function ModelViewer({
 			renderer.dispose();
 			renderer.domElement.remove();
 		};
-	}, [src, autoRotateSpeed, zoom]);
+	}, [src, autoRotateSpeed, zoom, generation]);
 
 	return (
 		<div

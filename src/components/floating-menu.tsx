@@ -125,9 +125,23 @@ export function FloatingMenu({
 	// Shared by the shader button and the plain one that stands in for it, so
 	// the primary action behaves the same whichever is on screen.
 	const goToPrimary = () => {
-		if (primaryButton?.href && primaryButton.href !== "#") {
-			window.location.assign(primaryButton.href);
+		const href = primaryButton?.href;
+		if (!href || href === "#") return;
+
+		// An in-page target is scrolled to rather than assigned. `location.assign`
+		// on a hash relies on the browser's own jump, and this page runs Lenis on
+		// the root - it owns the scroll position, so a native hash jump either
+		// does nothing or fights the smooth scroller. scrollIntoView goes through
+		// the same path every other anchor on the page uses.
+		if (href.startsWith("#")) {
+			const target = document.querySelector(href);
+			if (target) {
+				target.scrollIntoView({ behavior: "smooth", block: "start" });
+				window.history.replaceState(null, "", href);
+				return;
+			}
 		}
+		window.location.assign(href);
 	};
 	const [hidden, setHidden] = useState(false);
 	const isOpenRef = useRef(isOpen);
@@ -325,7 +339,7 @@ export function FloatingMenu({
 						onClick={toggle}
 						data-slot="toggle-button"
 						className={cn(
-							"group relative flex h-10 items-center justify-center rounded-sm pr-2 transition-[background-color] duration-400 ease-[cubic-bezier(0.625,0.05,0,1)] hover:bg-[var(--lagoon)]/10",
+							"group relative flex h-11 items-center justify-center rounded-sm pr-2 transition-[background-color] duration-400 ease-[cubic-bezier(0.625,0.05,0,1)] hover:bg-[var(--lagoon)]/10",
 							classes?.toggleButton,
 						)}
 						aria-label="Toggle menu"
@@ -355,8 +369,14 @@ export function FloatingMenu({
 						</span>
 					</button>
 
+					{/* Hidden below `sm`. The bar is three pieces - Menu, this centred
+					    wordmark, and the actions - and at 360px they need 380px of a
+					    342px bar, so the wordmark ran underneath the Resume button by
+					    54px. It is the piece that can go: the name is in the hero
+					    immediately below, and Menu + one action is the shape a phone
+					    nav is meant to be. */}
 					<div
-						className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transform-gpu"
+						className="absolute top-1/2 left-1/2 hidden -translate-x-1/2 -translate-y-1/2 transform-gpu sm:block"
 						style={{ backfaceVisibility: "hidden" }}
 					>
 						{logo ? (
@@ -434,14 +454,17 @@ export function FloatingMenu({
 					ref={menuWrapperRef}
 					data-slot="menu-wrapper"
 					className={cn(
-						"h-0 w-full overflow-hidden border-t border-[var(--line)] opacity-0",
+						// Opaque. The wrapper carried no background, so the panel opened
+						// straight over the hero - shader, headline and portrait all
+						// showing through the menu, and neither readable.
+						"h-0 w-full overflow-hidden border-t border-[var(--line)] bg-[var(--menu-bg)] opacity-0",
 						classes?.menuWrapper,
 					)}
 				>
 					<div
 						data-slot="grid"
 						className={cn(
-							"grid max-h-[65vh] grid-cols-1 gap-4 overflow-y-auto overscroll-contain p-4 md:max-h-none md:grid-cols-3 md:overflow-visible",
+							"grid max-h-[65vh] grid-cols-1 gap-2 overflow-y-auto overscroll-contain p-4 md:max-h-none md:grid-cols-[repeat(auto-fit,minmax(200px,1fr))] md:gap-6 md:overflow-visible",
 							classes?.grid,
 						)}
 					>
@@ -451,9 +474,10 @@ export function FloatingMenu({
 								data-slot="group"
 								className={cn(
 									"flex flex-col gap-4 rounded-sm p-4 transition-colors ease-[cubic-bezier(0.625,0.05,0,1)]",
-									group.variant === "muted"
-										? "bg-[var(--sand)]"
-										: "bg-transparent",
+									// Both columns sit on the panel. A filled card for one
+									// group and bare type for the other made them look like
+									// two different kinds of thing.
+									"bg-transparent",
 									classes?.group,
 									group.variant === "muted" && classes?.groupMuted,
 								)}
@@ -473,8 +497,19 @@ export function FloatingMenu({
 											<a
 												href={link.href}
 												data-slot="link"
+												// Off-site rows open in their own tab, and never
+												// without `noopener` - a new tab handed a live
+												// opener reference can navigate this one.
+												{...(link.href.startsWith("http")
+													? { target: "_blank", rel: "noopener noreferrer" }
+													: {})}
+												// An in-page target closes the menu on the way, or
+												// the panel covers what you just asked to see.
+												onClick={() => {
+													if (link.href.startsWith("#")) toggle();
+												}}
 												className={cn(
-													"group/link relative block w-fit text-2xl font-normal text-[var(--sea-ink-soft)] transition-colors duration-400 ease-[cubic-bezier(0.625,0.05,0,1)] hover:text-[var(--sea-ink)]",
+													"group/link relative flex min-h-11 w-fit items-center text-2xl font-normal text-[var(--sea-ink-soft)] transition-colors duration-400 ease-[cubic-bezier(0.625,0.05,0,1)] hover:text-[var(--sea-ink)]",
 													classes?.link,
 												)}
 											>

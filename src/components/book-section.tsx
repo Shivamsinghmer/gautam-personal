@@ -1,9 +1,15 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { lazy, Suspense } from "react";
 import { ClientOnly, InView } from "#/components/ui/deferred";
 import { Reveal } from "#/components/ui/scroll-reveal";
-import { HERO_DEEP, SHADER_BLUE_BRIGHT } from "#/lib/palette";
+import { INK, INK_DEEP, SIGNAL } from "#/lib/palette";
 
+/**
+ * three.js plus the GLTF loader is the heaviest import on the page, so it is
+ * fetched only when the section is approaching and released again once it is
+ * well behind - a WebGL context spinning for a book nobody is looking at is
+ * what made this page feel like it was dragging.
+ */
 const ModelViewer = lazy(() =>
 	import("#/components/ui/model-viewer").then((m) => ({
 		default: m.ModelViewer,
@@ -11,125 +17,291 @@ const ModelViewer = lazy(() =>
 );
 
 /**
- * The book, announced with a 3D model rather than a mockup.
+ * The book, on a lit stage.
  *
- * The model is "Stylized Book" by Kevin. It is rendered from the local .glb
- * rather than through Sketchfab's iframe: the embed ships its own player -
- * grey backdrop, uploader branding bar, and a click-to-play poster gate -
- * none of which belong on this field. Loading the file directly gives a
- * transparent canvas that turns on its own.
+ * ## The two versions before this one
  *
- * Attribution, kept here rather than on the page: "Stylized Book" by Kevin,
- * https://sketchfab.com/3d-models/stylized-book-dfe34d6fe2404c67a70c3703bff3ba69,
- * licensed CC BY 4.0. The visible credit line was removed at the client's
- * request; CC-BY asks for attribution in a manner reasonable to the medium, so
- * if this ships publicly it is worth putting the line back somewhere - a
- * /credits page or the About copy - rather than leaving it only in source.
+ * **The original** put the model in a 4:3 box in the right column beside a
+ * 26rem block of copy. The object was too small to be the point and too big to
+ * be a garnish, and it sat unlit on a dark field - which is most of why it read
+ * as not showing at all. A dark model on a dark ground with nothing behind it
+ * has no edge to catch.
  *
- * Copy notes: no title, no date, no pre-order. There is no book yet, and
- * inventing a cover line or a ship date to fill the layout would be the exact
- * guru move this brand rules out. It says what is true - it is being written -
- * and points at the booking block for anyone who wants to hear when it lands.
+ * **My first redesign** removed the model and set the section as a quiet
+ * typographic half-title page. That was the wrong read of "premium". This
+ * brand's personality is Bold, Energetic, Cinematic - "the moment the house
+ * lights drop before a keynote" - and a near-empty band of small grey type on
+ * near-black is a library at closing time. On a page carrying a shader hero, a
+ * wall of mastheads and a drenched blue ledger, restraint that quiet does not
+ * read as confidence. It reads as the section that failed to load.
+ *
+ * ## What it is now
+ *
+ * The house lights drop and one object is lit. The section is a dark room with
+ * a single overhead source - a shaft, a pool on the floor, a contact shadow -
+ * and the book stands in it at roughly three times the size it used to be. The
+ * copy waits in the dark at the edge of the pool.
+ *
+ * The light is not decoration bolted on to make the section look designed. It
+ * is the one material this brand is actually about, it is the reason the model
+ * is legible against ink at all, and it is doing real structural work: the
+ * shaft, pool and shadow are CSS, so the stage is fully composed on the server
+ * render, before three.js has loaded, and anywhere WebGL is unavailable. The
+ * old layout's failure mode was half an empty section. This one's is a lit
+ * empty stage, which is a fair picture of what the copy is describing.
+ *
+ * ## Copy
+ *
+ * Still no title, no date, nothing to pre-order, and still nothing invented to
+ * fill them - a cover line or a ship date for a book that does not exist is the
+ * exact guru move this brand rules out. The three blanks are set as a colophon,
+ * the way a copyright page states what is not yet settled.
+ *
+ * ## Attribution
+ *
+ * The model is "Stylized Book" by Kevin, licensed CC BY 4.0:
+ * https://sketchfab.com/3d-models/stylized-book-dfe34d6fe2404c67a70c3703bff3ba69
+ * The visible credit line was removed at the client's request. CC BY asks for
+ * attribution in a manner reasonable to the medium, so if this ships publicly
+ * that line belongs somewhere real - a /credits page, or the about copy -
+ * rather than only in this comment.
  */
+
+/**
+ * The colophon. Three facts, all of them absences, stated flatly.
+ *
+ * Deliberately shaped unlike the about section's dossier (label left, detail
+ * right, one row each) and unlike `StatIndex` (figure first, label under). This
+ * is a single strip on one rule, which is the furniture of a title page.
+ */
+const COLOPHON: { term: string; value: string }[] = [
+	{ term: "Working title", value: "Not chosen" },
+	{ term: "Publication", value: "No date" },
+	{ term: "Availability", value: "Nothing to pre-order" },
+];
+
+/**
+ * The address is already published by the site - `__root.tsx` puts it in the
+ * menu under Connect - so pointing here is not a new disclosure.
+ *
+ * It is a mailto rather than the `#book` anchor the original button used. That
+ * button said "Hear when it lands" and scrolled to the availability block for
+ * booking a keynote, which is a promise the page did not keep. This does what
+ * it says. Swap it for a real list when there is one.
+ */
+const NOTIFY = "mailto:gautam.kumawat.kkb@gmail.com?subject=The%20book";
+
+/**
+ * The stage: shaft, pool, contact shadow.
+ *
+ * All three are CSS on `aria-hidden` layers, which is the point - they compose
+ * the section on the server, before the loader runs, and if WebGL never
+ * arrives. The model drops into a stage that is already lit.
+ */
+function Stage() {
+	return (
+		<>
+			{/* The shaft. A cone narrow at the top and wide at the floor, clipped out
+			    of a soft vertical wash, so the light has a visible path instead of
+			    appearing as a glow with no source. */}
+			<div
+				aria-hidden="true"
+				className="pointer-events-none absolute inset-0"
+				style={{
+					clipPath: "polygon(37% 0%, 63% 0%, 97% 90%, 3% 90%)",
+					background:
+						"linear-gradient(to bottom, rgb(255 255 255 / 0.12) 0%, rgb(255 255 255 / 0.055) 48%, rgb(255 255 255 / 0) 92%)",
+				}}
+			/>
+
+			{/* The pool where the shaft lands. Warm-neutral rather than tinted: a
+			    coloured spotlight reads as a nightclub, and this section's one
+			    colour is the accent on the button. */}
+			<div
+				aria-hidden="true"
+				className="pointer-events-none absolute inset-0"
+				style={{
+					background:
+						"radial-gradient(ellipse 46% 15% at 50% 85%, rgb(255 255 255 / 0.18) 0%, rgb(255 255 255 / 0.06) 46%, rgb(255 255 255 / 0) 78%)",
+				}}
+			/>
+
+			{/* The contact shadow, tight under the object, so it stands on the floor
+			    rather than floating above it. This is what sells the pool as ground. */}
+			<div
+				aria-hidden="true"
+				className="pointer-events-none absolute inset-0"
+				style={{
+					background:
+						"radial-gradient(ellipse 19% 4.5% at 50% 83%, rgb(0 0 0 / 0.72) 0%, rgb(0 0 0 / 0.32) 55%, rgb(0 0 0 / 0) 100%)",
+				}}
+			/>
+		</>
+	);
+}
+
 export function BookSection() {
 	return (
 		<section
 			id="the-book"
-			className="relative overflow-hidden px-6 py-20 sm:px-10 sm:py-28"
-			style={{ backgroundColor: HERO_DEEP }}
+			className="band relative isolate scroll-mt-24 overflow-hidden px-6 sm:px-10"
+			style={{ backgroundColor: INK_DEEP }}
 		>
-			<div className="mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[minmax(0,26rem)_1fr] lg:gap-16">
-				<div>
-					{/* A live status line rather than a bordered pill. The pill read as
-					    a badge stuck on the layout; as type with a lit dot it belongs
-					    to the copy and sits on the headline's own left edge. */}
-					<Reveal>
-						<p className="flex items-center gap-2.5 text-sm font-medium text-white/50">
+			{/* A dip, not a cut. The sections either side are on INK, so both edges
+			    ramp back to it and the darker room reads as the lights going down
+			    rather than as another hard boundary. Alpha-zero INK rather than
+			    `transparent`: `transparent` is rgba(0,0,0,0), and interpolating from
+			    it drags the middle of the ramp toward black. */}
+			<div
+				aria-hidden="true"
+				className="pointer-events-none absolute inset-x-0 top-0 z-20 h-40"
+				style={{
+					background: `linear-gradient(to bottom, ${INK} 0%, ${INK}00 100%)`,
+				}}
+			/>
+			<div
+				aria-hidden="true"
+				className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-40"
+				style={{
+					background: `linear-gradient(to top, ${INK} 0%, ${INK}00 100%)`,
+				}}
+			/>
+
+			<div className="relative mx-auto max-w-6xl">
+				{/* The slug line. Two items on one rule - a status at the left, the
+				    section's own name at the right - so it reads as a running head
+				    across the top of the band rather than as a kicker sitting on the
+				    heading's shoulder. */}
+				<Reveal>
+					<div
+						className="flex items-center justify-between gap-6 border-t pt-5"
+						style={{ borderColor: "rgb(255 255 255 / 0.2)" }}
+					>
+						<p
+							className="flex items-center gap-2.5 text-[0.7rem] font-semibold uppercase text-white/60"
+							style={{ letterSpacing: "0.18em" }}
+						>
 							{/* A lit dot, not a pulsing one. "Momentum, never fidget" - a
-							    perpetual ping next to the headline is exactly the ambient
+							    perpetual ping beside a status line is exactly the ambient
 							    wiggle the brand rules out. */}
 							<span
 								aria-hidden="true"
-								className="h-2 w-2 rounded-full"
+								className="h-1.5 w-1.5 shrink-0 rounded-full"
 								style={{
-									backgroundColor: SHADER_BLUE_BRIGHT,
-									boxShadow: `0 0 10px 1px ${SHADER_BLUE_BRIGHT}80`,
+									backgroundColor: SIGNAL,
+									boxShadow: `0 0 10px 1px ${SIGNAL}80`,
 								}}
 							/>
-							Writing now
+							In progress
 						</p>
-					</Reveal>
 
-					{/* One colour, no grey second line. The hero and the reach block
-					    already use the white-line/grey-line headline; a third would turn
-					    a device into a tic. Here scale alone carries it. */}
-					<Reveal delay={0.06}>
-						<h2 className="mt-5 text-balance text-4xl font-extrabold leading-[1.02] tracking-[-0.035em] text-white sm:text-5xl lg:text-[clamp(2.8rem,4.4vw,4rem)]">
-							The work, written down
-						</h2>
-					</Reveal>
-
-					{/* One short deck instead of the previous run-on sentence, with the
-					    caveats broken out below it - they are three separate facts and
-					    read better counted than buried in a clause. */}
-					<Reveal delay={0.12}>
-						<p className="mt-6 max-w-[38ch] text-base leading-relaxed text-white/60 sm:text-lg">
-							Case notes, method, and the parts that never make it into a
-							syllabus.
-						</p>
-					</Reveal>
-
-					<Reveal delay={0.16}>
-						<ul className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-white/35">
-							{["No title yet", "No date", "Nothing to pre-order"].map(
-								(item, i) => (
-									<li key={item} className="flex items-center gap-3">
-										{i > 0 ? (
-											<span aria-hidden="true" className="text-white/20">
-												·
-											</span>
-										) : null}
-										{item}
-									</li>
-								),
-							)}
-						</ul>
-					</Reveal>
-
-					<Reveal delay={0.2}>
-						<a
-							href="#book"
-							className="mt-9 inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-opacity hover:opacity-90"
-							// Inline colour: styles.css carries an unlayered `a { color }`
-							// rule that beats Tailwind's layered utilities.
-							style={{ backgroundColor: SHADER_BLUE_BRIGHT, color: "#ffffff" }}
+						<p
+							className="text-[0.7rem] font-semibold uppercase text-white/35"
+							style={{ letterSpacing: "0.18em" }}
 						>
-							Hear when it lands
-							<ArrowRight className="h-4 w-4" aria-hidden="true" />
-						</a>
-					</Reveal>
+							The book
+						</p>
+					</div>
+				</Reveal>
+
+				{/* Copy at the edge of the pool, object in it. The stage takes the
+				    larger share of the row - it is the thing the section is about, and
+				    the original had that ratio the wrong way round. */}
+				<div className="mt-10 grid items-center gap-10 lg:mt-14 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-8">
+					<div className="relative z-10 order-2 lg:order-1">
+						<Reveal>
+							<h2 className="display max-w-[11ch] text-[clamp(2.4rem,5.4vw,4.2rem)] text-white">
+								The work, written down
+							</h2>
+						</Reveal>
+
+						<Reveal delay={0.08}>
+							<p className="mt-7 max-w-[38ch] text-pretty text-base leading-[1.75] text-white/70 sm:text-lg">
+								Case notes, method, and the parts that never make it into a
+								syllabus.
+							</p>
+						</Reveal>
+
+						<Reveal delay={0.12}>
+							<p className="mt-4 max-w-[38ch] text-pretty text-base leading-[1.75] text-white/45 sm:text-lg">
+								It is being written. That is the whole announcement.
+							</p>
+						</Reveal>
+
+						<Reveal delay={0.18}>
+							<a
+								href={NOTIFY}
+								className="group mt-10 inline-flex items-center gap-2.5 rounded-full px-7 py-3.5 text-sm font-semibold transition-opacity hover:opacity-90"
+								// styles.css carries an unlayered `a { color }` rule that beats
+								// Tailwind's layered utilities at any specificity, so the label
+								// colour is set here or it renders teal on blue.
+								style={{ backgroundColor: SIGNAL, color: "#ffffff" }}
+							>
+								Tell me when it lands
+								<ArrowUpRight
+									className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0 motion-reduce:group-hover:translate-y-0"
+									aria-hidden="true"
+								/>
+							</a>
+						</Reveal>
+					</div>
+
+					{/* The stage, allowed past the container's right edge from lg so the
+					    object is slightly too big for its frame - which is the reason it
+					    reads as a reveal rather than as an illustration parked in a
+					    column. */}
+					{/* Top right, sized to the copy beside it. As an aspect-square at
+					    the full width of a 1.2fr column it came out 788px tall against
+					    386px of copy - so it stopped reading as an object on a stage and
+					    became the section, sitting low and running past the type. Capped
+					    and pushed to the column's right edge, it sits level with the
+					    heading where it belongs. */}
+					<div className="relative order-1 lg:order-2 lg:-mr-[2vw]">
+						<div className="relative aspect-square w-full max-w-[24rem] lg:ml-auto xl:max-w-[27rem]">
+							<Stage />
+
+							{/* The model stands in the pool: the bottom inset lifts it off
+							    the floor line the pool draws at 85%. */}
+							<div className="absolute inset-x-[5%] top-[1%] bottom-[17%]">
+								<ClientOnly fallback={<div className="size-full" />}>
+									<InView rootMargin="400px" className="size-full">
+										<Suspense fallback={<div className="size-full" />}>
+											<ModelViewer
+												src="/stylized_book.glb"
+												alt="A stylised 3D book, slowly turning under a spotlight"
+												zoom={0.92}
+												className="size-full"
+											/>
+										</Suspense>
+									</InView>
+								</ClientOnly>
+							</div>
+						</div>
+					</div>
 				</div>
 
-				<Reveal delay={0.1} direction="left">
-					{/* aspect-ratio rather than a fixed height, so the model keeps its
-					    proportions from a phone up to a wide monitor. */}
-					{/* three.js and the GLTF loader are the single heaviest import on
-					    the page, for one decorative object below the fold. Loaded when
-					    the section is approaching, and released again when it is well
-					    behind - a WebGL context spinning for a book nobody is looking
-					    at is what made the page feel like it was dragging. */}
-					<ClientOnly fallback={<div className="aspect-[4/3] w-full" />}>
-						<InView rootMargin="800px" className="aspect-[4/3] w-full">
-							<Suspense fallback={<div className="size-full" />}>
-								<ModelViewer
-									src="/stylized_book.glb"
-									alt="A stylised 3D book, slowly turning"
-									zoom={1.15}
-									className="size-full"
-								/>
-							</Suspense>
-						</InView>
-					</ClientOnly>
+				{/* The colophon, closing the band on a single rule. */}
+				<Reveal delay={0.1}>
+					<div
+						className="mt-14 border-t pt-8 sm:mt-16"
+						style={{ borderColor: "rgb(255 255 255 / 0.2)" }}
+					>
+						<dl className="grid grid-cols-1 gap-x-12 gap-y-7 sm:grid-cols-3 lg:gap-x-16">
+							{COLOPHON.map(({ term, value }) => (
+								<div key={term}>
+									<dt
+										className="text-[0.68rem] font-semibold uppercase text-white/40"
+										style={{ letterSpacing: "0.14em" }}
+									>
+										{term}
+									</dt>
+									<dd className="display-tight mt-2.5 text-[1.15rem] text-white/85 sm:text-[1.3rem]">
+										{value}
+									</dd>
+								</div>
+							))}
+						</dl>
+					</div>
 				</Reveal>
 			</div>
 		</section>

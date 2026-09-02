@@ -5,6 +5,7 @@ import { ReactLenis } from "lenis/react";
 import signatureLogo from "#/assets/signature.svg";
 import type { MenuGroup } from "#/components/floating-menu";
 import { FloatingMenu } from "#/components/floating-menu";
+import { SOCIALS } from "#/lib/socials";
 import { SignaturePreloader } from "../components/preloader/SignaturePreloader";
 import appCss from "../styles.css?url";
 
@@ -13,17 +14,22 @@ const menuGroups: MenuGroup[] = [
 		title: "Navigate",
 		links: [
 			{ label: "Home", href: "/" },
-			{ label: "Work", href: "#" },
-			{ label: "About", href: "#" },
+			{ label: "About", href: "#about" },
+			{ label: "The rooms", href: "#the-room" },
+			{ label: "Book", href: "#book" },
 		],
 	},
 	{
+		// No GitHub: he is a trainer and investigator, not a developer, and a
+		// link labelled for a profile that does not exist is worse than one
+		// fewer row.
 		title: "Connect",
 		variant: "muted",
 		links: [
-			{ label: "GitHub", href: "#" },
-			{ label: "LinkedIn", href: "#" },
-			{ label: "Email", href: "mailto:gautam.kumawat.kkb@gmail.com" },
+			{ label: "Instagram", href: SOCIALS.instagram },
+			{ label: "YouTube", href: SOCIALS.youtube },
+			{ label: "LinkedIn", href: SOCIALS.linkedin },
+			{ label: "Email", href: SOCIALS.email },
 		],
 	},
 ];
@@ -78,7 +84,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				</ReactLenis>
 				<FloatingMenu
 					menuGroups={menuGroups}
-					primaryButton={{ label: "Resume", href: "#" }}
+					primaryButton={{ label: "Let's Connect", href: "#connect" }}
 					logo={
 						<a href="/" className="flex items-center" aria-label="Home">
 							<img

@@ -24,7 +24,7 @@ export function BookingSection() {
 	return (
 		<section
 			id="book"
-			className="relative isolate scroll-mt-24 overflow-hidden px-6 pt-24 pb-52 sm:px-10 sm:pb-72"
+			className="relative isolate scroll-mt-24 overflow-hidden px-6 pt-16 pb-36 sm:px-10 sm:pt-24 sm:pb-72"
 			style={{ backgroundColor: HERO_DEEP }}
 		>
 			{/* A finer comb: more bars, so the row reads as a texture rather than

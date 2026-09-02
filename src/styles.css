@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Rouge+Script&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Manrope:wght@400;500;600;700;800&display=swap');
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
 
@@ -9,6 +8,44 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  /* ── The stage ──────────────────────────────────────────────────────────
+     Three tones carry the whole page, and the page is composed by cutting
+     between them: ink is the default room, paper is the one hard cut to
+     daylight (the press wall), signal is the accent finally used as a
+     surface rather than a garnish (the reach section).
+
+     Before this the site ran nine consecutive sections on one flat ink, which
+     is the single thing that made a long scroll read as a template. */
+  --ink: #001219;
+  --ink-raise: #04202a;
+  --ink-deep: #000a0e;
+  --signal: #0953ff;
+
+  /* A true off-white at near-zero chroma, tilted 0.006 toward the signal's
+     own hue rather than toward warmth. Warm near-whites in the L 0.84-0.97 /
+     C < 0.06 / hue 40-100 band all read as cream, and cream is the saturated
+     default this brand has no business wearing. */
+  --paper: oklch(0.965 0.006 264);
+  --paper-ink: oklch(0.235 0.024 250);
+  --paper-ink-soft: oklch(0.44 0.02 250);
+
+  /* Hairlines. The material this redesign is built from: broadcast graphics
+     are ruled, not carded, so structure comes from these rather than from
+     another rounded panel with a white/10 border. */
+  --rule: rgb(255 255 255 / 0.14);
+  --rule-strong: rgb(255 255 255 / 0.32);
+  --rule-paper: color-mix(in oklab, var(--paper-ink) 16%, transparent);
+
+  /* Section rhythm. Varied on purpose - a page where every band is py-28 has
+     no pacing. Sections pick the step that suits what they hold. */
+  /* The floor, not the ceiling, is what a phone gets: at 375px the vw term is
+     only ~34px, so every section was taking its clamp minimum top AND bottom -
+     160px of air between each one. Lower floors tighten the small end and
+     leave the desktop values untouched (past ~930px the vw term wins). */
+  --band: clamp(3.25rem, 9vw, 8.5rem);
+  --band-tight: clamp(2.25rem, 5.5vw, 5rem);
+  --band-wide: clamp(4rem, 13vw, 12rem);
+
   --sea-ink: #173a40;
   --sea-ink-soft: #416166;
   --lagoon: #4fb8b2;
@@ -23,6 +60,9 @@
   --kicker: rgba(47, 106, 74, 0.9);
   --bg-base: #e7f3ec;
   --header-bg: rgba(251, 255, 248, 0.84);
+  /* The collapsed bar is deliberately translucent. The expanded menu is not -
+     it is a panel full of text, and at 84% the hero read straight through it. */
+  --menu-bg: #fbfff8;
   --chip-bg: rgba(255, 255, 255, 0.8);
   --chip-line: rgba(47, 106, 74, 0.18);
   --link-bg-hover: rgba(255, 255, 255, 0.9);
@@ -77,6 +117,7 @@
   --kicker: #b8efe5;
   --bg-base: #0a1418;
   --header-bg: rgba(10, 20, 24, 0.8);
+  --menu-bg: #0a1418;
   --chip-bg: rgba(13, 28, 32, 0.9);
   --chip-line: rgba(141, 229, 219, 0.24);
   --link-bg-hover: rgba(24, 44, 49, 0.8);
@@ -117,6 +158,12 @@
 
 @theme inline {
   --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Archivo', 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  --color-ink: var(--ink);
+  --color-ink-raise: var(--ink-raise);
+  --color-signal: var(--signal);
+  --color-paper: var(--paper);
+  --color-paper-ink: var(--paper-ink);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -211,8 +258,73 @@ pre code {
   margin-inline: auto;
 }
 
-.display-title {
-  font-family: 'Fraunces', Georgia, serif;
+/* ── Display type ─────────────────────────────────────────────────────────
+   Archivo is variable on two axes, and the width axis is the point: set wide
+   and heavy it has the presence of a title card, set condensed and heavy it
+   stacks figures like a scoreboard. One family doing two jobs beats pairing
+   two sans-serifs that would only look like each other's near-miss.
+
+   Letter-spacing stays at or above -0.035em. Tighter than -0.04em and the
+   letters touch, which reads as cramped rather than as designed. */
+.display {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 108, 'wght' 780;
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+  text-wrap: balance;
+}
+
+/* The widest setting, for the one or two lines per page that are the page's
+   own voice rather than a section label. */
+.display-wide {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 125, 'wght' 720;
+  letter-spacing: -0.03em;
+  line-height: 0.94;
+  text-wrap: balance;
+}
+
+/* Condensed, for figures and for anything stacked in a narrow column. */
+.display-tight {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 74, 'wght' 760;
+  letter-spacing: -0.02em;
+  line-height: 0.9;
+}
+
+/* Every figure on the page. Tabular so columns of numbers line up, lining so
+   they sit on the cap line next to display type instead of hanging below it. */
+.tnum {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: 'tnum' 1, 'lnum' 1;
+}
+
+/* Long prose. `pretty` costs nothing and kills the orphan lines that make a
+   carefully set paragraph look careless. */
+.prose-measure {
+  max-width: 68ch;
+  text-wrap: pretty;
+}
+
+/* The nameplate: a broadcast lower-third, which is a caption sitting on a
+   rule with a short accent lead - not a coloured stripe running down the side
+   of a card. It is used where a photograph needs to be identified, and only
+   there. */
+.nameplate {
+  border-top: 1px solid var(--rule-strong);
+  padding-top: 0.75rem;
+}
+
+/* Section rhythm helpers, so bands can vary without every section reaching
+   for its own arbitrary padding pair. */
+.band {
+  padding-block: var(--band);
+}
+.band-tight {
+  padding-block: var(--band-tight);
+}
+.band-wide {
+  padding-block: var(--band-wide);
 }
 
 .island-shell {

@@ -7,14 +7,13 @@ import {
 	Youtube,
 } from "lucide-react";
 import { SHADER_BLUE_BRIGHT } from "#/lib/palette";
+import { EXTERNAL_LINK_PROPS, SOCIALS as URLS } from "#/lib/socials";
 
 /**
  * The social row.
  *
- * ⚠️ PLACEHOLDER HREFS. Every link below points at `#`. They are real,
- * focusable links with real labels, so they read correctly to a screen reader
- * and to the eye - but they go nowhere until the actual profile URLs are
- * dropped in. Same open item as the counts in `reach-section.tsx`.
+ * Addresses come from lib/socials.ts, so the footer row, the nav and the
+ * reach cards cannot drift apart.
  *
  * X has no outline form - the mark is a monoline glyph - so it is drawn as a
  * filled path rather than pulled from lucide, whose `X` is the close/cross
@@ -38,13 +37,13 @@ const SOCIALS: {
 	href: string;
 	Icon: (props: { className?: string }) => React.ReactNode;
 }[] = [
-	{ label: "Instagram", href: "#", Icon: Instagram },
-	{ label: "Facebook", href: "#", Icon: Facebook },
-	{ label: "X", href: "#", Icon: XMark },
-	{ label: "LinkedIn", href: "#", Icon: Linkedin },
-	{ label: "YouTube", href: "#", Icon: Youtube },
-	{ label: "Telegram", href: "#", Icon: Send },
-	{ label: "Email", href: "#", Icon: Mail },
+	{ label: "Instagram", href: URLS.instagram, Icon: Instagram },
+	{ label: "Facebook", href: URLS.facebook, Icon: Facebook },
+	{ label: "X", href: URLS.x, Icon: XMark },
+	{ label: "LinkedIn", href: URLS.linkedin, Icon: Linkedin },
+	{ label: "YouTube", href: URLS.youtube, Icon: Youtube },
+	{ label: "Telegram", href: URLS.telegram, Icon: Send },
+	{ label: "Email", href: URLS.email, Icon: Mail },
 ];
 
 export function SocialLinks({ heading }: { heading?: string }) {
@@ -65,6 +64,10 @@ export function SocialLinks({ heading }: { heading?: string }) {
 						<a
 							href={href}
 							aria-label={label}
+							// mailto: opens a mail client in place; everything else leaves
+							// the site, and a new tab without `noopener` hands the opener
+							// reference to the destination.
+							{...(href.startsWith("mailto:") ? {} : EXTERNAL_LINK_PROPS)}
 							// The accent arrives as a custom property so the hover fill and
 							// the focus ring both read from palette.ts rather than repeating
 							// the hex in a Tailwind arbitrary value.
