@@ -471,7 +471,7 @@ export function FloatingMenu({
 					<div
 						data-slot="grid"
 						className={cn(
-							"grid max-h-[65vh] grid-cols-1 gap-2 overflow-y-auto overscroll-contain p-4 md:max-h-none md:grid-cols-[repeat(auto-fit,minmax(200px,1fr))] md:gap-6 md:overflow-visible",
+							"grid max-h-[65svh] grid-cols-1 gap-2 overflow-y-auto overscroll-contain p-4 md:max-h-none md:grid-cols-[repeat(auto-fit,minmax(200px,1fr))] md:gap-6 md:overflow-visible",
 							classes?.grid,
 						)}
 					>

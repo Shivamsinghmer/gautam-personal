@@ -264,7 +264,7 @@ export function CaseStudyFlipStack({
 			className={cn("relative font-sans", className)}
 			style={{ height: `${safeItems.length * scrollPerCard}vh` }}
 		>
-			<div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden px-[clamp(14px,4vw,64px)] py-8">
+			<div className="sticky top-0 flex h-svh flex-col justify-center overflow-hidden px-[clamp(14px,4vw,64px)] py-8">
 				<div className="relative mx-auto aspect-[3/4] w-full max-w-[860px] [perspective:800px] sm:aspect-[1.76/1]">
 					{[...safeItems].reverse().map((item, reverseIndex) => {
 						const index = safeItems.length - reverseIndex - 1;

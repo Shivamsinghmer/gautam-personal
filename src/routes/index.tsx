@@ -121,7 +121,16 @@ function Home() {
 	return (
 		<main>
 			<section
-				className="relative isolate flex min-h-screen items-center overflow-hidden px-6 sm:px-10 lg:min-h-screen"
+				// `svh`, not `vh`. On a phone `100vh` is the viewport with the browser
+				// chrome retracted - the tallest it ever gets - so a `100vh` hero is
+				// taller than what is actually on screen while the address bar is
+				// showing, and the bottom row lands under it. That row carries the
+				// CTA, so the one thing the hero is asking for was the one thing
+				// below the fold on arrival. `svh` is the smallest viewport: the
+				// whole composition fits whatever the chrome is doing.
+				//
+				// (`lg:min-h-screen` was the same value as the base, so it went.)
+				className="relative isolate flex min-h-svh items-center overflow-hidden px-6 sm:px-10"
 				style={{ backgroundColor: DEEP }}
 			>
 				{/* The stage. One photograph pushed slowly, with a field of light
@@ -198,7 +207,7 @@ function Home() {
 				    the ramp toward black. */}
 				<div
 					aria-hidden="true"
-					className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-[34vh]"
+					className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-[34svh]"
 					style={{
 						background: `linear-gradient(to bottom, ${DEEP}00 0%, ${DEEP}59 40%, ${DEEP}bf 72%, ${DEEP} 100%)`,
 					}}
@@ -229,7 +238,7 @@ function Home() {
 				    The wrapper moves; the picture inside it just sits there. */}
 				<div
 					data-ready={figureReady ? "true" : "false"}
-					className="gk-figure pointer-events-none absolute bottom-0 left-1/2 z-10 h-[58vh] -translate-x-1/2 sm:h-[clamp(360px,84vh,1040px)]"
+					className="gk-figure pointer-events-none absolute bottom-0 left-1/2 z-10 h-[58svh] -translate-x-1/2 sm:h-[clamp(360px,84svh,1040px)]"
 				>
 					<img
 						ref={figureRef}
@@ -253,7 +262,7 @@ function Home() {
 				    secondary "Read the story" link went - the reference carries one
 				    action here, and the story is one scroll away regardless. */}
 				<div // `self-stretch`, because `h-full` resolves to auto against a
-					// `min-h-screen` parent - the column was shrink-wrapping its content
+					// `min-h-svh` parent - the column was shrink-wrapping its content
 					// and being centred, so `mt-auto` had no space to push into and the
 					// claim landed across his face.
 					className="pointer-events-none relative z-20 mx-auto flex w-full max-w-[104rem] flex-col justify-start self-stretch pt-24 pb-10 text-center sm:justify-between sm:pt-28 sm:pb-14 sm:text-left"
@@ -446,7 +455,7 @@ function Home() {
 
 			{/* The nav's "Let's Connect" points here: the sign-off block carries
 			    the social row and the address, so it is where "connect" lands. */}
-			<div id="connect" className="h-screen w-full scroll-mt-0">
+			<div id="connect" className="h-svh w-full scroll-mt-0">
 				<AnimatedFooter
 					// The slot renders directly above the wordmark, so the profiles and
 					// the name read as one sign-off block rather than a separate strip.
