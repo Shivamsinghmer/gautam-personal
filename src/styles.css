@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Manrope:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=DM+Sans:opsz,wght@9..40,400..800&display=swap');
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
 
@@ -16,18 +16,18 @@
 
      Before this the site ran nine consecutive sections on one flat ink, which
      is the single thing that made a long scroll read as a template. */
-  --ink: #001219;
-  --ink-raise: #04202a;
-  --ink-deep: #000a0e;
-  --signal: #0953ff;
+  --ink: #171717;
+  --ink-raise: #262626;
+  --ink-deep: #0e0e0e;
+  --signal: #1447e6;
 
   /* A true off-white at near-zero chroma, tilted 0.006 toward the signal's
      own hue rather than toward warmth. Warm near-whites in the L 0.84-0.97 /
      C < 0.06 / hue 40-100 band all read as cream, and cream is the saturated
      default this brand has no business wearing. */
-  --paper: oklch(0.965 0.006 264);
-  --paper-ink: oklch(0.235 0.024 250);
-  --paper-ink-soft: oklch(0.44 0.02 250);
+  --paper: #fafafa;
+  --paper-ink: #171717;
+  --paper-ink-soft: #737373;
 
   /* Hairlines. The material this redesign is built from: broadcast graphics
      are ruled, not carded, so structure comes from these rather than from
@@ -46,119 +46,140 @@
   --band-tight: clamp(2.25rem, 5.5vw, 5rem);
   --band-wide: clamp(4rem, 13vw, 12rem);
 
-  --sea-ink: #173a40;
-  --sea-ink-soft: #416166;
-  --lagoon: #4fb8b2;
-  --lagoon-deep: #328f97;
-  --palm: #2f6a4a;
-  --sand: #e7f0e8;
-  --foam: #f3faf5;
-  --surface: rgba(255, 255, 255, 0.74);
-  --surface-strong: rgba(255, 255, 255, 0.9);
-  --line: rgba(23, 58, 64, 0.14);
-  --inset-glint: rgba(255, 255, 255, 0.82);
-  --kicker: rgba(47, 106, 74, 0.9);
-  --bg-base: #e7f3ec;
-  --header-bg: rgba(251, 255, 248, 0.84);
+  --sea-ink: #fafafa;
+  --sea-ink-soft: #a1a1a1;
+  --lagoon: #e5e5e5;
+  --lagoon-deep: #e5e5e5;
+  --palm: #a1a1a1;
+  --sand: #262626;
+  --foam: #0e0e0e;
+  --surface: rgba(38, 38, 38, 0.74);
+  --surface-strong: rgba(38, 38, 38, 0.9);
+  --line: rgba(250, 250, 250, 0.14);
+  --inset-glint: rgba(255, 255, 255, 0.06);
+  --kicker: rgba(161, 161, 161, 0.9);
+  --bg-base: #171717;
+  --header-bg: rgba(23, 23, 23, 0.84);
   /* The collapsed bar is deliberately translucent. The expanded menu is not -
      it is a panel full of text, and at 84% the hero read straight through it. */
-  --menu-bg: #fbfff8;
-  --chip-bg: rgba(255, 255, 255, 0.8);
-  --chip-line: rgba(47, 106, 74, 0.18);
-  --link-bg-hover: rgba(255, 255, 255, 0.9);
+  --menu-bg: #171717;
+  --chip-bg: rgba(38, 38, 38, 0.8);
+  --chip-line: rgba(250, 250, 250, 0.18);
+  --link-bg-hover: rgba(255, 255, 255, 0.08);
 
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.141 0.005 285.823);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.141 0.005 285.823);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.141 0.005 285.823);
-  --primary: oklch(0.21 0.006 285.885);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.967 0.001 286.375);
-  --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.21 0.006 285.885);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.577 0.245 27.325);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.871 0.006 286.286);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-primary: oklch(0.21 0.006 285.885);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
-  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.871 0.006 286.286);
+  /* ── Theme tokens ───────────────────────────────────────────────────────
+     Dark only. Every field on this site is composed dark, so the dark values
+     sit on :root rather than shipping a light theme that nothing would ever
+     select - and that would put white type on a white ground the moment any
+     component actually read these tokens. The .dark block below mirrors them
+     so either path resolves the same. */
+  --background: #171717;
+  --foreground: #fafafa;
+  --card: #0e0e0e;
+  --card-foreground: #fafafa;
+  --popover: #171717;
+  --popover-foreground: #fafafa;
+  --primary: #e5e5e5;
+  --primary-foreground: #171717;
+  --secondary: #262626;
+  --secondary-foreground: #fafafa;
+  --muted: #262626;
+  --muted-foreground: #a1a1a1;
+  --accent: #404040;
+  --accent-foreground: #fafafa;
+  --destructive: #ff6467;
+  --destructive-foreground: #fafafa;
+  --border: #262626;
+  --input: #262626;
+  --ring: #737373;
+  --chart-1: #91c5ff;
+  --chart-2: #3a81f6;
+  --chart-3: #2563ef;
+  --chart-4: #1a4eda;
+  --chart-5: #1f3fad;
+  --radius: 1rem;
+  --sidebar: #262626;
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: #1447e6;
+  --sidebar-primary-foreground: #fafafa;
+  --sidebar-accent: #262626;
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-border: #282828;
+  --sidebar-ring: #525252;
+
+  --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+  --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+  --shadow-sm:
+    0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+  --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+  --shadow-md:
+    0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
+  --shadow-lg:
+    0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
+  --shadow-xl:
+    0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
+  --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
 }
 
 .dark {
-  --sea-ink: #d7ece8;
-  --sea-ink-soft: #afcdc8;
-  --lagoon: #60d7cf;
-  --lagoon-deep: #8de5db;
-  --palm: #6ec89a;
-  --sand: #0f1a1e;
-  --foam: #101d22;
-  --surface: rgba(16, 30, 34, 0.8);
-  --surface-strong: rgba(15, 27, 31, 0.92);
-  --line: rgba(141, 229, 219, 0.18);
-  --inset-glint: rgba(194, 247, 238, 0.14);
-  --kicker: #b8efe5;
-  --bg-base: #0a1418;
-  --header-bg: rgba(10, 20, 24, 0.8);
-  --menu-bg: #0a1418;
-  --chip-bg: rgba(13, 28, 32, 0.9);
-  --chip-line: rgba(141, 229, 219, 0.24);
-  --link-bg-hover: rgba(24, 44, 49, 0.8);
+  /* ── Theme tokens ───────────────────────────────────────────────────────
+     Dark only. Every field on this site is composed dark, so the dark values
+     sit on :root rather than shipping a light theme that nothing would ever
+     select - and that would put white type on a white ground the moment any
+     component actually read these tokens. The .dark block below mirrors them
+     so either path resolves the same. */
+  --background: #171717;
+  --foreground: #fafafa;
+  --card: #0e0e0e;
+  --card-foreground: #fafafa;
+  --popover: #171717;
+  --popover-foreground: #fafafa;
+  --primary: #e5e5e5;
+  --primary-foreground: #171717;
+  --secondary: #262626;
+  --secondary-foreground: #fafafa;
+  --muted: #262626;
+  --muted-foreground: #a1a1a1;
+  --accent: #404040;
+  --accent-foreground: #fafafa;
+  --destructive: #ff6467;
+  --destructive-foreground: #fafafa;
+  --border: #262626;
+  --input: #262626;
+  --ring: #737373;
+  --chart-1: #91c5ff;
+  --chart-2: #3a81f6;
+  --chart-3: #2563ef;
+  --chart-4: #1a4eda;
+  --chart-5: #1f3fad;
+  --radius: 1rem;
+  --sidebar: #262626;
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: #1447e6;
+  --sidebar-primary-foreground: #fafafa;
+  --sidebar-accent: #262626;
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-border: #282828;
+  --sidebar-ring: #525252;
 
-  --background: oklch(0.141 0.005 285.823);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.141 0.005 285.823);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.141 0.005 285.823);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.21 0.006 285.885);
-  --secondary: oklch(0.274 0.006 286.033);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.274 0.006 286.033);
-  --muted-foreground: oklch(0.705 0.015 286.067);
-  --accent: oklch(0.274 0.006 286.033);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(0.274 0.006 286.033);
-  --input: oklch(0.274 0.006 286.033);
-  --ring: oklch(0.442 0.017 285.786);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.21 0.006 285.885);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.274 0.006 286.033);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(0.274 0.006 286.033);
-  --sidebar-ring: oklch(0.442 0.017 285.786);
+  --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+  --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.05);
+  --shadow-sm:
+    0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+  --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
+  --shadow-md:
+    0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 2px 4px -1px hsl(0 0% 0% / 0.1);
+  --shadow-lg:
+    0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 4px 6px -1px hsl(0 0% 0% / 0.1);
+  --shadow-xl:
+    0 1px 3px 0px hsl(0 0% 0% / 0.1), 0 8px 10px -1px hsl(0 0% 0% / 0.1);
+  --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
 }
 
+
 @theme inline {
-  --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
-  --font-display: 'Archivo', 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Archivo', 'DM Sans', ui-sans-serif, system-ui, sans-serif;
   --color-ink: var(--ink);
   --color-ink-raise: var(--ink-raise);
   --color-signal: var(--signal);
@@ -200,6 +221,18 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Without these the shadow tokens above are inert: Tailwind's shadow-*
+     utilities read --shadow-*, not the raw custom properties. */
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
+
 }
 
 html,
@@ -210,9 +243,9 @@ body,
 
 body {
   margin: 0;
-  color: var(--sea-ink);
+  color: var(--foreground);
   font-family: var(--font-sans);
-  background-color: var(--bg-base);
+  background-color: var(--background);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -424,11 +457,185 @@ a {
   }
 }
 
+/* ── Hero stage ───────────────────────────────────────────────────────────── */
+
+/* The slow push behind the hero. Transform only, so it stays on the compositor;
+   `animation-play-state` is driven from React when the hero leaves the screen. */
+@keyframes gk-kenburns {
+  from {
+    transform: scale(1.06) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.16) translate3d(-1.8%, -1.2%, 0);
+  }
+}
+.gk-kenburns {
+  animation: gk-kenburns 30s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
+  will-change: transform;
+}
+
+/* Each headline line rises out from behind its own edge. The line is the mask,
+   so the type appears to be uncovered rather than to fade in. */
+@keyframes gk-line-in {
+  from {
+    transform: translateY(105%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.gk-line {
+  display: block;
+  overflow: hidden;
+}
+.gk-line > span {
+  display: block;
+  transform: translateY(105%);
+}
+[data-preloader='done'] .gk-line > span {
+  animation: gk-line-in 0.95s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--gk-delay, 0s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gk-kenburns {
+    animation: none;
+  }
+  .gk-line > span {
+    transform: none;
+  }
+  [data-preloader='done'] .gk-line > span {
+    animation: none;
+  }
+}
+
+/* The opening: the backdrop settles out of a close-up, the figure rises in
+   front of the wordmark, and the wordmark itself comes up to meet him. The
+   three are staggered so the depth reads - background, type, foreground. */
+@keyframes gk-stage-settle {
+  from {
+    transform: scale(1.42);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+/* The figure arrives close to the viewer and falls back into place, which is
+   what carries the wordmark behind it on the way. */
+@keyframes gk-figure-rise {
+  from {
+    opacity: 0;
+    transform: translateY(13%) scale(1.34);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* After the intro, the figure keeps breathing - a very slow rise and fall,
+   nowhere near enough to notice as movement, but enough that the frame is
+   never quite still. Transform only, and paused when the hero is off screen. */
+@keyframes gk-figure-float {
+  from {
+    transform: translateY(0) scale(1);
+  }
+  to {
+    transform: translateY(-1.1%) scale(1.025);
+  }
+}
+
+/* The opening wordmark. It belongs to the intro only: it rises behind the
+   figure while he is still large and close, and is gone by the time he has
+   settled - so the resting hero is the corner blocks, not a name across the
+   middle of the picture. `both` holds it at the final keyframe, opacity 0. */
+@keyframes gk-intro-mark {
+  0% {
+    opacity: 0;
+    transform: translateY(0.18em) scale(0.985);
+  }
+  22% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  58% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-0.12em) scale(1.02);
+  }
+}
+@keyframes gk-mark-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.16em);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.gk-stage {
+  transform: scale(1.42);
+}
+[data-preloader='done'] .gk-stage {
+  animation: gk-stage-settle 2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.gk-figure {
+  opacity: 0;
+}
+[data-preloader='done'] .gk-figure {
+  animation:
+    gk-figure-rise 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both,
+    gk-figure-float 16s ease-in-out 1.9s infinite alternate;
+}
+.gk-mark {
+  opacity: 0;
+}
+[data-preloader='done'] .gk-mark {
+  animation: gk-mark-in 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+}
+.gk-intro-mark {
+  opacity: 0;
+}
+[data-preloader='done'] .gk-intro-mark {
+  animation: gk-intro-mark 2.9s cubic-bezier(0.33, 0, 0.2, 1) 0.15s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gk-stage,
+  [data-preloader='done'] .gk-stage {
+    animation: none;
+    transform: none;
+  }
+  .gk-figure,
+  .gk-mark,
+  [data-preloader='done'] .gk-figure,
+  [data-preloader='done'] .gk-mark {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  /* The intro mark is pure choreography, so reduced motion simply never
+     shows it rather than flashing it up and taking it away again. */
+  .gk-intro-mark,
+  [data-preloader='done'] .gk-intro-mark {
+    animation: none;
+    display: none;
+  }
+}
+
 /* ── Signature preloader hand-off ─────────────────────────────────────────── */
 /* The flood settles on --bg-base, so the page it uncovers must be that exact
    colour or the seam shows as a flash. */
+/* The page ground comes from the theme now. This rule is unlayered, so it is
+   what actually wins over the @layer base declaration above - keeping both in
+   agreement rather than letting one silently override the other. */
 body {
-  background-color: var(--bg-base);
+  background-color: var(--background);
 }
 
 @keyframes gk-rise {

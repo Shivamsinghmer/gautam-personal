@@ -1,13 +1,24 @@
-/** The hero's own palette (routes/index.tsx), shared so other sections can match it exactly. */
-export const HERO_DEEP = "#001219";
-export const HERO_TEAL = "#005f73";
-export const HERO_MINT = "#94d2bd";
-export const HERO_SAND = "#e9d8a6";
+/**
+ * The site's colours, expressed as the theme's own values.
+ *
+ * These names are historical - they were a teal/sand set before the theme
+ * landed - but every section reads its ground from here, so remapping the
+ * values is what actually applies the theme across the page rather than
+ * touching fifteen components.
+ *
+ * They stay six-digit hex on purpose: call sites build translucent variants by
+ * concatenating an alpha pair onto them (`${INK}99`, `${INK_DEEP}f2`), which
+ * `oklch(...)` or `var(...)` would break.
+ */
+export const HERO_DEEP = "#171717";
+export const HERO_TEAL = "#404040";
+export const HERO_MINT = "#a1a1a1";
+export const HERO_SAND = "#a1a1a1";
 
 /** The shader-gradient background's blue palette (shader-gradient-background.tsx). */
-export const SHADER_BLUE_DEEP = "#0a3e8c";
-export const SHADER_BLUE_INK = "#142241";
-export const SHADER_BLUE_BRIGHT = "#0953ff";
+export const SHADER_BLUE_DEEP = "#1a4eda";
+export const SHADER_BLUE_INK = "#1f3fad";
+export const SHADER_BLUE_BRIGHT = "#1447e6";
 
 /**
  * The page's three stages.
@@ -23,16 +34,18 @@ export const SHADER_BLUE_BRIGHT = "#0953ff";
  * - `SIGNAL` — the accent used as a surface for exactly one section, so the blue
  *   finally acts as a colour instead of as a garnish on buttons.
  *
- * Contrast, verified rather than assumed: `SIGNAL` has a relative luminance of
- * 0.135, so pure white on it is 5.7:1 and clears AA for body text - but white
- * at 70% opacity composites to 3.5:1 and does not. Secondary copy on the blue
- * field therefore floors at 90% white (4.9:1), never the usual `/60` or `/70`.
+ * Contrast, re-measured after the theme swap rather than carried over: the new
+ * `SIGNAL` has a relative luminance of 0.104 (the previous blue was 0.135), so
+ * pure white on it is 6.83:1 - a little better than before. The rule it implies
+ * is unchanged: white at 70% composites to 4.11:1 and still misses AA for body
+ * text, so secondary copy on the blue field floors at 90% white (5.82:1), never
+ * the usual `/60` or `/70`.
  */
 export const INK = HERO_DEEP;
 /** One step up from `INK`, for the rare panel that has to separate from it. */
-export const INK_RAISE = "#04202a";
+export const INK_RAISE = "#262626";
 /** Below `INK`, for the shade under type over photography. */
-export const INK_DEEP = "#000a0e";
+export const INK_DEEP = "#0e0e0e";
 export const SIGNAL = SHADER_BLUE_BRIGHT;
 
 /**
@@ -45,6 +58,6 @@ export const SIGNAL = SHADER_BLUE_BRIGHT;
  * toward warmth: the warm near-white band is the cream default this brand's
  * anti-references rule out.
  */
-export const PAPER = "oklch(0.965 0.006 264)";
-export const PAPER_INK = "oklch(0.235 0.024 250)";
-export const PAPER_INK_SOFT = "oklch(0.44 0.02 250)";
+export const PAPER = "#fafafa";
+export const PAPER_INK = "#171717";
+export const PAPER_INK_SOFT = "#737373";

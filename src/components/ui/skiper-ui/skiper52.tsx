@@ -82,14 +82,30 @@ export function HoverExpand_001({
 		pausedUntil.current = Date.now() + 8000;
 	};
 
-	// Keep the expanded card in view when the row has to scroll, which it does
-	// on a phone - otherwise the timer advances to a card off the right edge.
+	/**
+	 * Keep the expanded card in view when the row has to scroll, which it does
+	 * on a phone - otherwise the timer advances to a card off the right edge.
+	 *
+	 * This drives the row's own `scrollLeft` rather than calling
+	 * `scrollIntoView`. That method scrolls every scrollable ancestor including
+	 * the document, so on first paint it dragged the whole page down to this
+	 * section - the reader landed on the testimonials instead of the hero. It
+	 * also skips the first run: on mount there is nothing to bring into view.
+	 */
+	const firstRun = useRef(true);
 	// biome-ignore lint/correctness/useExhaustiveDependencies: re-runs per active card
 	useEffect(() => {
-		activeRef.current?.scrollIntoView({
+		if (firstRun.current) {
+			firstRun.current = false;
+			return;
+		}
+		const row = rowRef.current;
+		const card = activeRef.current;
+		if (!row || !card) return;
+		const left = card.offsetLeft - row.clientWidth / 2 + card.offsetWidth / 2;
+		row.scrollTo({
+			left: Math.max(0, left),
 			behavior: "smooth",
-			inline: "center",
-			block: "nearest",
 		});
 	}, [activeIndex]);
 

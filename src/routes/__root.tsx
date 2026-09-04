@@ -87,11 +87,17 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 					primaryButton={{ label: "Let's Connect", href: "#connect" }}
 					logo={
 						<a href="/" className="flex items-center" aria-label="Home">
+							{/* The mark is an SVG filled with `currentColor`, but it is
+							    loaded through <img>, which renders it in its own document -
+							    it cannot inherit `color` from this page, so currentColor
+							    resolved to black and the signature sat almost invisible on
+							    the dark bar. (The inline `color` here was inert for the
+							    same reason.) `brightness-0` flattens it to solid black
+							    while keeping its alpha, and `invert` lifts that to white. */}
 							<img
 								src={signatureLogo}
 								alt="Gautam Kumawat"
-								className="h-7 w-auto"
-								style={{ color: "var(--lagoon-deep)" }}
+								className="h-7 w-auto brightness-0 invert"
 							/>
 						</a>
 					}

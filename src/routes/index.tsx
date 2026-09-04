@@ -1,43 +1,26 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowRight, PhoneCall } from "lucide-react";
-import { lazy, Suspense, useEffect, useState } from "react";
+import { PhoneCall } from "lucide-react";
+import { lazy, Suspense } from "react";
 import { AboutSection } from "#/components/about-section";
 import { AnimatedFooter } from "#/components/animated-footer";
 import { BookSection } from "#/components/book-section";
 import { BookingSection } from "#/components/booking-section";
 import { CollageSection } from "#/components/collage-section";
 import { FeaturedInSection } from "#/components/featured-in-section";
+import { HeroBackdrop } from "#/components/hero-backdrop";
 import { JourneySection } from "#/components/journey-section";
 import { ReachSection } from "#/components/reach-section";
 import { SocialLinks } from "#/components/social-links";
 import { TestimonialsSection } from "#/components/testimonials-section";
-import { AsciiEffect } from "#/components/ui/ascii-effect";
 import { ClientOnly } from "#/components/ui/deferred";
 import { Reveal } from "#/components/ui/scroll-reveal";
 import { StatIndex } from "#/components/ui/stat-index";
 import {
 	HERO_DEEP as DEEP,
-	HERO_SAND as SAND,
 	SHADER_BLUE_BRIGHT,
-	SHADER_BLUE_DEEP,
-	SHADER_BLUE_INK,
 	HERO_TEAL as TEAL,
 } from "#/lib/palette";
 import { usePreloaderDone } from "#/lib/use-preloader-done";
-
-/**
- * The page's two WebGL surfaces, each in its own chunk.
- *
- * Both are decoration over markup that already stands on its own - the hero
- * keeps its painted gradient, the footer wordmark keeps real text - so
- * deferring them costs nothing and takes @shadergradient/react, three.js and
- * ogl out of the bundle that has to parse before the page is interactive.
- */
-const ShaderGradientBackground = lazy(() =>
-	import("#/components/shader-gradient-background").then((m) => ({
-		default: m.ShaderGradientBackground,
-	})),
-);
 
 const WarpText = lazy(() =>
 	import("#/components/ui/warp-text").then((m) => ({ default: m.WarpText })),
@@ -78,85 +61,48 @@ function Home() {
 	// animates here has to wait for it - see use-preloader-done.ts.
 	const revealed = usePreloaderDone();
 
-	const [motion, setMotion] = useState(false);
-	useEffect(() => {
-		const q = window.matchMedia("(prefers-reduced-motion: reduce)");
-		const sync = () => setMotion(!q.matches);
-		sync();
-		q.addEventListener("change", sync);
-		return () => q.removeEventListener("change", sync);
-	}, []);
-
 	return (
 		<main>
 			<section
 				className="relative isolate flex min-h-screen items-center overflow-hidden px-6 sm:px-10 lg:min-h-screen"
 				style={{ backgroundColor: DEEP }}
 			>
-				{/* Painted first so there is never a bare panel: the gradient holds the
-				    frame before WebGL has a context, and stays the whole picture where
-				    WebGL is unavailable or motion is unwelcome.
+				{/* The stage. One photograph pushed slowly, with a field of light
+				    over it that the pointer disturbs - see hero-backdrop.tsx. This
+				    replaces the shader gradient and the ASCII portrait both: the
+				    hero is the picture now, and the type stands on it. */}
+				<div className="gk-stage absolute inset-0 -z-20 overflow-hidden">
+					{/* The same portrait as the figure, at a different scale: blown
+					    up until only the eyes are in frame, blurred back and dimmed
+					    so it reads as depth rather than as a second picture. One
+					    asset doing two jobs.
 
-				    Built from the shader's own three blues. It used to be teal, mint
-				    and sand - the site's older palette - which was fine as long as
-				    you never saw it. But the canvas is unmounted once the hero is a
-				    screen behind you, so jumping straight back to the top from the
-				    footer showed this layer bare for the moment before WebGL had a
-				    context again: the hero flashed green. Same colours as the
-				    shader, and the swap stops being visible. */}
+					    `object-[50%_21%]` is derived, not guessed: object-cover fits
+					    the square plate to the viewport width, leaving 540px of
+					    vertical overflow, and 21% of that puts the eye line at the
+					    centre of the frame - which is where scale() then magnifies
+					    from. `object-top` framed the hair. */}
+					<HeroBackdrop
+						image="/hero.png"
+						className="absolute inset-0 overflow-hidden"
+						imageClassName="scale-[2.6] blur-[2px] brightness-[0.62] object-[50%_21%] sm:scale-[2.2]"
+					/>
+				</div>
+
+				{/* Two scrims rather than one. A flat veil seats the photograph in
+				    the page's key; a wedge weighted to the left puts ground under
+				    the type without draining the picture on the right, where there
+				    is nothing to read. */}
 				<div
 					aria-hidden="true"
-					className="absolute inset-0 -z-20"
-					style={{
-						background: `radial-gradient(120% 90% at 18% 12%, ${SHADER_BLUE_DEEP} 0%, transparent 58%),
-							radial-gradient(95% 75% at 84% 74%, ${SHADER_BLUE_BRIGHT}40 0%, transparent 62%),
-							radial-gradient(80% 65% at 60% 20%, ${SHADER_BLUE_INK}cc 0%, transparent 68%),
-							${DEEP}`,
-					}}
+					className="pointer-events-none absolute inset-0 -z-10"
+					style={{ backgroundColor: `${DEEP}4d` }}
 				/>
-
-				{motion ? (
-					<ClientOnly>
-						<Suspense fallback={null}>
-							<ShaderGradientBackground className="absolute inset-0 -z-10 h-full w-full" />
-						</Suspense>
-					</ClientOnly>
-				) : null}
-
-				{/* An even veil, not a directional wipe. This shader's palette is all
-				    dark blue (#0a3e8c, #142241, #0953ff) and its brightest colour has
-				    a relative luminance of only 0.135, so the veil can be light and
-				    still leave a wide contrast margin. Pulled back from 30% to 16% so
-				    the gradient reads as a lit field rather than something behind
-				    frosted glass; the copy keeps its own pool of shade below. */}
-				<div
-					aria-hidden="true"
-					className="absolute inset-0 -z-10"
-					style={{ backgroundColor: `${DEEP}29` }}
-				/>
-
-				{/* Bloom. Screen-blended so it adds light instead of painting over
-				    the shader, and placed in the two corners the copy does not use -
-				    top right, where the streak already runs, and bottom left. This
-				    is the glow the flat veil used to flatten out. */}
 				<div
 					aria-hidden="true"
 					className="pointer-events-none absolute inset-0 -z-10"
 					style={{
-						mixBlendMode: "screen",
-						background: `radial-gradient(46% 52% at 88% 8%, ${SHADER_BLUE_BRIGHT}59 0%, ${SHADER_BLUE_BRIGHT}1a 42%, transparent 72%),
-							radial-gradient(58% 46% at 72% 96%, ${SHADER_BLUE_BRIGHT}3d 0%, transparent 70%),
-							radial-gradient(40% 44% at 4% 88%, ${TEAL}47 0%, transparent 72%)`,
-					}}
-				/>
-
-				{/* A soft pool of shade under the copy only, so the left column keeps
-				    a little extra separation without draining the field around it. */}
-				<div
-					aria-hidden="true"
-					className="absolute inset-0 -z-10"
-					style={{
-						background: `radial-gradient(64% 76% at 26% 52%, ${DEEP}a6 0%, ${DEEP}54 45%, ${DEEP}00 76%)`,
+						background: `linear-gradient(100deg, ${DEEP}d9 0%, ${DEEP}a6 38%, ${DEEP}4d 66%, ${DEEP}1a 100%)`,
 					}}
 				/>
 
@@ -190,138 +136,180 @@ function Home() {
 					}}
 				/>
 
-				{/* Copy left, portrait right, in the shape of the reference: a ruled
-				    eyebrow, a three-line headline that drops one line to grey, a
-				    subline with the facts bolded out of it, a filled primary next to
-				    a quiet text link, and a stat row along the bottom. */}
-				<div className="relative mx-auto grid w-full max-w-6xl items-center gap-5 pt-20 pb-8 sm:gap-10 sm:pt-28 sm:pb-16 lg:grid-cols-[1fr_minmax(0,460px)] lg:gap-14 lg:py-0">
-					<div className="order-2 lg:order-1">
-						<p
-							className="gk-reveal flex items-center gap-4 text-[0.7rem] font-semibold uppercase sm:text-xs"
-							style={{
-								color: SAND,
-								letterSpacing: "0.2em",
-								["--gk-delay" as string]: "0.05s",
-							}}
+				{/* The opening wordmark, and only the opening. It rises behind the
+				    figure while he is still large and close to the viewer, then
+				    clears as he settles - so the resting hero is the corner blocks
+				    rather than a name laid across his chest. `aria-hidden` because
+				    the name is already the document title and the top-left label;
+				    this is choreography, not a second heading. */}
+				<p
+					aria-hidden="true"
+					className="gk-intro-mark pointer-events-none absolute inset-x-0 top-1/2 z-0 -translate-y-1/2 text-center font-extrabold leading-[0.9] tracking-[-0.05em] text-white/85"
+					style={{ fontSize: "clamp(2.4rem, 10vw, 7.5rem)" }}
+				>
+					Gautam Kumawat
+				</p>
+
+				{/* The figure, centred and bottom-anchored, standing in front of
+				    his own enlarged face. Sized by width rather than height: the
+				    plate is square, so height-sizing made it wide enough to leave
+				    the flanking copy no room. */}
+				<img
+					src="/hero.png"
+					alt="Gautam Kumawat"
+					decoding="async"
+					// Hidden below sm. The plate is square, so at 78vh it is 633px wide on a
+					// 375px screen - it hangs off both edges and sits directly behind the
+					// copy. The enlarged face in the backdrop still carries him there.
+					// Bigger, and hung below the fold on purpose. The plate's silhouette runs
+					// out to its own side edges from 76% down - measured - which put a hard
+					// vertical cut through his shoulder in mid-screen. Above 66% it never
+					// exceeds 27-74% of the plate width, so showing the top two thirds and
+					// letting the rest fall past the bottom edge gives a complete figure
+					// whose shoulders leave frame at the bottom, the way they should. The
+					// bounding box is wide, but everything it overlaps beside him is
+					// transparent.
+					//
+					// The offset is what sets how high he sits: less of it lifts him up
+					// the frame but shows more of the plate, and past ~66% the shoulders
+					// start running out to the sides again. 38% lands exactly on that
+					// limit, which is as high as he goes without the cut coming back.
+					// The whole plate is shown now, at a smaller size. That reintroduces
+					// the problem the offset was hiding: the silhouette runs out to the
+					// plate's own side edges from 76% down - measured - so the shoulders
+					// end on a hard vertical line. A mask fades the bottom out before
+					// that line is reached, so he dissolves into the field instead of
+					// being cut off, and the full figure can sit in frame.
+					//
+					// The plate is square, so its height is also its width, and the
+					// height is what caps the size: the whole thing has to fit between
+					// the nav and the bottom edge. 84vh is as large as it goes while
+					// still clearing the bar overhead.
+					className="gk-figure pointer-events-none absolute bottom-0 left-1/2 z-10 hidden h-[clamp(360px,84vh,1040px)] w-auto max-w-none -translate-x-1/2 object-contain object-bottom sm:block"
+					style={{
+						maskImage:
+							"linear-gradient(to bottom, #000 0%, #000 58%, rgb(0 0 0 / 0.35) 82%, transparent 100%)",
+						WebkitMaskImage:
+							"linear-gradient(to bottom, #000 0%, #000 58%, rgb(0 0 0 / 0.35) 82%, transparent 100%)",
+					}}
+				/>
+
+				{/* Five blocks in three rows, in the shape of the reference: an
+				    identifier top left, the claim and a quiet label on the middle
+				    line, the action and the summing-up line along the bottom. The
+				    secondary "Read the story" link went - the reference carries one
+				    action here, and the story is one scroll away regardless. */}
+				<div className="pointer-events-none relative z-20 mx-auto flex h-full w-full max-w-[104rem] flex-col justify-between pt-24 pb-10 sm:pt-28 sm:pb-14">
+					<p
+						className="gk-reveal pointer-events-auto text-[0.78rem] leading-snug sm:text-[0.85rem]"
+						style={{ color: TYPE, ["--gk-delay" as string]: "0.05s" }}
+					>
+						Gautam Kumawat /
+						<br />
+						<span style={{ color: TYPE_SOFT }}>Cybercrime investigator.</span>
+					</p>
+
+					<div className="flex items-center justify-between gap-8">
+						<h1
+							className="display max-w-[52%] text-[clamp(1.55rem,3.3vw,3rem)] sm:max-w-[30%]"
+							style={{ color: TYPE }}
 						>
 							<span
-								aria-hidden="true"
-								className="h-px w-8 shrink-0"
-								style={{ backgroundColor: SAND }}
-							/>
-							Cybercrime investigator · Trainer to law enforcement
-						</p>
-
-						{/* One line in grey rather than three in white - it gives the
-						    block a middle and stops it reading as a wall. */}
-						<h1
-							className="gk-reveal display mt-[clamp(0.9rem,3.2vh,1.75rem)] max-w-[19ch] text-[clamp(1.95rem,min(5vw,8vh),3.5rem)]"
-							style={{ color: TYPE, ["--gk-delay" as string]: "0.14s" }}
-						>
-							From law enforcement
-							<br />
-							<span style={{ color: "#8fa3a8" }}>to 41,000 students</span>
-							<br />
-							across 162 countries
+								className="gk-line"
+								style={{ ["--gk-delay" as string]: "0.16s" }}
+							>
+								<span>Cybercrime</span>
+							</span>
+							<span
+								className="gk-line"
+								style={{ ["--gk-delay" as string]: "0.28s" }}
+							>
+								<span>investigator.</span>
+							</span>
+							<span
+								className="gk-line"
+								style={{ ["--gk-delay" as string]: "0.4s" }}
+							>
+								<span>Trainer to officers.</span>
+							</span>
 						</h1>
 
 						<p
-							className="gk-reveal prose-measure mt-[clamp(0.9rem,3.2vh,1.75rem)] max-w-xl text-[0.95rem] leading-relaxed sm:text-lg"
-							style={{ color: TYPE_SOFT, ["--gk-delay" as string]: "0.22s" }}
+							className="gk-reveal hidden max-w-[24%] text-right text-[0.78rem] leading-snug sm:block sm:text-[0.85rem]"
+							style={{ color: TYPE_SOFT, ["--gk-delay" as string]: "0.62s" }}
 						>
-							Seven years training officials across{" "}
-							<strong className="font-semibold" style={{ color: TYPE }}>
-								law enforcement agencies
-							</strong>{" "}
-							in India and the US. Now teaching{" "}
-							<strong className="font-semibold" style={{ color: TYPE }}>
-								ethical hacking and darknet investigation
-							</strong>{" "}
-							— from field practice, not theory.
+							Law-enforcement agencies
+							<br />
+							India · United States
 						</p>
-
-						<div
-							className="gk-reveal mt-[clamp(1rem,3.4vh,2.25rem)] flex flex-wrap items-center gap-x-7 gap-y-4"
-							style={{ ["--gk-delay" as string]: "0.3s" }}
-						>
-							<a
-								href="#book"
-								className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-opacity hover:opacity-90"
-								// Inline colour: styles.css carries an unlayered `a { color }`
-								// rule that beats Tailwind's layered utilities.
-								style={{
-									backgroundColor: SHADER_BLUE_BRIGHT,
-									color: "#ffffff",
-								}}
-							>
-								<PhoneCall className="h-4 w-4" aria-hidden="true" />
-								Book a Call
-							</a>
-							<a
-								href="#about"
-								className="group inline-flex min-h-11 items-center gap-2 py-2 text-sm font-medium transition-colors"
-								style={{ color: TYPE_SOFT }}
-							>
-								Read the story
-								<ArrowRight
-									className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-									aria-hidden="true"
-								/>
-							</a>
-						</div>
-
-						{/* The figures, as a ruled index rather than the six circular icon
-						    chips that were here. Big number, small label, supporting stats,
-						    accent tint is the hero-metric template, and a lucide shield next
-						    to "500 cases" was decoration standing in for information.
-
-						    Four figures, not six. "750K community" was the sum of the channel
-						    counts the reach section lists in full a few screens down, and
-						    "500+ cases" was a stand-in with no source behind it - so the row
-						    now carries only what the page can actually stand behind, at
-						    roughly twice the size. Agencies survives over cases because the
-						    institutional buyer is the audience that needs it.
-
-						    Held until the preloader lifts - see use-preloader-done.ts - so
-						    the figures tick over in front of the visitor rather than behind
-						    the overlay. */}
-						<div
-							className="gk-reveal mt-[clamp(1.25rem,4.4vh,3rem)]"
-							style={{ ["--gk-delay" as string]: "0.38s" }}
-						>
-							<StatIndex
-								start={revealed}
-								className="grid-cols-4 gap-x-3 gap-y-0 sm:gap-x-8"
-								items={[
-									{ value: 41, suffix: "K+", label: "Students" },
-									{ value: 162, label: "Countries" },
-									{ value: 7, suffix: "+", label: "Years" },
-									{ value: 30, suffix: "+", label: "Agencies" },
-								]}
-							/>
-						</div>
 					</div>
 
-					<div
-						className="gk-reveal relative order-1 mx-auto aspect-square w-full max-w-[210px] overflow-hidden rounded-2xl border border-white/10 sm:max-w-[300px] lg:order-2 lg:mx-0 lg:aspect-auto lg:h-[min(560px,68vh)] lg:max-w-[460px]"
-						style={{ ["--gk-delay" as string]: "0s" }}
-					>
-						<AsciiEffect
-							variant="glitch"
-							imageSrc="/gautam.png"
-							alt="ASCII portrait of Gautam Kumawat"
-							backgroundColor={DEEP}
-							colors={[SHADER_BLUE_BRIGHT, TYPE]}
-							fit="cover"
-							fontSize={6}
-							contrast={1.2}
-							posterize={48}
-							glitchIntensity={0.65}
-							glitchFrequency={1.4}
-							revealDuration={1400}
-							className="size-full"
-						/>
+					<div className="flex items-end justify-between gap-8">
+						<a
+							href="#book"
+							className="gk-reveal pointer-events-auto inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-opacity hover:opacity-90"
+							// Inline colour: styles.css carries an unlayered `a { color }`
+							// rule that beats Tailwind's layered utilities.
+							style={{
+								backgroundColor: SHADER_BLUE_BRIGHT,
+								color: "#ffffff",
+								["--gk-delay" as string]: "0.78s",
+							}}
+						>
+							<PhoneCall className="h-4 w-4" aria-hidden="true" />
+							Book a Call
+						</a>
+
+						<p
+							className="display hidden max-w-[30%] text-right text-[clamp(1rem,1.8vw,1.7rem)] sm:block"
+							style={{ color: TYPE }}
+						>
+							<span
+								className="gk-line"
+								style={{ ["--gk-delay" as string]: "0.5s" }}
+							>
+								<span>Cybercrime scales.</span>
+							</span>
+							<span
+								className="gk-line"
+								style={{ ["--gk-delay" as string]: "0.6s" }}
+							>
+								<span>So must the people</span>
+							</span>
+							<span
+								className="gk-line"
+								style={{ ["--gk-delay" as string]: "0.7s" }}
+							>
+								<span>who stop it.</span>
+							</span>
+						</p>
 					</div>
+				</div>
+			</section>
+
+			{/* The figures, as a band of their own under the hero rather than a
+			    fourth block crowding the corner layout. Full width, one row, on a
+			    hairline - so the hero stays the photograph and the numbers get
+			    read as a ledger instead of as hero furniture. */}
+			<section
+				aria-label="By the numbers"
+				className="relative z-10 border-y px-6 py-8 sm:px-10 sm:py-10"
+				style={{
+					backgroundColor: DEEP,
+					borderColor: "rgb(255 255 255 / 0.12)",
+				}}
+			>
+				<div className="mx-auto max-w-6xl">
+					<StatIndex
+						start={revealed}
+						className="grid-cols-2 gap-x-6 gap-y-7 sm:grid-cols-4 sm:gap-x-10"
+						items={[
+							{ value: 41, suffix: "K+", label: "Students" },
+							{ value: 162, label: "Countries" },
+							{ value: 7, suffix: "+", label: "Years" },
+							{ value: 30, suffix: "+", label: "Agencies" },
+						]}
+					/>
 				</div>
 			</section>
 
