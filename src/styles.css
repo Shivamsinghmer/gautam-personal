@@ -525,7 +525,7 @@ a {
 @keyframes gk-figure-rise {
   from {
     opacity: 0;
-    transform: translateY(13%) scale(1.34);
+    transform: translate3d(0, 9%, 0) scale(1.18);
   }
   to {
     opacity: 1;
@@ -554,13 +554,20 @@ a {
     opacity: 0;
     transform: translateY(0.18em) scale(0.985);
   }
-  22% {
+  20% {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
-  58% {
+  46% {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+  /* Fully clear by 78%, which is 1.27s - just before the first corner block
+     starts at 1.3s. Running the fade all the way to 100% left the name still
+     at ~37% opacity while the headline was arriving over it. */
+  78% {
+    opacity: 0;
+    transform: translateY(-0.12em) scale(1.02);
   }
   100% {
     opacity: 0;
@@ -586,11 +593,20 @@ a {
 }
 .gk-figure {
   opacity: 0;
+  /* Promote it to its own layer for the entrance, so the browser composites a
+     cached bitmap rather than repainting the plate on every frame. */
+  will-change: transform, opacity;
+  backface-visibility: hidden;
 }
-[data-preloader='done'] .gk-figure {
+/* Held until the plate has actually decoded. hero.png is ~1.6MB, and on a
+   repeat visit the preloader is skipped and `done` is set before first paint -
+   so the entrance was running against an image that had not arrived yet,
+   finishing before there was anything to see. The picture then simply appeared.
+   `data-ready` is set from the image's own load event. */
+[data-preloader='done'] .gk-figure[data-ready='true'] {
   animation:
-    gk-figure-rise 1.5s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both,
-    gk-figure-float 16s ease-in-out 1.9s infinite alternate;
+    gk-figure-rise 1.7s cubic-bezier(0.22, 0.61, 0.36, 1) 0.1s both,
+    gk-figure-float 16s ease-in-out 1.7s infinite alternate;
 }
 .gk-mark {
   opacity: 0;
@@ -602,7 +618,11 @@ a {
   opacity: 0;
 }
 [data-preloader='done'] .gk-intro-mark {
-  animation: gk-intro-mark 2.9s cubic-bezier(0.33, 0, 0.2, 1) 0.15s both;
+  /* Short, because it has the stage to itself. The corner blocks are held
+     until it is clearing (their --gk-delay values start at 1.3s); when this
+     ran for 2.9s they arrived on top of it and the name crossed straight
+     through the headline. */
+  animation: gk-intro-mark 1.5s cubic-bezier(0.33, 0, 0.2, 1) 0.1s both;
 }
 
 @media (prefers-reduced-motion: reduce) {

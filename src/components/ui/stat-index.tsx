@@ -4,23 +4,24 @@ import StatsCounter from "#/components/ui/stats-counter";
 import { cn } from "#/lib/utils";
 
 /**
- * The ruled figure index.
+ * The figure index, in two forms.
  *
- * What it replaced: a row of circular icon chips, each with a number and a
- * label under it. That shape - big number, small label, supporting stats, an
- * accent tint - is the hero-metric template, and it appeared twice on this
- * page. It also put a lucide glyph beside every figure, which adds nothing: a
- * shield icon does not help anyone read "500 cases".
+ * `rule` is the broadcast form: each figure under its own hairline, condensed
+ * Archivo with tabular numerals, label beneath. The rules align across the
+ * grid so the block reads as one index rather than as separate tiles, and
+ * because the rule belongs to each cell rather than sitting between cells, it
+ * survives any wrap without stranding a divider at the end of a row.
  *
- * This is the broadcast alternative. Each figure sits under its own hairline,
- * set in condensed Archivo with tabular numerals, label beneath in Manrope.
- * The rules align across the grid, so the block reads as one index rather than
- * as six tiles - and because the rule belongs to each cell rather than sitting
- * between cells, it survives any wrap without stranding a divider at the end
- * of a row.
+ * `chip` is the icon form - a circular glyph above each figure. This file
+ * originally argued against it: big number, small label, accent tint is the
+ * hero-metric template, and a shield glyph does not help anyone read a count.
+ * That argument still holds in the abstract; it is here because it was asked
+ * for, and because the band now sits on its own under the hero rather than
+ * repeating inside it, which was the specific problem back then.
  *
- * No accent on the suffixes. "One accent, used with intent" - six blue plus
- * signs is everything highlighted, which is nothing highlighted.
+ * No accent on the suffixes in either form. "One accent, used with intent" -
+ * a blue plus sign on every figure is everything highlighted, which is
+ * nothing highlighted.
  */
 
 export interface StatEntry {
@@ -28,6 +29,8 @@ export interface StatEntry {
 	/** "K+", "+", "" - set at a lighter weight beside the figure. */
 	suffix?: string;
 	label: string;
+	/** Only drawn by the `chip` variant. Decorative: the label carries meaning. */
+	icon?: React.ComponentType<{ className?: string }>;
 }
 
 type Tone = "ink" | "signal";
@@ -53,6 +56,8 @@ export function StatIndex({
 	tone = "ink",
 	size = "md",
 	className,
+	variant = "rule",
+	accent,
 	/** Held until true, for figures that sit behind the intro overlay. */
 	start = true,
 }: {
@@ -60,10 +65,54 @@ export function StatIndex({
 	tone?: Tone;
 	size?: "md" | "lg";
 	className?: string;
+	variant?: "rule" | "chip";
+	/** Chip glyph colour. The chip itself is a wash of the same value. */
+	accent?: string;
 	start?: boolean;
 }) {
 	const t = TONE[tone];
 	const big = size === "lg";
+
+	if (variant === "chip") {
+		const glyph = accent ?? t.figure;
+		return (
+			<dl className={cn("grid", className)}>
+				{items.map(({ value, suffix, label, icon: Icon }) => (
+					<div
+						key={label + value}
+						className="flex flex-col items-center text-center"
+					>
+						{Icon ? (
+							<span
+								aria-hidden="true"
+								className="mb-4 flex h-11 w-11 items-center justify-center rounded-full sm:h-12 sm:w-12"
+								style={{ backgroundColor: `${glyph}1f`, color: glyph }}
+							>
+								<Icon className="h-[18px] w-[18px] sm:h-5 sm:w-5" />
+							</span>
+						) : null}
+						<dt
+							className="display-tight tnum text-[clamp(1.5rem,2.6vw,2.15rem)]"
+							style={{ color: t.figure }}
+						>
+							<StatsCounter value={value} duration={1.6} start={start} />
+							{suffix ? (
+								<span style={{ fontVariationSettings: "'wght' 500" }}>
+									{suffix}
+								</span>
+							) : null}
+						</dt>
+						<dd
+							className="mt-1.5 text-[0.78rem] font-medium"
+							style={{ color: t.label }}
+						>
+							{label}
+						</dd>
+					</div>
+				))}
+			</dl>
+		);
+	}
 
 	return (
 		<dl className={cn("grid", className)}>

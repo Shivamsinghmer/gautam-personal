@@ -79,29 +79,33 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 				    is heavy smoothing: the page kept gliding well after the wheel
 				    stopped, which reads as the page lagging behind you rather than
 				    as smoothness. 0.18 still smooths without the drag. */}
+				{/* The nav lives inside the provider, not beside it. Outside it,
+				    `useLenis()` has no context: the smooth `scrollTo` the menu links
+				    call falls back to the browser's own jump, and the hide-on-scroll
+				    subscription silently never fires. */}
 				<ReactLenis root options={{ lerp: 0.18, smoothWheel: true }}>
 					{children}
+					<FloatingMenu
+						menuGroups={menuGroups}
+						primaryButton={{ label: "Let's Connect", href: "#connect" }}
+						logo={
+							<a href="/" className="flex items-center" aria-label="Home">
+								{/* The mark is an SVG filled with `currentColor`, but it is
+								    loaded through <img>, which renders it in its own document -
+								    it cannot inherit `color` from this page, so currentColor
+								    resolved to black and the signature sat almost invisible on
+								    the dark bar. (The inline `color` here was inert for the
+								    same reason.) `brightness-0` flattens it to solid black
+								    while keeping its alpha, and `invert` lifts that to white. */}
+								<img
+									src={signatureLogo}
+									alt="Gautam Kumawat"
+									className="h-7 w-auto brightness-0 invert"
+								/>
+							</a>
+						}
+					/>
 				</ReactLenis>
-				<FloatingMenu
-					menuGroups={menuGroups}
-					primaryButton={{ label: "Let's Connect", href: "#connect" }}
-					logo={
-						<a href="/" className="flex items-center" aria-label="Home">
-							{/* The mark is an SVG filled with `currentColor`, but it is
-							    loaded through <img>, which renders it in its own document -
-							    it cannot inherit `color` from this page, so currentColor
-							    resolved to black and the signature sat almost invisible on
-							    the dark bar. (The inline `color` here was inert for the
-							    same reason.) `brightness-0` flattens it to solid black
-							    while keeping its alpha, and `invert` lifts that to white. */}
-							<img
-								src={signatureLogo}
-								alt="Gautam Kumawat"
-								className="h-7 w-auto brightness-0 invert"
-							/>
-						</a>
-					}
-				/>
 				{/* `once` per browser session. The overlay locks scrolling and holds
 				    the page for the length of the writing plus the hold and fade -
 				    about four and a half seconds - and paying that on every single

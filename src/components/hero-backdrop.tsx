@@ -212,7 +212,13 @@ export function HeroBackdrop({
 				// utility it competes with whatever the caller passes in
 				// `imageClassName` - same specificity, so stylesheet order decides and
 				// the caller silently loses.
-				className={`gk-kenburns absolute inset-0 ml-40 object-cover ${imageClassName ?? ""}`}
+				//
+				// No margin here either. `inset-0` pins all four edges, so a margin on
+				// this element does not shift the picture - it shrinks the box and
+				// leaves the ground bare down that side. At 160px that was a tenth of
+				// a desktop window and nearly half of a phone. Crop is the caller's to
+				// set, through `object-position` in `imageClassName`.
+				className={`gk-kenburns absolute inset-0 size-full object-cover ${imageClassName ?? ""}`}
 				style={{ animationPlayState: active ? "running" : "paused" }}
 			/>
 			<canvas

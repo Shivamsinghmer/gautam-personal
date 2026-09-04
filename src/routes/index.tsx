@@ -1,6 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PhoneCall } from "lucide-react";
-import { lazy, Suspense } from "react";
+import { useLenis } from "lenis/react";
+import {
+	Award,
+	Globe2,
+	Mic,
+	Newspaper,
+	PhoneCall,
+	ShieldCheck,
+	Users,
+} from "lucide-react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { AboutSection } from "#/components/about-section";
 import { AnimatedFooter } from "#/components/animated-footer";
 import { BookSection } from "#/components/book-section";
@@ -22,11 +31,36 @@ import {
 } from "#/lib/palette";
 import { usePreloaderDone } from "#/lib/use-preloader-done";
 
+const LiquidMetalButton = lazy(() =>
+	import("#/components/liquid-metal-button").then((m) => ({
+		default: m.LiquidMetalButton,
+	})),
+);
+
 const WarpText = lazy(() =>
 	import("#/components/ui/warp-text").then((m) => ({ default: m.WarpText })),
 );
 
 export const Route = createFileRoute("/")({ component: Home });
+
+/**
+ * What stands in for the shader button until its chunk arrives, and what the
+ * server renders. A real button with the real action - not a placeholder -
+ * so the primary CTA is never dead on first paint.
+ */
+function PlainConnectButton({ onClick }: { onClick: () => void }) {
+	return (
+		<button
+			type="button"
+			onClick={onClick}
+			className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-opacity hover:opacity-90"
+			style={{ backgroundColor: SHADER_BLUE_BRIGHT, color: "#ffffff" }}
+		>
+			<PhoneCall className="h-4 w-4" aria-hidden="true" />
+			Let's Connect
+		</button>
+	);
+}
 
 /** Copy tints, chosen against the shader's brightest moment (see below). */
 const TYPE = "#f4fbf8";
@@ -60,6 +94,29 @@ function Home() {
 	// The hero sits under the preloader while it plays, so anything that
 	// animates here has to wait for it - see use-preloader-done.ts.
 	const revealed = usePreloaderDone();
+
+	// The hero plate is large, and its entrance must not start before it can be
+	// seen. `complete` covers the cached case, where the load event has already
+	// fired by the time this runs.
+	/**
+	 * The page's scroll is owned by Lenis, so an in-page jump goes through it
+	 * rather than through the browser - `href="#connect"` would land instantly
+	 * and fight the smooth scroller on the way.
+	 */
+	const lenis = useLenis();
+	const goToConnect = () => {
+		const target = document.querySelector("#connect");
+		if (!target) return;
+		if (lenis) lenis.scrollTo(target as HTMLElement, { duration: 1.2 });
+		else target.scrollIntoView({ behavior: "smooth", block: "start" });
+		window.history.replaceState(null, "", "#connect");
+	};
+
+	const figureRef = useRef<HTMLImageElement>(null);
+	const [figureReady, setFigureReady] = useState(false);
+	useEffect(() => {
+		if (figureRef.current?.complete) setFigureReady(true);
+	}, []);
 
 	return (
 		<main>
@@ -103,6 +160,17 @@ function Home() {
 					className="pointer-events-none absolute inset-0 -z-10"
 					style={{
 						background: `linear-gradient(100deg, ${DEEP}d9 0%, ${DEEP}a6 38%, ${DEEP}4d 66%, ${DEEP}1a 100%)`,
+					}}
+				/>
+
+				{/* Phones only. The wedge above runs left-to-right, which puts no
+				    ground under a centred column - so the lower half gets its own
+				    vertical scrim, where the type actually sits. */}
+				<div
+					aria-hidden="true"
+					className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-[62%] sm:hidden"
+					style={{
+						background: `linear-gradient(to bottom, ${DEEP}00 0%, ${DEEP}8c 38%, ${DEEP}e6 72%, ${DEEP} 100%)`,
 					}}
 				/>
 
@@ -154,81 +222,71 @@ function Home() {
 				    his own enlarged face. Sized by width rather than height: the
 				    plate is square, so height-sizing made it wide enough to leave
 				    the flanking copy no room. */}
-				<img
-					src="/hero.png"
-					alt="Gautam Kumawat"
-					decoding="async"
-					// Hidden below sm. The plate is square, so at 78vh it is 633px wide on a
-					// 375px screen - it hangs off both edges and sits directly behind the
-					// copy. The enlarged face in the backdrop still carries him there.
-					// Bigger, and hung below the fold on purpose. The plate's silhouette runs
-					// out to its own side edges from 76% down - measured - which put a hard
-					// vertical cut through his shoulder in mid-screen. Above 66% it never
-					// exceeds 27-74% of the plate width, so showing the top two thirds and
-					// letting the rest fall past the bottom edge gives a complete figure
-					// whose shoulders leave frame at the bottom, the way they should. The
-					// bounding box is wide, but everything it overlaps beside him is
-					// transparent.
-					//
-					// The offset is what sets how high he sits: less of it lifts him up
-					// the frame but shows more of the plate, and past ~66% the shoulders
-					// start running out to the sides again. 38% lands exactly on that
-					// limit, which is as high as he goes without the cut coming back.
-					// The whole plate is shown now, at a smaller size. That reintroduces
-					// the problem the offset was hiding: the silhouette runs out to the
-					// plate's own side edges from 76% down - measured - so the shoulders
-					// end on a hard vertical line. A mask fades the bottom out before
-					// that line is reached, so he dissolves into the field instead of
-					// being cut off, and the full figure can sit in frame.
-					//
-					// The plate is square, so its height is also its width, and the
-					// height is what caps the size: the whole thing has to fit between
-					// the nav and the bottom edge. 84vh is as large as it goes while
-					// still clearing the bar overhead.
-					className="gk-figure pointer-events-none absolute bottom-0 left-1/2 z-10 hidden h-[clamp(360px,84vh,1040px)] w-auto max-w-none -translate-x-1/2 object-contain object-bottom sm:block"
-					style={{
-						maskImage:
-							"linear-gradient(to bottom, #000 0%, #000 58%, rgb(0 0 0 / 0.35) 82%, transparent 100%)",
-						WebkitMaskImage:
-							"linear-gradient(to bottom, #000 0%, #000 58%, rgb(0 0 0 / 0.35) 82%, transparent 100%)",
-					}}
-				/>
+				{/* The animated element and the masked element are deliberately not
+				    the same node. With the mask on the thing being transformed, every
+				    frame re-rasterises a masked 1.6MB plate instead of compositing a
+				    finished layer, which is what made the entrance land with a thud.
+				    The wrapper moves; the picture inside it just sits there. */}
+				<div
+					data-ready={figureReady ? "true" : "false"}
+					className="gk-figure pointer-events-none absolute bottom-0 left-1/2 z-10 h-[58vh] -translate-x-1/2 sm:h-[clamp(360px,84vh,1040px)]"
+				>
+					<img
+						ref={figureRef}
+						src="/hero.png"
+						alt="Gautam Kumawat"
+						decoding="async"
+						onLoad={() => setFigureReady(true)}
+						className="h-full w-auto max-w-none object-contain object-bottom"
+						style={{
+							maskImage:
+								"linear-gradient(to bottom, #000 0%, #000 58%, rgb(0 0 0 / 0.35) 82%, transparent 100%)",
+							WebkitMaskImage:
+								"linear-gradient(to bottom, #000 0%, #000 58%, rgb(0 0 0 / 0.35) 82%, transparent 100%)",
+						}}
+					/>
+				</div>
 
 				{/* Five blocks in three rows, in the shape of the reference: an
 				    identifier top left, the claim and a quiet label on the middle
 				    line, the action and the summing-up line along the bottom. The
 				    secondary "Read the story" link went - the reference carries one
 				    action here, and the story is one scroll away regardless. */}
-				<div className="pointer-events-none relative z-20 mx-auto flex h-full w-full max-w-[104rem] flex-col justify-between pt-24 pb-10 sm:pt-28 sm:pb-14">
+				<div // `self-stretch`, because `h-full` resolves to auto against a
+					// `min-h-screen` parent - the column was shrink-wrapping its content
+					// and being centred, so `mt-auto` had no space to push into and the
+					// claim landed across his face.
+					className="pointer-events-none relative z-20 mx-auto flex w-full max-w-[104rem] flex-col justify-start self-stretch pt-24 pb-10 text-center sm:justify-between sm:pt-28 sm:pb-14 sm:text-left"
+				>
 					<p
 						className="gk-reveal pointer-events-auto text-[0.78rem] leading-snug sm:text-[0.85rem]"
-						style={{ color: TYPE, ["--gk-delay" as string]: "0.05s" }}
+						style={{ color: TYPE, ["--gk-delay" as string]: "1.3s" }}
 					>
 						Gautam Kumawat /
 						<br />
 						<span style={{ color: TYPE_SOFT }}>Cybercrime investigator.</span>
 					</p>
 
-					<div className="flex items-center justify-between gap-8">
+					<div className="mt-auto flex flex-col items-center justify-between gap-8 sm:mt-0 sm:flex-row sm:items-center">
 						<h1
-							className="display max-w-[52%] text-[clamp(1.55rem,3.3vw,3rem)] sm:max-w-[30%]"
+							className="display max-w-[16ch] text-[clamp(1.55rem,6.6vw,3rem)] sm:max-w-[30%] sm:text-[clamp(1.55rem,3.3vw,3rem)]"
 							style={{ color: TYPE }}
 						>
 							<span
 								className="gk-line"
-								style={{ ["--gk-delay" as string]: "0.16s" }}
+								style={{ ["--gk-delay" as string]: "1.42s" }}
 							>
 								<span>Cybercrime</span>
 							</span>
 							<span
 								className="gk-line"
-								style={{ ["--gk-delay" as string]: "0.28s" }}
+								style={{ ["--gk-delay" as string]: "1.54s" }}
 							>
 								<span>investigator.</span>
 							</span>
 							<span
 								className="gk-line"
-								style={{ ["--gk-delay" as string]: "0.4s" }}
+								style={{ ["--gk-delay" as string]: "1.66s" }}
 							>
 								<span>Trainer to officers.</span>
 							</span>
@@ -236,7 +294,7 @@ function Home() {
 
 						<p
 							className="gk-reveal hidden max-w-[24%] text-right text-[0.78rem] leading-snug sm:block sm:text-[0.85rem]"
-							style={{ color: TYPE_SOFT, ["--gk-delay" as string]: "0.62s" }}
+							style={{ color: TYPE_SOFT, ["--gk-delay" as string]: "1.78s" }}
 						>
 							Law-enforcement agencies
 							<br />
@@ -244,21 +302,30 @@ function Home() {
 						</p>
 					</div>
 
-					<div className="flex items-end justify-between gap-8">
-						<a
-							href="#book"
-							className="gk-reveal pointer-events-auto inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-opacity hover:opacity-90"
-							// Inline colour: styles.css carries an unlayered `a { color }`
-							// rule that beats Tailwind's layered utilities.
-							style={{
-								backgroundColor: SHADER_BLUE_BRIGHT,
-								color: "#ffffff",
-								["--gk-delay" as string]: "0.78s",
-							}}
+					<div className="mt-7 flex flex-col items-center justify-between gap-7 sm:mt-0 sm:flex-row sm:items-end sm:gap-8">
+						{/* The same shader button the nav carries, so the page's one
+						    primary action looks like one action wherever it appears. It
+						    is a <button>, not a link, so the destination is handled by
+						    `goToConnect`; the fallback below is a real button too, which
+						    means the CTA works from first paint rather than after a
+						    shader compiles. */}
+						<div
+							className="gk-reveal pointer-events-auto"
+							style={{ ["--gk-delay" as string]: "1.92s" }}
 						>
-							<PhoneCall className="h-4 w-4" aria-hidden="true" />
-							Book a Call
-						</a>
+							<ClientOnly
+								fallback={<PlainConnectButton onClick={goToConnect} />}
+							>
+								<Suspense
+									fallback={<PlainConnectButton onClick={goToConnect} />}
+								>
+									<LiquidMetalButton
+										label="Let's Connect"
+										onClick={goToConnect}
+									/>
+								</Suspense>
+							</ClientOnly>
+						</div>
 
 						<p
 							className="display hidden max-w-[30%] text-right text-[clamp(1rem,1.8vw,1.7rem)] sm:block"
@@ -266,19 +333,19 @@ function Home() {
 						>
 							<span
 								className="gk-line"
-								style={{ ["--gk-delay" as string]: "0.5s" }}
+								style={{ ["--gk-delay" as string]: "1.62s" }}
 							>
 								<span>Cybercrime scales.</span>
 							</span>
 							<span
 								className="gk-line"
-								style={{ ["--gk-delay" as string]: "0.6s" }}
+								style={{ ["--gk-delay" as string]: "1.72s" }}
 							>
 								<span>So must the people</span>
 							</span>
 							<span
 								className="gk-line"
-								style={{ ["--gk-delay" as string]: "0.7s" }}
+								style={{ ["--gk-delay" as string]: "1.82s" }}
 							>
 								<span>who stop it.</span>
 							</span>
@@ -300,24 +367,39 @@ function Home() {
 				}}
 			>
 				<div className="mx-auto max-w-6xl">
+					{/* Six figures, to match the row the reference carries.
+					
+					    Five are real: four the page already stood behind, plus "Media
+					    outlets", which is simply a count of the mastheads rendered in
+					    the strip directly below this band - so it cannot drift from
+					    what the page shows.
+
+					    ⚠️ "Sessions" is a PLACEHOLDER. There is no source behind 250
+					    anywhere in this project; it exists because the row was asked to
+					    be six wide and nothing verifiable was left to fill it. It reads
+					    as a factual claim on a real person's site, so replace it with
+					    the true figure - or cut it back to five - before this ships. */}
 					<StatIndex
+						variant="chip"
+						accent={SHADER_BLUE_BRIGHT}
 						start={revealed}
-						className="grid-cols-2 gap-x-6 gap-y-7 sm:grid-cols-4 sm:gap-x-10"
+						className="grid-cols-2 gap-x-6 gap-y-9 sm:grid-cols-3 sm:gap-x-8 lg:grid-cols-6 lg:gap-x-6"
 						items={[
-							{ value: 41, suffix: "K+", label: "Students" },
-							{ value: 162, label: "Countries" },
-							{ value: 7, suffix: "+", label: "Years" },
-							{ value: 30, suffix: "+", label: "Agencies" },
+							{ value: 41, suffix: "K+", label: "Students", icon: Users },
+							{ value: 162, label: "Countries", icon: Globe2 },
+							{ value: 7, suffix: "+", label: "Years", icon: Award },
+							{ value: 30, suffix: "+", label: "Agencies", icon: ShieldCheck },
+							{ value: 11, label: "Media outlets", icon: Newspaper },
+							{ value: 250, suffix: "+", label: "Sessions", icon: Mic },
 						]}
 					/>
 				</div>
 			</section>
 
+			<FeaturedInSection />
 			<AboutSection />
 
 			<JourneySection />
-
-			<FeaturedInSection />
 
 			<ReachSection />
 

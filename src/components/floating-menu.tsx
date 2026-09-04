@@ -122,25 +122,32 @@ export function FloatingMenu({
 	const [isOpen, setIsOpen] = useState(false);
 	const [mounted, setMounted] = useState(false);
 
+	/**
+	 * The live Lenis instance, which owns this page's scroll position.
+	 *
+	 * Following a bare `#hash` hands the browser the scroll, and the browser
+	 * jumps - instantly, and against the smooth scroller rather than through
+	 * it. Even `scrollIntoView({behavior:"smooth"})` is the browser's animation,
+	 * not Lenis's. Handing the target to `lenis.scrollTo` makes an in-page jump
+	 * use the same easing as every other scroll on the site.
+	 */
+	const lenis = useLenis();
+
+	const scrollToHash = (href: string) => {
+		const target = document.querySelector(href);
+		if (!target) return false;
+		if (lenis) lenis.scrollTo(target as HTMLElement, { duration: 1.1 });
+		else target.scrollIntoView({ behavior: "smooth", block: "start" });
+		window.history.replaceState(null, "", href);
+		return true;
+	};
+
 	// Shared by the shader button and the plain one that stands in for it, so
 	// the primary action behaves the same whichever is on screen.
 	const goToPrimary = () => {
 		const href = primaryButton?.href;
 		if (!href || href === "#") return;
-
-		// An in-page target is scrolled to rather than assigned. `location.assign`
-		// on a hash relies on the browser's own jump, and this page runs Lenis on
-		// the root - it owns the scroll position, so a native hash jump either
-		// does nothing or fights the smooth scroller. scrollIntoView goes through
-		// the same path every other anchor on the page uses.
-		if (href.startsWith("#")) {
-			const target = document.querySelector(href);
-			if (target) {
-				target.scrollIntoView({ behavior: "smooth", block: "start" });
-				window.history.replaceState(null, "", href);
-				return;
-			}
-		}
+		if (href.startsWith("#") && scrollToHash(href)) return;
 		window.location.assign(href);
 	};
 	const [hidden, setHidden] = useState(false);
@@ -504,9 +511,14 @@ export function FloatingMenu({
 													? { target: "_blank", rel: "noopener noreferrer" }
 													: {})}
 												// An in-page target closes the menu on the way, or
-												// the panel covers what you just asked to see.
-												onClick={() => {
-													if (link.href.startsWith("#")) toggle();
+												// the panel covers what you just asked to see - and
+												// the scroll goes through Lenis rather than the
+												// browser, which would jump instantly.
+												onClick={(event) => {
+													if (!link.href.startsWith("#")) return;
+													event.preventDefault();
+													toggle();
+													scrollToHash(link.href);
 												}}
 												className={cn(
 													"group/link relative flex min-h-11 w-fit items-center text-2xl font-normal text-[var(--sea-ink-soft)] transition-colors duration-400 ease-[cubic-bezier(0.625,0.05,0,1)] hover:text-[var(--sea-ink)]",
