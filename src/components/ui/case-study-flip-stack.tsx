@@ -9,7 +9,7 @@ import {
 	useSpring,
 	useTransform,
 } from "framer-motion";
-import { useRef } from "react";
+import { Fragment, useRef } from "react";
 import { cn } from "#/lib/utils.ts";
 
 /**
@@ -31,12 +31,27 @@ import { cn } from "#/lib/utils.ts";
  *   and the caller picks a `foreground` that passes against its `background`.
  * - `scrollPerCard` replaces the hardcoded (n + 1) * 100vh track, so a stack
  *   of six does not cost seven screens of scrolling.
+ * - The card is sized by `CARD_BOX` rather than by a bare 3:4 / 1.76:1 pair,
+ *   and the text column takes a bigger share of it between `sm` and `lg`. Both
+ *   are room for the fact list, which a fixed-ratio card will otherwise clip.
+ * - `year` and `facts` are additions, not adaptations: the registry card is a
+ *   case study, this one is a dated step. The year appears twice on purpose -
+ *   once on the card, where every visitor gets it, and once in the side rail,
+ *   which only wide screens have room for.
  */
 export interface CaseStudyFlipItem {
 	number?: string;
+	/** Shown on the card and in the side rail. A range ("2006-2011") is fine. */
+	year?: string;
 	eyebrow: string;
 	title: string;
-	description: string;
+	description?: string;
+	/**
+	 * Dated evidence under the description. `year` is optional per row: a row
+	 * without one leaves its column blank and reads as a continuation of the
+	 * row above, which is what the figures under a launch date actually are.
+	 */
+	facts?: { year?: string; text: string }[];
 	image: string;
 	imageAlt: string;
 	background: string;
@@ -53,6 +68,20 @@ export interface CaseStudyFlipStackProps {
 	 */
 	scrollPerCard?: number;
 }
+
+/**
+ * The card box, shared by the stage and by every card standing on it. The cards
+ * are absolutely positioned inside the stage, so the moment these two disagree
+ * about their height the stack stops lining up.
+ *
+ * A phone gets a card the height of the screen rather than a ratio: the copy
+ * needs the room, and a full-bleed card reads better there than a small one
+ * floating in the middle. Everywhere else it is a ratio, capped at the height
+ * of the sticky stage (`py-8` on each side of `h-svh`, hence the 4rem) so a
+ * short window shrinks the card instead of clipping it.
+ */
+const CARD_BOX =
+	"h-[calc(100svh-4rem)] max-h-[620px] sm:h-auto sm:max-h-[calc(100svh-4rem)] sm:aspect-[1.6/1]";
 
 const DEFAULT_ITEMS: CaseStudyFlipItem[] = [
 	{
@@ -182,7 +211,7 @@ function FlipCard({
 
 	return (
 		<motion.article
-			className="absolute inset-x-0 top-0 aspect-[3/4] will-change-transform sm:aspect-[1.76/1]"
+			className={cn("absolute inset-x-0 top-0 will-change-transform", CARD_BOX)}
 			style={{
 				y: exitY,
 				rotateX,
@@ -194,7 +223,7 @@ function FlipCard({
 			}}
 		>
 			<motion.div
-				className="grid h-full overflow-hidden rounded-[clamp(18px,2vw,30px)] shadow-[0_16px_50px_rgba(20,17,10,0.18)] sm:grid-cols-[1.15fr_0.85fr]"
+				className="grid h-full grid-rows-[auto_1fr] overflow-hidden rounded-[clamp(18px,2vw,30px)] shadow-[0_16px_50px_rgba(20,17,10,0.18)] sm:grid-cols-[1.3fr_0.7fr] sm:grid-rows-none lg:grid-cols-[1.15fr_0.85fr]"
 				style={{
 					backgroundColor: item.background,
 					color: item.foreground ?? "white",
@@ -204,26 +233,49 @@ function FlipCard({
 				}}
 			>
 				<div className="flex min-w-0 flex-col p-[clamp(24px,3vw,48px)] md:pr-[clamp(22px,3vw,48px)]">
-					<div className="flex items-start">
+					<div className="flex items-baseline justify-between gap-4">
 						<span className="text-[clamp(24px,2.5vw,36px)] font-medium leading-none tracking-[-0.06em]">
 							{item.number ?? String(index + 1).padStart(2, "0")}
 						</span>
+						{item.year ? (
+							<span className="whitespace-nowrap text-[clamp(11px,0.95vw,14px)] font-semibold uppercase leading-none tracking-[0.18em] tabular-nums">
+								{item.year}
+							</span>
+						) : null}
 					</div>
 
-					<div className="mt-auto max-w-[46rem] pt-8">
+					<div className="mt-auto max-w-[46rem] pt-6 lg:pt-8">
 						<p className="mb-[clamp(10px,1.5vw,22px)] text-xs font-semibold uppercase tracking-[0.16em]">
 							{item.eyebrow}
 						</p>
-						<h3 className="max-w-[16ch] text-balance text-[clamp(28px,3.25vw,48px)] font-semibold leading-[0.96] tracking-[-0.05em]">
+						<h3 className="max-w-[18ch] text-balance text-[clamp(28px,3.25vw,48px)] font-semibold leading-[0.96] tracking-[-0.05em]">
 							{item.title}
 						</h3>
-						<p className="mt-[clamp(16px,1.8vw,24px)] max-w-[42rem] text-[clamp(13px,1.1vw,16px)] leading-[1.5]">
-							{item.description}
-						</p>
+						{item.description ? (
+							<p className="mt-[clamp(14px,1.6vw,22px)] max-w-[42rem] text-[clamp(13px,1.1vw,16px)] leading-[1.5]">
+								{item.description}
+							</p>
+						) : null}
+						{item.facts?.length ? (
+							/* A two-column grid rather than a list: the years line up in
+							   their own column, which is what makes a run of rows read as
+							   a timeline instead of as bullets that happen to start with
+							   a number. */
+							<dl className="mt-[clamp(14px,1.6vw,20px)] grid max-w-[38rem] grid-cols-[auto_1fr] gap-x-[clamp(10px,1vw,16px)] gap-y-[clamp(5px,0.6vw,9px)] text-[clamp(12px,0.95vw,15px)] leading-[1.4]">
+								{item.facts.map((fact) => (
+									<Fragment key={fact.text}>
+										<dt className="font-semibold tabular-nums tracking-[0.02em]">
+											{fact.year}
+										</dt>
+										<dd className="min-w-0">{fact.text}</dd>
+									</Fragment>
+								))}
+							</dl>
+						) : null}
 					</div>
 				</div>
 
-				<div className="relative m-[clamp(10px,1.2vw,18px)] min-h-[180px] overflow-hidden rounded-[clamp(12px,1.4vw,22px)] sm:ml-0">
+				<div className="relative m-[clamp(10px,1.2vw,18px)] min-h-[140px] overflow-hidden rounded-[clamp(12px,1.4vw,22px)] sm:ml-0 sm:min-h-[180px]">
 					<img
 						src={item.image}
 						alt={item.imageAlt}
@@ -235,6 +287,112 @@ function FlipCard({
 				</div>
 			</motion.div>
 		</motion.article>
+	);
+}
+
+/**
+ * One row of the side rail: the step's year, and a tick that grows as that step
+ * takes the screen.
+ *
+ * The activeness curve is deliberately not the same as the card's exit curve.
+ * A card starts flipping at 45% through its segment, but it is still the step
+ * you are on until the next one lands, so the rail holds until the boundary and
+ * crosses over there. The first and last rows extend their windows past the
+ * ends of the track, otherwise the rail is dim at rest at the top of the stack
+ * and again on the final card, which is exactly when someone looks at it.
+ */
+function YearRailRow({
+	item,
+	index,
+	total,
+	progress,
+}: {
+	item: CaseStudyFlipItem;
+	index: number;
+	total: number;
+	progress: MotionValue<number>;
+}) {
+	const segment = 1 / Math.max(total, 1);
+	const start = index * segment;
+	const end = start + segment;
+	const fade = segment * 0.12;
+	const isFirst = index === 0;
+	const isLast = index === total - 1;
+	const active = useTransform(
+		progress,
+		[
+			isFirst ? -1 : start - fade,
+			isFirst ? -0.5 : start + fade,
+			isLast ? 2 : end - fade,
+			isLast ? 3 : end + fade,
+		],
+		[isFirst ? 1 : 0, 1, 1, isLast ? 1 : 0],
+	);
+	const opacity = useTransform(active, [0, 1], [0.3, 1]);
+	const tickWidth = useTransform(active, [0, 1], [10, 30]);
+
+	return (
+		<div className="grid grid-cols-[1fr_30px] items-center gap-3">
+			{/* Every label occupies the width of the longest range, centred inside
+			    it. Right-aligned they shared an edge but not a footprint, so the
+			    one stage that is a single year - 2018, against five ranges - read
+			    as a gap in the rail rather than as a shorter label. */}
+			<motion.span
+				className="ml-auto block w-[9ch] whitespace-nowrap text-center text-[11px] font-semibold uppercase leading-none tracking-[0.16em] tabular-nums text-white"
+				style={{ opacity }}
+			>
+				{item.year}
+			</motion.span>
+			<motion.span
+				className="ml-auto h-px bg-white"
+				style={{ opacity, width: tickWidth }}
+			/>
+		</div>
+	);
+}
+
+/**
+ * The years, up the left-hand margin of the stage.
+ *
+ * It is an indicator, not navigation: the stack only moves under scroll, so
+ * there is nothing here to click, and every year it shows is already on the
+ * card that is in front of you - which is why it is `aria-hidden` and why the
+ * layout can drop it on narrow screens without losing anything.
+ *
+ * It is anchored to the card rather than to the viewport (`right-full` on the
+ * stage), so it tracks the card's left edge instead of drifting off to the far
+ * side of a 27-inch monitor. Labels need room the margin does not have below
+ * `xl`, which is where the margin first has room for them - below that the
+ * card carries the year on its own.
+ *
+ * `w-max` is load-bearing, not tidying. An absolutely positioned box with
+ * `right: 100%` and no `left` has exactly zero available width, so it shrinks
+ * to min-content - which breaks "2006-2011" at the dash and puts every label on
+ * two lines. Sizing to max-content lets the rail overhang its own zero-width
+ * slot, which is the whole idea of hanging it in the margin.
+ */
+function YearRail({
+	items,
+	progress,
+}: {
+	items: CaseStudyFlipItem[];
+	progress: MotionValue<number>;
+}) {
+	return (
+		<div
+			className="pointer-events-none absolute top-1/2 right-full mr-[clamp(24px,2.5vw,56px)] hidden w-max -translate-y-1/2 flex-col gap-[clamp(20px,2.4vw,34px)] xl:flex"
+			aria-hidden="true"
+		>
+			{items.map((item, index) => (
+				<YearRailRow
+					key={`${item.title}-rail`}
+					item={item}
+					index={index}
+					total={items.length}
+					progress={progress}
+				/>
+			))}
+		</div>
 	);
 }
 
@@ -265,7 +423,15 @@ export function CaseStudyFlipStack({
 			style={{ height: `${safeItems.length * scrollPerCard}vh` }}
 		>
 			<div className="sticky top-0 flex h-svh flex-col justify-center overflow-hidden px-[clamp(14px,4vw,64px)] py-8">
-				<div className="relative mx-auto aspect-[3/4] w-full max-w-[860px] [perspective:800px] sm:aspect-[1.76/1]">
+				<div
+					className={cn(
+						"relative mx-auto w-full max-w-[860px] [perspective:800px]",
+						CARD_BOX,
+					)}
+				>
+					{safeItems.some((item) => item.year) ? (
+						<YearRail items={safeItems} progress={cardProgress} />
+					) : null}
 					{[...safeItems].reverse().map((item, reverseIndex) => {
 						const index = safeItems.length - reverseIndex - 1;
 						return (

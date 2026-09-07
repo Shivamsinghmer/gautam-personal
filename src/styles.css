@@ -16,7 +16,7 @@
 
      Before this the site ran nine consecutive sections on one flat ink, which
      is the single thing that made a long scroll read as a template. */
-  --ink: #171717;
+  --ink: #0a0a0a;
   --ink-raise: #262626;
   --ink-deep: #0e0e0e;
   --signal: #1447e6;
@@ -26,7 +26,7 @@
      C < 0.06 / hue 40-100 band all read as cream, and cream is the saturated
      default this brand has no business wearing. */
   --paper: #fafafa;
-  --paper-ink: #171717;
+  --paper-ink: #0a0a0a;
   --paper-ink-soft: #737373;
 
   /* Hairlines. The material this redesign is built from: broadcast graphics
@@ -58,11 +58,11 @@
   --line: rgba(250, 250, 250, 0.14);
   --inset-glint: rgba(255, 255, 255, 0.06);
   --kicker: rgba(161, 161, 161, 0.9);
-  --bg-base: #171717;
-  --header-bg: rgba(23, 23, 23, 0.84);
+  --bg-base: #0a0a0a;
+  --header-bg: rgba(10, 10, 10, 0.84);
   /* The collapsed bar is deliberately translucent. The expanded menu is not -
      it is a panel full of text, and at 84% the hero read straight through it. */
-  --menu-bg: #171717;
+  --menu-bg: #0a0a0a;
   --chip-bg: rgba(38, 38, 38, 0.8);
   --chip-line: rgba(250, 250, 250, 0.18);
   --link-bg-hover: rgba(255, 255, 255, 0.08);
@@ -73,14 +73,14 @@
      select - and that would put white type on a white ground the moment any
      component actually read these tokens. The .dark block below mirrors them
      so either path resolves the same. */
-  --background: #171717;
+  --background: #0a0a0a;
   --foreground: #fafafa;
-  --card: #0e0e0e;
+  --card: #121212;
   --card-foreground: #fafafa;
-  --popover: #171717;
+  --popover: #0a0a0a;
   --popover-foreground: #fafafa;
   --primary: #e5e5e5;
-  --primary-foreground: #171717;
+  --primary-foreground: #0a0a0a;
   --secondary: #262626;
   --secondary-foreground: #fafafa;
   --muted: #262626;
@@ -128,14 +128,14 @@
      select - and that would put white type on a white ground the moment any
      component actually read these tokens. The .dark block below mirrors them
      so either path resolves the same. */
-  --background: #171717;
+  --background: #0a0a0a;
   --foreground: #fafafa;
-  --card: #0e0e0e;
+  --card: #121212;
   --card-foreground: #fafafa;
-  --popover: #171717;
+  --popover: #0a0a0a;
   --popover-foreground: #fafafa;
   --primary: #e5e5e5;
-  --primary-foreground: #171717;
+  --primary-foreground: #0a0a0a;
   --secondary: #262626;
   --secondary-foreground: #fafafa;
   --muted: #262626;
@@ -454,6 +454,40 @@ a {
   body {
     background-color: var(--background);
     color: var(--foreground);
+  }
+}
+
+/* ── Logo marquee ─────────────────────────────────────────────────────────── */
+
+/* The track holds the list twice and travels exactly half its width, so the
+   second copy lands where the first began and the loop has no seam.
+
+   The gap belongs to each item (`pr-*`), never to the track (`gap-*`): with the
+   gap on the track there is one fewer gap than there are items, the period is
+   short by exactly one, and the strip visibly jumps every cycle. */
+/* The track slides left by exactly one copy of its list, then snaps back. The
+   distance is therefore 100% / <number of copies>, which the call site declares
+   as --gk-marquee-copies so the markup and the animation cannot disagree. The
+   fallback keeps the old two-copy behaviour for any track that does not set
+   it. */
+@keyframes gk-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-100% / var(--gk-marquee-copies, 2)));
+  }
+}
+.gk-marquee {
+  animation: gk-marquee 42s linear infinite;
+}
+.gk-marquee:hover {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gk-marquee {
+    animation: none;
   }
 }
 

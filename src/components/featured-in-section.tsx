@@ -1,5 +1,6 @@
 import { Reveal, RevealGroup, RevealItem } from "#/components/ui/scroll-reveal";
 import { PAPER, PAPER_INK, PAPER_INK_SOFT } from "#/lib/palette";
+import { PRESS } from "#/lib/press";
 import { cn } from "#/lib/utils";
 
 /**
@@ -28,95 +29,6 @@ import { cn } from "#/lib/utils";
  * desaturated instead and stay as tiles, which is how a channel bug is
  * supposed to look anyway.
  */
-
-interface Press {
-	name: string;
-	src: string;
-	/** A mark on transparency: flattened to a single ink. */
-	mono?: boolean;
-	/** A filled tile with the mark knocked out of it: desaturated, not flattened. */
-	tile?: boolean;
-	/**
-	 * Height, per logo. A single fixed box cannot serve both a wide wordmark
-	 * and a near-square tile - matched on height, wordmarks read tiny; matched
-	 * on width, tiles tower. These are set so each mark carries about the same
-	 * optical weight.
-	 */
-	size: string;
-}
-
-/**
- * Eleven outlets. Logos are sourced from Wikimedia Commons (public domain /
- * freely-licensed uploads) and, for Thrive, its own site CDN.
- */
-const PRESS: Press[] = [
-	{
-		name: "Hindustan Times",
-		src: "/logos/hindustan-times.svg",
-		mono: true,
-		size: "h-6 sm:h-7",
-	},
-	{
-		name: "India Today",
-		src: "/logos/india-today.png",
-		mono: true,
-		size: "h-9 sm:h-11",
-	},
-	{
-		name: "The Hindu",
-		src: "/logos/the-hindu.svg",
-		mono: true,
-		size: "h-6 sm:h-8",
-	},
-	{
-		name: "Times of India",
-		src: "/logos/times-of-india.svg",
-		mono: true,
-		size: "h-5 sm:h-6",
-	},
-	{
-		name: "Economic Times",
-		src: "/logos/economic-times.svg",
-		mono: true,
-		size: "h-6 sm:h-7",
-	},
-	{
-		name: "NDTV",
-		src: "/logos/ndtv.svg",
-		mono: true,
-		size: "h-6 sm:h-8",
-	},
-	{
-		name: "Times Now",
-		src: "/logos/times-now.svg",
-		tile: true,
-		size: "h-8 sm:h-10",
-	},
-	{
-		name: "Republic TV",
-		src: "/logos/republic-tv.svg",
-		tile: true,
-		size: "h-10 sm:h-12",
-	},
-	{
-		name: "Zee News",
-		src: "/logos/zee-news.svg",
-		mono: true,
-		size: "h-7 sm:h-9",
-	},
-	{
-		name: "ABP News",
-		src: "/logos/abp-news.svg",
-		mono: true,
-		size: "h-9 sm:h-11",
-	},
-	{
-		name: "Thriveglobal",
-		src: "/logos/thriveglobal.svg",
-		mono: true,
-		size: "h-6 sm:h-7",
-	},
-];
 
 export function FeaturedInSection() {
 	return (
@@ -164,7 +76,7 @@ export function FeaturedInSection() {
 					{PRESS.map((press) => (
 						<RevealItem
 							key={press.name}
-							className="flex items-center justify-center border-r border-b border-[color:var(--rule-paper)] px-5 py-9 sm:px-7 sm:py-11"
+							className="group relative flex items-center justify-center border-r border-b border-[color:var(--rule-paper)] px-5 py-9 sm:px-7 sm:py-11"
 						>
 							<img
 								src={press.src}
@@ -175,12 +87,27 @@ export function FeaturedInSection() {
 									// Height per logo, width free. A fixed box squeezes every
 									// wordmark into the same width, which renders the wide ones
 									// as slivers and lets the square marks fill it.
-									"w-auto max-w-full object-contain opacity-[0.88]",
+									//
+									// Shown in their own colours now. They were flattened with
+									// `brightness-0` (and the broadcast tiles desaturated) to
+									// hold one treatment across the wall; in colour they read as
+									// the actual mastheads, which is the point of the section.
+									"w-auto max-w-full object-contain transition-opacity duration-300 group-hover:opacity-0",
 									press.size,
-									press.mono && "brightness-0",
-									press.tile && "rounded-[3px] grayscale",
+									press.tile && "rounded-[3px]",
 								)}
 							/>
+
+							{/* The name, on hover. Worth showing because two of these are
+							    broadcast bugs rather than wordmarks - a red "R." tile does
+							    not say Republic TV to most readers. */}
+							<span
+								aria-hidden="true"
+								className="pointer-events-none absolute inset-0 flex items-center justify-center px-4 text-center text-[0.82rem] font-semibold opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+								style={{ color: PAPER_INK }}
+							>
+								{press.name}
+							</span>
 						</RevealItem>
 					))}
 

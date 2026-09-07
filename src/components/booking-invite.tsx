@@ -1,6 +1,17 @@
 import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { lazy, Suspense } from "react";
+import {
+	LiquidMetalButtonFallback,
+} from "#/components/liquid-metal-button";
+import { ClientOnly } from "#/components/ui/deferred";
 import { Reveal } from "#/components/ui/scroll-reveal";
 import { INK_DEEP, SIGNAL } from "#/lib/palette";
+
+const LiquidMetalButton = lazy(() =>
+	import("#/components/liquid-metal-button").then((m) => ({
+		default: m.LiquidMetalButton,
+	})),
+);
 
 /**
  * The booking invitation.
@@ -24,20 +35,15 @@ import { INK_DEEP, SIGNAL } from "#/lib/palette";
  *   a piece of art direction instead of a decoration applied to every frame.
  *   Drawn as a rule above the type, never as a coloured stripe down the side
  *   of a box.
- * - **The formats** are ruled rather than bulleted. Two items do not need
- *   chrome to be two items, but they do need a structure that matches the rest
- *   of the page.
+ * - **The formats block is gone.** "Keynotes / Workshops" restated what the
+ *   paragraph above already says, under the heading that already says it.
+ * - **The mastheads moved out.** They used to be joined flush to the underside
+ *   of the photograph so the room and the coverage of that room read as one
+ *   block. The idea was sound and the width was not: half a page is not enough
+ *   room for eleven marks, and they scrolled past too small to be recognised.
+ *   `PressStrip` now runs them across the full measure below this composition,
+ *   which is where the section had space going spare anyway.
  */
-const FORMATS = [
-	{
-		title: "Keynotes",
-		note: "Auditoriums, school and college circuits, conference main stages.",
-	},
-	{
-		title: "Workshops",
-		note: "Hands-on sessions for officers, faculty and security teams.",
-	},
-];
 
 export function BookingInvite({ className }: { className?: string }) {
 	return (
@@ -111,17 +117,34 @@ export function BookingInvite({ className }: { className?: string }) {
 
 				<Reveal delay={0.14}>
 					<div className="mt-9 flex flex-wrap items-center gap-x-8 gap-y-4">
-						<a
-							href="#book"
-							className="inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold transition-opacity hover:opacity-90"
-							// styles.css carries an unlayered `a { color }` rule, which beats
-							// Tailwind's layered utilities whatever the specificity - so the
-							// label colour is set here or it renders teal on blue.
-							style={{ backgroundColor: SIGNAL, color: "#ffffff" }}
+						{/* The same shader button the hero and nav carry, so the page's
+						    primary action reads as one design wherever it lands rather
+						    than as a fill-and-radius recipe copied into each section. */}
+						<ClientOnly
+							fallback={
+								<LiquidMetalButtonFallback
+									label="Check availability"
+									href="#book"
+									icon={ArrowRight}
+								/>
+							}
 						>
-							Check availability
-							<ArrowRight className="h-4 w-4" aria-hidden="true" />
-						</a>
+							<Suspense
+								fallback={
+									<LiquidMetalButtonFallback
+										label="Check availability"
+										href="#book"
+										icon={ArrowRight}
+									/>
+								}
+							>
+								<LiquidMetalButton
+									label="Check availability"
+									href="#book"
+									icon={ArrowRight}
+								/>
+							</Suspense>
+						</ClientOnly>
 
 						{/* The reference put a "watch video" link here. There is no video,
 						    and inventing a play button that goes nowhere is worse than
@@ -143,25 +166,6 @@ export function BookingInvite({ className }: { className?: string }) {
 							</span>
 						</a>
 					</div>
-				</Reveal>
-
-				<Reveal delay={0.2}>
-					<dl className="mt-14 grid gap-x-10 gap-y-8 sm:grid-cols-2">
-						{FORMATS.map(({ title, note }) => (
-							<div
-								key={title}
-								className="border-t pt-4"
-								style={{ borderColor: "rgb(255 255 255 / 0.22)" }}
-							>
-								<dt className="display-tight text-[1.35rem] text-white sm:text-[1.55rem]">
-									{title}
-								</dt>
-								<dd className="mt-2.5 text-sm leading-relaxed text-white/55">
-									{note}
-								</dd>
-							</div>
-						))}
-					</dl>
 				</Reveal>
 			</div>
 		</div>

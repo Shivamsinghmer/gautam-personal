@@ -1,8 +1,17 @@
 import { ArrowUpRight } from "lucide-react";
 import { lazy, Suspense } from "react";
+import {
+	LiquidMetalButtonFallback,
+} from "#/components/liquid-metal-button";
 import { ClientOnly, InView } from "#/components/ui/deferred";
 import { Reveal } from "#/components/ui/scroll-reveal";
 import { INK, INK_DEEP, SIGNAL } from "#/lib/palette";
+
+const LiquidMetalButton = lazy(() =>
+	import("#/components/liquid-metal-button").then((m) => ({
+		default: m.LiquidMetalButton,
+	})),
+);
 
 /**
  * three.js plus the GLTF loader is the heaviest import on the page, so it is
@@ -228,21 +237,37 @@ export function BookSection() {
 							</p>
 						</Reveal>
 
-						<Reveal delay={0.18}>
-							<a
-								href={NOTIFY}
-								className="group mt-10 inline-flex items-center gap-2.5 rounded-full px-7 py-3.5 text-sm font-semibold transition-opacity hover:opacity-90"
-								// styles.css carries an unlayered `a { color }` rule that beats
-								// Tailwind's layered utilities at any specificity, so the label
-								// colour is set here or it renders teal on blue.
-								style={{ backgroundColor: SIGNAL, color: "#ffffff" }}
+						{/* The same shader button every other primary action on the page
+						    now uses, so this is not one more pill in a different fill and
+						    radius. It is a real `mailto:` anchor - the fallback and the
+						    shader version both are - so right-click and "copy link
+						    address" keep working. */}
+						<Reveal delay={0.18} className="mt-10">
+							<ClientOnly
+								fallback={
+									<LiquidMetalButtonFallback
+										label="Tell me when it lands"
+										href={NOTIFY}
+										icon={ArrowUpRight}
+									/>
+								}
 							>
-								Tell me when it lands
-								<ArrowUpRight
-									className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 motion-reduce:transition-none motion-reduce:group-hover:translate-x-0 motion-reduce:group-hover:translate-y-0"
-									aria-hidden="true"
-								/>
-							</a>
+								<Suspense
+									fallback={
+										<LiquidMetalButtonFallback
+											label="Tell me when it lands"
+											href={NOTIFY}
+											icon={ArrowUpRight}
+										/>
+									}
+								>
+									<LiquidMetalButton
+										label="Tell me when it lands"
+										href={NOTIFY}
+										icon={ArrowUpRight}
+									/>
+								</Suspense>
+							</ClientOnly>
 						</Reveal>
 					</div>
 

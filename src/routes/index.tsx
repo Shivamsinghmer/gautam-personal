@@ -24,11 +24,7 @@ import { TestimonialsSection } from "#/components/testimonials-section";
 import { ClientOnly } from "#/components/ui/deferred";
 import { Reveal } from "#/components/ui/scroll-reveal";
 import { StatIndex } from "#/components/ui/stat-index";
-import {
-	HERO_DEEP as DEEP,
-	SHADER_BLUE_BRIGHT,
-	HERO_TEAL as TEAL,
-} from "#/lib/palette";
+import { HERO_DEEP as DEEP, SHADER_BLUE_BRIGHT } from "#/lib/palette";
 import { usePreloaderDone } from "#/lib/use-preloader-done";
 
 const LiquidMetalButton = lazy(() =>
@@ -498,7 +494,11 @@ function Home() {
 					rightImage="/hand-right.jpg"
 					background={DEEP}
 					textColor="#ffffff"
-					charColor={TEAL}
+					// The glyphs, not the field, are what made the footer read grey: the
+					// theme swap turned HERO_TEAL into a mid grey and 2,800 of them across the
+					// band lifted the whole thing off black. Darker, so the hands are
+					// still drawn but the ground stays black.
+					charColor="#2b2b2b"
 					hoverColor={SHADER_BLUE_BRIGHT}
 					hoverCharColor={DEEP}
 				>

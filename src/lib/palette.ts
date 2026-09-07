@@ -10,7 +10,7 @@
  * concatenating an alpha pair onto them (`${INK}99`, `${INK_DEEP}f2`), which
  * `oklch(...)` or `var(...)` would break.
  */
-export const HERO_DEEP = "#171717";
+export const HERO_DEEP = "#0a0a0a";
 export const HERO_TEAL = "#404040";
 export const HERO_MINT = "#a1a1a1";
 export const HERO_SAND = "#a1a1a1";
@@ -43,9 +43,9 @@ export const SHADER_BLUE_BRIGHT = "#1447e6";
  */
 export const INK = HERO_DEEP;
 /** One step up from `INK`, for the rare panel that has to separate from it. */
-export const INK_RAISE = "#262626";
+export const INK_RAISE = "#1c1c1c";
 /** Below `INK`, for the shade under type over photography. */
-export const INK_DEEP = "#0e0e0e";
+export const INK_DEEP = "#050505";
 export const SIGNAL = SHADER_BLUE_BRIGHT;
 
 /**
@@ -59,5 +59,5 @@ export const SIGNAL = SHADER_BLUE_BRIGHT;
  * anti-references rule out.
  */
 export const PAPER = "#fafafa";
-export const PAPER_INK = "#171717";
+export const PAPER_INK = "#0a0a0a";
 export const PAPER_INK_SOFT = "#737373";

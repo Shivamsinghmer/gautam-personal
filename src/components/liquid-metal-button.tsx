@@ -1,5 +1,6 @@
 import { liquidMetalFragmentShader, ShaderMount } from "@paper-design/shaders";
 import { Sparkles } from "lucide-react";
+import { useLenis } from "lenis/react";
 import type React from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -7,12 +8,48 @@ interface LiquidMetalButtonProps {
 	label?: string;
 	onClick?: () => void;
 	viewMode?: "text" | "icon";
+	/**
+	 * A trailing glyph, for the callers that used to pair their old flat pill
+	 * with `ArrowRight`/`ArrowUpRight`. Rendered in the same dim chrome tone as
+	 * the label rather than the page's accent - a coloured icon on this button
+	 * would fight the metal instead of sitting on it.
+	 */
+	icon?: React.ComponentType<{ size?: number; style?: React.CSSProperties }>;
+	/**
+	 * Lets this double as a real link: right-click, middle-click and "copy
+	 * link address" all keep working, which a bare `onClick` button cannot
+	 * offer. An in-page `#hash` is intercepted and handed to Lenis - see the
+	 * note on `handleClick` - so it still moves with the same easing as every
+	 * other scroll on the site rather than jumping the way a native anchor
+	 * would. Anything else (`mailto:`, an external URL) is left to navigate
+	 * normally.
+	 */
+	href?: string;
+	/** Adds `target="_blank" rel="noopener noreferrer"` for an `href` that leaves the site. */
+	external?: boolean;
+}
+
+/**
+ * One canvas, reused for every measurement rather than one per button
+ * instance or per keystroke - text measurement is the only thing it is for.
+ */
+let measureCanvas: HTMLCanvasElement | null = null;
+function measureTextWidth(text: string, font: string): number {
+	if (typeof document === "undefined") return 0;
+	measureCanvas ??= document.createElement("canvas");
+	const ctx = measureCanvas.getContext("2d");
+	if (!ctx) return 0;
+	ctx.font = font;
+	return ctx.measureText(text).width;
 }
 
 export function LiquidMetalButton({
 	label = "Get Started",
 	onClick,
 	viewMode = "text",
+	icon: Icon,
+	href,
+	external,
 }: LiquidMetalButtonProps) {
 	const [isHovered, setIsHovered] = useState(false);
 	const [isPressed, setIsPressed] = useState(false);
@@ -21,9 +58,16 @@ export function LiquidMetalButton({
 	>([]);
 	const shaderRef = useRef<HTMLDivElement>(null);
 	const shaderMount = useRef<ShaderMount | null>(null);
-	const buttonRef = useRef<HTMLButtonElement>(null);
+	const buttonRef = useRef<HTMLButtonElement & HTMLAnchorElement>(null);
 	const rippleId = useRef(0);
+	const lenis = useLenis();
 
+	// Every caller before this one carried the string "Get Started" or "Let's
+	// Connect" - both comfortably inside the original fixed 142px box. This
+	// button is now also the site's "Check availability" and "Tell me when it
+	// lands", which are not, so the box is measured off the actual label
+	// instead of hard-coded. The font string has to match the label span's own
+	// size and weight below or the measurement is for a different button.
 	const dimensions = useMemo(() => {
 		if (viewMode === "icon") {
 			return {
@@ -35,15 +79,24 @@ export function LiquidMetalButton({
 				shaderHeight: 46,
 			};
 		}
+		const textWidth = measureTextWidth(
+			label,
+			"400 14px 'DM Sans', ui-sans-serif, system-ui, sans-serif",
+		);
+		const iconAllowance = Icon ? 15 + 6 : 0;
+		const width = Math.max(
+			120,
+			Math.round(textWidth + iconAllowance + 64),
+		);
 		return {
-			width: 142,
+			width,
 			height: 46,
-			innerWidth: 138,
+			innerWidth: width - 4,
 			innerHeight: 42,
-			shaderWidth: 142,
+			shaderWidth: width,
 			shaderHeight: 46,
 		};
-	}, [viewMode]);
+	}, [viewMode, label, Icon]);
 
 	useEffect(() => {
 		const styleId = "shader-canvas-style-exploded";
@@ -115,7 +168,9 @@ export function LiquidMetalButton({
 		shaderMount.current?.setSpeed(0.6);
 	};
 
-	const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+	const handleClick = (
+		e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>,
+	) => {
 		shaderMount.current?.setSpeed(2.4);
 		setTimeout(() => {
 			shaderMount.current?.setSpeed(isHovered ? 1 : 0.6);
@@ -133,8 +188,28 @@ export function LiquidMetalButton({
 			}, 600);
 		}
 
+		// A bare `#hash` left to the browser jumps instantly and fights the
+		// smooth scroller on the way; handing it to Lenis instead is what
+		// keeps this button's in-page moves on the same easing as the rest of
+		// the site. Anything else - `mailto:`, an external URL, no href at
+		// all - is left alone.
+		if (href?.startsWith("#")) {
+			e.preventDefault();
+			const target = document.querySelector(href);
+			if (target) {
+				if (lenis) lenis.scrollTo(target as HTMLElement, { duration: 1.2 });
+				else target.scrollIntoView({ behavior: "smooth", block: "start" });
+				window.history.replaceState(null, "", href);
+			}
+		}
+
 		onClick?.();
 	};
+
+	const Tag = href ? "a" : "button";
+	const tagProps = href
+		? { href, ...(external ? { target: "_blank", rel: "noopener noreferrer" } : {}) }
+		: { type: "button" as const };
 
 	return (
 		<div className="relative inline-block">
@@ -186,19 +261,30 @@ export function LiquidMetalButton({
 							/>
 						)}
 						{viewMode === "text" && (
-							<span
-								style={{
-									fontSize: "14px",
-									color: "#666666",
-									fontWeight: 400,
-									textShadow: "0px 1px 2px rgba(0, 0, 0, 0.5)",
-									transition: "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
-									transform: "scale(1)",
-									whiteSpace: "nowrap",
-								}}
-							>
-								{label}
-							</span>
+							<>
+								<span
+									style={{
+										fontSize: "14px",
+										color: "#666666",
+										fontWeight: 400,
+										textShadow: "0px 1px 2px rgba(0, 0, 0, 0.5)",
+										transition: "all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)",
+										transform: "scale(1)",
+										whiteSpace: "nowrap",
+									}}
+								>
+									{label}
+								</span>
+								{Icon ? (
+									<Icon
+										size={15}
+										style={{
+											color: "#666666",
+											filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.5))",
+										}}
+									/>
+								) : null}
+							</>
 						)}
 					</div>
 
@@ -277,9 +363,9 @@ export function LiquidMetalButton({
 						</div>
 					</div>
 
-					<button
+					<Tag
 						ref={buttonRef}
-						type="button"
+						{...tagProps}
 						onClick={handleClick}
 						onMouseEnter={handleMouseEnter}
 						onMouseLeave={handleMouseLeave}
@@ -322,9 +408,54 @@ export function LiquidMetalButton({
 								}}
 							/>
 						))}
-					</button>
+					</Tag>
 				</div>
 			</div>
 		</div>
+	);
+}
+
+/**
+ * What every `LiquidMetalButton` renders as until its shader library has
+ * arrived - a real anchor or button, styled flat in the same dark chrome, so
+ * the site's one button design works from first paint rather than after a
+ * WebGL context compiles. Nav and hero kept their own bespoke versions of
+ * this (`PlainPrimaryButton`, `PlainConnectButton`) from before every pill CTA
+ * on the site used the shader button; this is the one every later caller
+ * shares, so a fifth copy of the same four classes never gets written.
+ */
+export function LiquidMetalButtonFallback({
+	label,
+	onClick,
+	href,
+	external,
+	icon: Icon,
+}: {
+	label: string;
+	onClick?: () => void;
+	href?: string;
+	external?: boolean;
+	icon?: React.ComponentType<{ className?: string }>;
+}) {
+	const className =
+		"inline-flex items-center gap-2 rounded-full bg-neutral-900 px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90";
+	if (href) {
+		return (
+			<a
+				href={href}
+				onClick={onClick}
+				className={className}
+				{...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+			>
+				{label}
+				{Icon ? <Icon className="h-4 w-4" aria-hidden="true" /> : null}
+			</a>
+		);
+	}
+	return (
+		<button type="button" onClick={onClick} className={className}>
+			{label}
+			{Icon ? <Icon className="h-4 w-4" aria-hidden="true" /> : null}
+		</button>
 	);
 }

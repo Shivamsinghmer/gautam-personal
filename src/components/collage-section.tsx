@@ -103,14 +103,41 @@ export function CollageSection() {
 					    bright rectangle. */}
 					<div
 						aria-hidden="true"
-						className="pointer-events-none absolute inset-y-0 left-1/2 z-0 hidden w-[min(30rem,36%)] -translate-x-1/2 lg:block"
+						// Taller than the grid on purpose. `object-contain` fits the plate
+						// inside its box, so the box's *height* is what caps the figure -
+						// widening it alone did nothing. Letting it hang past the row top
+						// and bottom lets him grow wide enough to run behind all four
+						// frames rather than sitting between them.
+						// Full-bleed width, no overhang. The oversizing and the 13% vertical
+						// hang were there to force a narrower plate to reach across all four
+						// frames; a wide plate covers the row on its own, so the box is just
+						// the section's width and the row's height again.
+						className="pointer-events-none absolute inset-y-0 left-1/2 z-0 hidden w-screen -translate-x-1/2 lg:block"
 					>
+						{/* A big background figure with the frames laid over it, rather
+						    than a narrow strip tucked into the gutter between them. He
+						    spans past all four cards and they sit on top, which is what
+						    makes the layers read as depth.
+
+						    The plate is 20:9 and already shot on black - measured, its
+						    corners read 0-1 and four fifths of it sits in the darkest
+						    luminance bin. So the radial mask that used to hide a pale
+						    studio ground is gone (it was only cutting into him), and
+						    `screen` drops the black out completely: black contributes
+						    nothing to a screen blend, so only the lit figure lands on
+						    the field. */}
 						<img
 							src="/collage/middle.jpg"
 							alt=""
 							loading="lazy"
 							decoding="async"
-							className="h-full w-full object-cover object-top opacity-80 [mask-image:radial-gradient(72%_62%_at_50%_46%,black_58%,transparent_100%)]"
+							// 0.5, not 0.9. The plate carries a bright radial glow behind him -
+							// its centre reads 235 against a field of 10 - and a screen blend
+							// puts that straight onto the page: at 0.9 the middle of the
+							// section composites to 213, which is the washed-out grey this
+							// page is meant to be rid of. At 0.5 it reads as a spotlight and
+							// the field stays black.
+							className="h-full w-full object-contain object-center opacity-50 mix-blend-screen"
 						/>
 					</div>
 

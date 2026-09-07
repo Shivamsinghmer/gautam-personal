@@ -1,5 +1,6 @@
 import { BookingInvite } from "#/components/booking-invite";
 import { GradientBars } from "#/components/gradient-bars";
+import { PressStrip } from "#/components/press-strip";
 
 import {
 	HERO_DEEP,
@@ -53,7 +54,10 @@ export function BookingSection() {
 				// Bright at the foot, fading out toward each bar's top edge, so the
 				// comb dissolves into the field instead of ending on a hard line.
 				colors={[SHADER_BLUE_BRIGHT, SHADER_BLUE_DEEP, `${SHADER_BLUE_INK}00`]}
-				className="-z-20 opacity-90"
+				// 0.4 read as black but lost the comb entirely; 0.9 made the section
+				// blue rather than black. 0.68 keeps the field dark at the top, where
+				// the copy sits, and lets the bars actually read along the bottom.
+				className="-z-20 opacity-[0.68]"
 				raiseOnView
 			/>
 			{/* The other half of the hand-off. The hero fades down to DEEP; this
@@ -99,6 +103,10 @@ export function BookingSection() {
 
 			<div className="relative mx-auto w-full max-w-6xl">
 				<BookingInvite />
+
+				{/* The mastheads, across the whole measure rather than pinned to the
+				    width of the photograph above them. */}
+				<PressStrip className="mt-16 sm:mt-20" />
 			</div>
 		</section>
 	);

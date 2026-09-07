@@ -1,8 +1,9 @@
-import { Reveal, ScatterText } from "#/components/ui/scroll-reveal";
+import { useEffect, useState } from "react";
 import {
-	HoverExpand_001,
-	type HoverExpandItem,
-} from "#/components/ui/skiper-ui/skiper52";
+	PerspectiveCarousel,
+	type PerspectiveCarouselItem,
+} from "#/components/ui/perspective-carousel";
+import { Reveal, ScatterText } from "#/components/ui/scroll-reveal";
 import { HERO_DEEP } from "#/lib/palette";
 
 const UNSPLASH = (id: string, w: number, h: number) =>
@@ -14,7 +15,7 @@ const UNSPLASH = (id: string, w: number, h: number) =>
  * photos and quotes from officers Gautam has trained. Swap for the real
  * thing before this ships.
  */
-const TESTIMONIALS: HoverExpandItem[] = [
+const TESTIMONIALS: Omit<PerspectiveCarouselItem, "title">[] = [
 	{
 		src: UNSPLASH("1519085360753-af0119f7cbe7", 480, 640),
 		alt: "Portrait of a senior police officer",
@@ -89,7 +90,25 @@ const TESTIMONIALS: HoverExpandItem[] = [
 	},
 ];
 
+/**
+ * The carousel is sized in pixels, so the breakpoint has to be read rather
+ * than expressed in classes: a 360px card is most of a phone screen.
+ */
+function useCardSize() {
+	const [small, setSmall] = useState(false);
+	useEffect(() => {
+		const q = window.matchMedia("(max-width: 639px)");
+		const sync = () => setSmall(q.matches);
+		sync();
+		q.addEventListener("change", sync);
+		return () => q.removeEventListener("change", sync);
+	}, []);
+	// Height follows from the 3:4 card, so only the width is set here.
+	return small ? { width: 250 } : { width: 348 };
+}
+
 export function TestimonialsSection() {
+	const size = useCardSize();
 	return (
 		<section
 			className="relative overflow-hidden px-6 py-14 sm:px-10 sm:py-28"
@@ -104,15 +123,23 @@ export function TestimonialsSection() {
 				<ScatterText text="About me" spread={26} tilt={26} />
 			</h2>
 
-			{/* Nine portraits: eight collapsed at 3rem plus one open at 20rem is
-			    about 44rem, so the row fits a laptop without scrolling. The
-			    overflow-x stays as the escape hatch for narrow screens. */}
-			{/* The scroll container moved inside the component, around the row of
-			    portraits only. Wrapping the whole thing meant `min-w-max` applied
-			    to the quote too, so it ran off the side of a phone instead of
-			    wrapping. */}
+			{/* Cards, not a strip of portraits: each slide carries the quote and
+			    the attribution inside it, so nothing has to be read from a caption
+			    parked outside the card. Draggable, with the arrows and dots kept
+			    as the keyboard- and pointer-accessible path. */}
 			<Reveal delay={0.1} className="mt-12 sm:mt-14">
-				<HoverExpand_001 items={TESTIMONIALS} />
+				<div style={{ height: Math.round((size.width * 4) / 3) + 132 }}>
+					<PerspectiveCarousel
+						draggable
+						loop
+						autoPlayMs={5000}
+						slideWidth={size.width}
+						rotationStep={38}
+						inactiveScale={0.86}
+						items={TESTIMONIALS.map((t) => ({ ...t, title: t.name ?? "" }))}
+						controlsClassName="border-white/10! bg-white/5! text-white!"
+					/>
+				</div>
 			</Reveal>
 		</section>
 	);
