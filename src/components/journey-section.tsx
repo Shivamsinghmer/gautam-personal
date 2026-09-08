@@ -3,13 +3,7 @@ import {
 	CaseStudyFlipStack,
 } from "#/components/ui/case-study-flip-stack";
 import { Reveal } from "#/components/ui/scroll-reveal";
-import {
-	HERO_DEEP,
-	HERO_MINT,
-	HERO_TEAL,
-	SHADER_BLUE_BRIGHT,
-	SHADER_BLUE_DEEP,
-} from "#/lib/palette";
+import { HERO_DEEP, INK_RAISE } from "#/lib/palette";
 
 /**
  * The journey: twenty years in the order they happened, as a stack of six cards
@@ -25,12 +19,15 @@ import {
  *   and in the rail up the left margin, which is the whole arc at a glance and
  *   only appears where there is margin to spare. Under the years sits a short
  *   dated list rather than a paragraph - the dates are the argument.
- * - The card grounds run one deliberate ramp rather than six unrelated colours:
- *   near-black ink, teal, the two blues, and out to mint. Dark to light across
- *   the sequence, so the palette itself carries the arc from a village with no
- *   electricity to a lit stage.
- * - Every foreground is picked against its own card: the lightest ground takes
- *   the deep ink, the rest take near-white, and all six clear 5.7:1 or better.
+ * - Every card sits on the same ground - `INK_RAISE`, the site's one step up
+ *   from the section's own `INK` - rather than each stage getting its own hue.
+ *   An earlier version ran teal into the two shader blues into a light mint,
+ *   borrowing colours that exist for other jobs (`SIGNAL` is reserved for the
+ *   reach section's surface; the "teal"/"mint" names are legacy and now
+ *   resolve to plain greys). Six unrelated grounds also fought the one thing
+ *   that is actually supposed to carry the arc across the stack: the
+ *   photographs, graded as one monochrome set. The panel stays neutral so
+ *   they do that job instead of competing with it.
  * - The photographs are one graded monochrome set (see
  *   scripts/build-journey-images.mjs). Their filenames carry that script's
  *   ordering, not this section's, so 02-agencies opening the stack is expected
@@ -46,7 +43,7 @@ import {
  *   clipped ancestor silently turns that back into static.
  */
 
-const NEAR_WHITE = "#eef6f8";
+const NEAR_WHITE = "#f5f5f5";
 
 const STEPS: CaseStudyFlipItem[] = [
 	{
@@ -66,7 +63,7 @@ const STEPS: CaseStudyFlipItem[] = [
 		],
 		image: "/journey/02-agencies.webp",
 		imageAlt: "Studio portrait of Gautam Kumawat",
-		background: "#072a36",
+		background: INK_RAISE,
 		foreground: NEAR_WHITE,
 	},
 	{
@@ -84,7 +81,7 @@ const STEPS: CaseStudyFlipItem[] = [
 		image: "/journey/05-press.webp",
 		imageAlt:
 			"Gautam Kumawat on the India Today Future Talk panel, his name card on the table",
-		background: "#0b4353",
+		background: INK_RAISE,
 		foreground: NEAR_WHITE,
 	},
 	{
@@ -104,8 +101,8 @@ const STEPS: CaseStudyFlipItem[] = [
 		image: "/journey/03-classroom.webp",
 		imageAlt:
 			"A student at the lectern putting a question to the room, classmates behind him",
-		background: HERO_TEAL,
-		foreground: "#ffffff",
+		background: INK_RAISE,
+		foreground: NEAR_WHITE,
 	},
 	{
 		number: "04",
@@ -121,8 +118,8 @@ const STEPS: CaseStudyFlipItem[] = [
 		],
 		image: "/journey/06-scale.webp",
 		imageAlt: "A packed auditorium of students watching from tiered seating",
-		background: SHADER_BLUE_DEEP,
-		foreground: "#ffffff",
+		background: INK_RAISE,
+		foreground: NEAR_WHITE,
 	},
 	{
 		number: "05",
@@ -138,8 +135,8 @@ const STEPS: CaseStudyFlipItem[] = [
 		],
 		image: "/journey/01-case-work.webp",
 		imageAlt: "Gautam Kumawat reading case material from a tablet",
-		background: SHADER_BLUE_BRIGHT,
-		foreground: "#ffffff",
+		background: INK_RAISE,
+		foreground: NEAR_WHITE,
 	},
 	{
 		number: "06",
@@ -155,8 +152,8 @@ const STEPS: CaseStudyFlipItem[] = [
 		],
 		image: "/journey/04-stage.webp",
 		imageAlt: "Gautam Kumawat mid-talk on a darkened stage, hands raised",
-		background: HERO_MINT,
-		foreground: HERO_DEEP,
+		background: INK_RAISE,
+		foreground: NEAR_WHITE,
 	},
 ];
 

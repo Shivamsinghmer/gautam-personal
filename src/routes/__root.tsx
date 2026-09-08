@@ -61,6 +61,19 @@ export const Route = createRootRoute({
 				href: "/favicon.svg",
 				type: "image/svg+xml",
 			},
+			// The hero figure is a ~1.6MB plate, and it only starts fetching once
+			// React has mounted the <img> - on a slow mobile connection that put
+			// its arrival well after the rest of the hero had already settled, so
+			// the entrance animation played late and looked like the picture just
+			// snapped into place rather than rising in. A preload hint starts the
+			// request the moment the document is parsed, before hydration, which
+			// is the earliest anything on this page can ask for it.
+			{
+				rel: "preload",
+				as: "image",
+				href: "/hero.png",
+				fetchPriority: "high",
+			},
 		],
 	}),
 	shellComponent: RootDocument,

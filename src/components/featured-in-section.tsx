@@ -21,13 +21,18 @@ import { cn } from "#/lib/utils";
  * scroll feel like a template, and this is the beat where the lights come up
  * before the reach section drops them again into full brand blue.
  *
- * Logo treatment, per the same reasoning the marquee used, inverted for a
- * light ground: `brightness-0` flattens any colour to black while keeping
- * alpha, so a wordmark reads as one ink whatever it arrived in. The two
- * broadcast bugs are filled tiles with the mark knocked out in white -
- * `brightness-0` would fill them solid and swallow the mark - so they are
- * desaturated instead and stay as tiles, which is how a channel bug is
- * supposed to look anyway.
+ * Logo treatment: desaturated at rest, in their own colours under the cursor.
+ * Eleven mastheads carry eleven brand palettes, and all eleven at once on a
+ * white wall is a colour chart rather than a body of evidence - grey, they
+ * read as one set, and the colour arrives on the single mark being looked at.
+ * `grayscale`, not `brightness-0`: two of these are filled broadcast bugs with
+ * the mark knocked out in white, and flattening to one ink would fill the tile
+ * solid and swallow it.
+ *
+ * The hover therefore does one thing, not two. It used to fade the mark out
+ * and bring the outlet's name up in its place; that name is still worth having
+ * - a red "R." tile does not say Republic TV to most readers - so it now sits
+ * at the foot of the cell as a caption rather than standing where the logo is.
  */
 
 export function FeaturedInSection() {
@@ -88,11 +93,21 @@ export function FeaturedInSection() {
 									// wordmark into the same width, which renders the wide ones
 									// as slivers and lets the square marks fill it.
 									//
-									// Shown in their own colours now. They were flattened with
-									// `brightness-0` (and the broadcast tiles desaturated) to
-									// hold one treatment across the wall; in colour they read as
-									// the actual mastheads, which is the point of the section.
-									"w-auto max-w-full object-contain transition-opacity duration-300 group-hover:opacity-0",
+									// Grey at rest, their own colour under the cursor. Eleven
+									// mastheads in eleven brand palettes is eleven colours
+									// competing on one white wall; desaturated they read as one
+									// set of evidence, and the colour arrives on the one you
+									// are actually looking at.
+									//
+									// `grayscale` rather than `brightness-0`: flattening to a
+									// single ink would fill the two broadcast tiles solid and
+									// swallow the marks knocked out of them.
+									//
+									// A touch screen has no cursor to reveal anything with, so
+									// there the marks simply start in colour - Tailwind's
+									// `hover` variant is itself gated on `(hover: hover)`, so
+									// without this the phone would only ever see grey.
+									"w-auto max-w-full object-contain grayscale transition-[filter,opacity] duration-300 group-hover:grayscale-0 [@media(hover:none)]:grayscale-0",
 									press.size,
 									press.tile && "rounded-[3px]",
 								)}
@@ -100,11 +115,19 @@ export function FeaturedInSection() {
 
 							{/* The name, on hover. Worth showing because two of these are
 							    broadcast bugs rather than wordmarks - a red "R." tile does
-							    not say Republic TV to most readers. */}
+							    not say Republic TV to most readers.
+
+							    It used to sit across the middle of the cell and the mark
+							    faded out behind it, which cannot survive the hover now
+							    being the colour reveal - you would be swapping the logo
+							    away at the exact moment it became worth looking at. So it
+							    moved to the foot of the cell, where it captions the mark
+							    instead of replacing it. Below every logo's centred box,
+							    so nothing overlaps. */}
 							<span
 								aria-hidden="true"
-								className="pointer-events-none absolute inset-0 flex items-center justify-center px-4 text-center text-[0.82rem] font-semibold opacity-0 transition-opacity duration-300 group-hover:opacity-100"
-								style={{ color: PAPER_INK }}
+								className="pointer-events-none absolute inset-x-0 bottom-3 px-3 text-center text-[0.68rem] font-medium opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:bottom-4"
+								style={{ color: PAPER_INK_SOFT, letterSpacing: "0.08em" }}
 							>
 								{press.name}
 							</span>

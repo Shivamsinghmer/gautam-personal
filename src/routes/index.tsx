@@ -147,7 +147,13 @@ function Home() {
 					<HeroBackdrop
 						image="/hero.png"
 						className="absolute inset-0 overflow-hidden"
-						imageClassName="scale-[2.6] blur-[2px] brightness-[0.62] object-[50%_21%] sm:scale-[2.2]"
+						// A touch brighter below `sm`: the tighter 2.6 crop plus the
+						// same 0.62 brightness the wider desktop plate uses left the
+						// phone hero reading as close to flat black above and beside
+						// the figure, with nothing for the eye to land on. 0.72 is
+						// still dim enough that the scrims and the corner type read
+						// clearly over it - just not empty.
+						imageClassName="scale-[2.6] blur-[2px] brightness-[0.72] object-[50%_21%] sm:scale-[2.2] sm:brightness-[0.62]"
 					/>
 				</div>
 
@@ -241,6 +247,11 @@ function Home() {
 						src="/hero.png"
 						alt="Gautam Kumawat"
 						decoding="async"
+						// Matches the preload hint in `__root.tsx` head - both exist so
+						// this request wins the fight for bandwidth against everything
+						// else the page is loading, on the connection where that fight
+						// matters most.
+						fetchPriority="high"
 						onLoad={() => setFigureReady(true)}
 						className="h-full w-auto max-w-none object-contain object-bottom"
 						style={{
@@ -261,6 +272,11 @@ function Home() {
 					// `min-h-svh` parent - the column was shrink-wrapping its content
 					// and being centred, so `mt-auto` had no space to push into and the
 					// claim landed across his face.
+					// `pt-24`, not the `pt-16` this briefly was: the floating nav is
+					// `fixed`, outside this flow entirely, so it does not push this
+					// column down on its own - `pt-16` put the identity line only
+					// ~13px under the nav's own bottom edge, close enough to read as
+					// tucked under it rather than clear of it.
 					className="pointer-events-none relative z-20 mx-auto flex w-full max-w-[104rem] flex-col justify-start self-stretch pt-24 pb-10 text-center sm:justify-between sm:pt-28 sm:pb-14 sm:text-left"
 				>
 					<p
@@ -273,8 +289,19 @@ function Home() {
 					</p>
 
 					<div className="mt-auto flex flex-col items-center justify-between gap-8 sm:mt-0 sm:flex-row sm:items-center">
+						{/* Below `sm` this used to sit in normal flow with the caption,
+						    which `mt-auto` then pushed down to share the bottom third
+						    with the button - stacked on his chest rather than read
+						    against clear ground. Pulled out with `absolute` and set just
+						    under the identity line, above where the figure actually
+						    starts (~341px at a 375-wide phone), it reads before the
+						    photograph rather than over it. `sm:static` hands it straight
+						    back to the flex row for the desktop composition, unchanged.
+						    Sized up on the way, too - `6.6vw` at 375px landed a hair
+						    under the 1.55rem floor, which read as small for the one line
+						    doing the most work in the hero. */}
 						<h1
-							className="display max-w-[16ch] text-[clamp(1.55rem,6.6vw,3rem)] sm:max-w-[30%] sm:text-[clamp(1.55rem,3.3vw,3rem)]"
+							className="display absolute inset-x-0 top-40 z-10 max-w-[17ch] text-[clamp(2rem,9vw,3rem)] sm:static sm:inset-auto sm:top-auto sm:z-auto sm:max-w-[30%] sm:text-[clamp(1.55rem,3.3vw,3rem)]"
 							style={{ color: TYPE }}
 						>
 							<span
@@ -297,8 +324,13 @@ function Home() {
 							</span>
 						</h1>
 
+						{/* Desktop-only before this: `hidden sm:block` cut it entirely
+						    on a phone, which was one of two credential lines this hero
+						    carries just gone, and left the gap under the headline with
+						    nothing in it. Centred and unconstrained in width below
+						    `sm`, where it was right-aligned inside a 24%-wide column. */}
 						<p
-							className="gk-reveal hidden max-w-[24%] text-right text-[0.78rem] leading-snug sm:block sm:text-[0.85rem]"
+							className="gk-reveal text-center text-[0.78rem] leading-snug sm:max-w-[24%] sm:text-right sm:text-[0.85rem]"
 							style={{ color: TYPE_SOFT, ["--gk-delay" as string]: "1.78s" }}
 						>
 							Law-enforcement agencies
@@ -332,8 +364,12 @@ function Home() {
 							</ClientOnly>
 						</div>
 
+						{/* Also cut entirely below `sm` before this - the bottom row on
+						    a phone was the button alone, with the closing line that
+						    balances it on desktop simply missing. Centred under the
+						    button rather than right-aligned in a 30%-wide column. */}
 						<p
-							className="display hidden max-w-[30%] text-right text-[clamp(1rem,1.8vw,1.7rem)] sm:block"
+							className="display text-center max-w-none text-[clamp(1rem,1.8vw,1.7rem)] sm:max-w-[30%] sm:text-right"
 							style={{ color: TYPE }}
 						>
 							<span
@@ -401,8 +437,8 @@ function Home() {
 				</div>
 			</section>
 
-			<FeaturedInSection />
 			<AboutSection />
+			<FeaturedInSection />
 
 			<JourneySection />
 

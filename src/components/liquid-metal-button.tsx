@@ -1,6 +1,6 @@
 import { liquidMetalFragmentShader, ShaderMount } from "@paper-design/shaders";
-import { Sparkles } from "lucide-react";
 import { useLenis } from "lenis/react";
+import { Sparkles } from "lucide-react";
 import type React from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -84,10 +84,7 @@ export function LiquidMetalButton({
 			"400 14px 'DM Sans', ui-sans-serif, system-ui, sans-serif",
 		);
 		const iconAllowance = Icon ? 15 + 6 : 0;
-		const width = Math.max(
-			120,
-			Math.round(textWidth + iconAllowance + 64),
-		);
+		const width = Math.max(120, Math.round(textWidth + iconAllowance + 64));
 		return {
 			width,
 			height: 46,
@@ -208,7 +205,10 @@ export function LiquidMetalButton({
 
 	const Tag = href ? "a" : "button";
 	const tagProps = href
-		? { href, ...(external ? { target: "_blank", rel: "noopener noreferrer" } : {}) }
+		? {
+				href,
+				...(external ? { target: "_blank", rel: "noopener noreferrer" } : {}),
+			}
 		: { type: "button" as const };
 
 	return (

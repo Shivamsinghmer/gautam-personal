@@ -1,8 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import { lazy, Suspense } from "react";
-import {
-	LiquidMetalButtonFallback,
-} from "#/components/liquid-metal-button";
+import { LiquidMetalButtonFallback } from "#/components/liquid-metal-button";
 import { ClientOnly, InView } from "#/components/ui/deferred";
 import { Reveal } from "#/components/ui/scroll-reveal";
 import { INK, INK_DEEP, SIGNAL } from "#/lib/palette";

@@ -114,14 +114,23 @@ export function TestimonialsSection() {
 			className="relative overflow-hidden px-6 py-14 sm:px-10 sm:py-28"
 			style={{ backgroundColor: HERO_DEEP }}
 		>
-			<Reveal>
-				<p className="text-center text-xs font-semibold uppercase tracking-[0.28em] text-white/40">
-					What people say
-				</p>
-			</Reveal>
-			<h2 className="mt-4 text-center text-4xl font-bold text-white sm:text-5xl">
-				<ScatterText text="About me" spread={26} tilt={26} />
-			</h2>
+			{/* Every other section caps its measure at 6xl inside the same
+			    px-6/sm:px-10 gutters; this heading used to run the full width of
+			    the section instead, so on a wide viewport it sat on a different
+			    left edge than the sections above and below it. The carousel below
+			    stays full-bleed on purpose - its cards are a fixed pixel width and
+			    want the extra room to slide - but the heading now opens on the
+			    site's own column. */}
+			<div className="mx-auto max-w-6xl">
+				<Reveal>
+					<p className="text-center text-xs font-semibold uppercase tracking-[0.28em] text-white/40">
+						What people say
+					</p>
+				</Reveal>
+				<h2 className="mt-4 text-center text-4xl font-bold text-white sm:text-5xl">
+					<ScatterText text="About me" spread={26} tilt={26} />
+				</h2>
+			</div>
 
 			{/* Cards, not a strip of portraits: each slide carries the quote and
 			    the attribution inside it, so nothing has to be read from a caption
