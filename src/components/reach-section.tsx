@@ -4,7 +4,7 @@ import { LiquidMetalButtonFallback } from "#/components/liquid-metal-button";
 import { ClientOnly } from "#/components/ui/deferred";
 import { Reveal } from "#/components/ui/scroll-reveal";
 import { StatIndex } from "#/components/ui/stat-index";
-import { HERO_DEEP, SHADER_BLUE_INK } from "#/lib/palette";
+import { HERO_DEEP } from "#/lib/palette";
 
 const LiquidMetalButton = lazy(() =>
 	import("#/components/liquid-metal-button").then((m) => ({
@@ -41,12 +41,20 @@ const LiquidMetalButton = lazy(() =>
  *
  * ## The photograph
  *
- * `gautam-figure.png` is also the about section's cut-out. public/ holds
- * exactly two cut-outs with a real alpha channel and both are from the same
- * shoot, so two sections that each need a free-standing figure have to share
- * one. They are two sections apart and treated differently - framed and
- * tinted inside a card here, standing free on ink there - but it is the same
- * photograph, and a second cut-out would end it.
+ * `02-agencies.webp`, out of the journey section's graded set - a studio
+ * headshot on a white ground, and a plate with its own background rather than
+ * a cut-out.
+ *
+ * Two things follow from that. First, it ends a duplicate: the card used to
+ * run `gautam-figure.png`, which is also the about section's cut-out, and
+ * public/ holds exactly two cut-outs, both from the same shoot, so two
+ * sections that each wanted a free-standing figure had to share one. About
+ * keeps it to itself now. Second, the frame holds a rectangle, so everything
+ * that used to sit behind a cut-out figure had to go - see the inline note.
+ *
+ * The white ground is kept deliberately. It makes this the one cut to daylight
+ * on the page outside the press wall, which means this section no longer
+ * carries a saturated blue surface; the accent here is the shader button.
  *
  * ⚠️ PLACEHOLDER FIGURES. The four counts below are taken from the reference
  * design that inspired the original layout - they are NOT Gautam's real
@@ -117,34 +125,32 @@ export function ReachSection() {
 						    at 574×431, which on its own was most of what pushed the
 						    section past one screen. Fixed and smaller, it holds the same
 						    proportions at roughly half the footprint. */}
-						<figure className="relative m-0 aspect-[5/4] max-w-[22rem] overflow-hidden rounded-[1.5rem] sm:aspect-[4/3]">
-							{/* The one saturated surface left in the section: a deeper
-							    blue than the old full-bleed field, so the card reads as a
-							    distinct object and the cut-out has an edge to catch. This
-							    is the accent doing its usual job - one contained element,
-							    not the ground. */}
-							<div
-								aria-hidden="true"
-								className="absolute inset-0"
-								style={{
-									backgroundColor: SHADER_BLUE_INK,
-									backgroundImage:
-										"radial-gradient(64% 78% at 78% 4%, rgb(255 255 255 / 0.17) 0%, rgb(255 255 255 / 0) 66%)",
-								}}
-							/>
+						<figure className="relative m-0 aspect-[6/4] max-w-[22rem] overflow-hidden rounded-[1.5rem] sm:aspect-[4/3]">
+							{/* The plate keeps its own white studio ground, so this card is the
+							    page's one cut to daylight outside the press wall. That is why
+							    there is nothing layered over it: the blue wash this card used to
+							    carry turned the white to a pale periwinkle, and a multiply blend
+							    turned it into a flat blue field - both of them arguments with the
+							    photograph rather than treatments of it. The section still gets
+							    its accent from the shader button directly below.
 
-							{/* Taller than the card and anchored near the top, so the crop
-							    falls across his legs at the bottom edge rather than across
-							    his head - which is the whole difference between a figure
-							    standing in a frame and a photograph pasted into a box. The
-							    source is a tight cut-out with no headroom of its own, so
-							    the 6% inset supplies it. */}
+							    No ring and no sheen for the same reason. A white/10 hairline is
+							    invisible on white, and the old radial highlight was white light
+							    drawn on a white ground. White on near-black draws its own edge.
+
+							    `object-[50%_10%]`, measured: the source is 4:5 and the card is
+							    4:3, so cover shows an 800x600 window with 400px of vertical
+							    slack. 10% of it keeps the hair clear of the top edge and still
+							    lands the crop below his collar - 0% buys headroom by cutting the
+							    shoulders off, and 20% starts shaving the hair. */}
 							<img
-								src="/gautam-figure.png"
-								alt="Gautam Kumawat"
+								src="/journey/02-agencies.webp"
+								alt="Studio portrait of Gautam Kumawat"
+								width={800}
+								height={1000}
 								loading="lazy"
 								decoding="async"
-								className="absolute top-[6%] left-[4%] h-[122%] w-auto max-w-none sm:left-[7%]"
+								className="absolute inset-0 h-full w-full object-cover object-[50%_10%]"
 							/>
 						</figure>
 					</Reveal>

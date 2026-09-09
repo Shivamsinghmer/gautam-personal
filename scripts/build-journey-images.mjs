@@ -1,10 +1,11 @@
 /**
  * Derives the journey spiral's image set from the photographs already in
- * public/.
+ * public/, plus one original out of the unserved `photos/` directory.
  *
- * The six frames were shot in different venues, years and lighting, and four
- * of them appear again in their original colour in the collage section further
- * down the page. Running them through one grade solves both problems at once:
+ * The frames were shot in different venues, years and lighting, and four of
+ * them appear again in their original colour further down the page - in the
+ * collage, and now in the gallery too. Running them through one grade solves
+ * both problems at once:
  * the spiral reads as a single sequence rather than a mixed bag, and it does
  * not look like the collage repeated. Neutral grayscale specifically - the
  * slider's fragment shader nudges saturation up by 1.18, which would re-tint a
@@ -25,6 +26,16 @@ const OUT = "public/journey";
  * `position` is per-photograph: the two studio portraits are cropped from the
  * top so the head survives the tall crop, and the wide auditorium frames lean
  * on sharp's attention heuristic to keep the crowd rather than empty ceiling.
+ *
+ * The numbers are this script's ordering, not the section's - `journey-section.tsx`
+ * matches each frame to the stage it suits, so they do not run 01..07 down the
+ * stack. Do not renumber to "fix" that.
+ *
+ * `02-agencies.webp` is built here but rendered somewhere else entirely: it is
+ * the reach section's card. Step 01 used to carry it and now carries
+ * `07-first-desk.webp`, and rather than go spare it took over the reach card
+ * from `gautam-figure.png` - which that section had been sharing with about.
+ * So this script feeds two sections, and deleting that row breaks reach.
  */
 const JOBS = [
 	{ in: "public/collage/middle.jpg", out: "01-case-work.webp", position: "attention" },
@@ -33,6 +44,11 @@ const JOBS = [
 	{ in: "public/collage/b2.webp", out: "04-stage.webp", position: "attention" },
 	{ in: "public/collage/b1.webp", out: "05-press.webp", position: "attention" },
 	{ in: "public/collage/t1.webp", out: "06-scale.webp", position: "attention" },
+	// The only genuine period photograph on the page, and the one frame here
+	// whose source is not already in public/. "attention" holds the whole of
+	// him plus both screens; a centre crop clips the second monitor, and "top"
+	// loses the laptop the picture is actually about.
+	{ in: "photos/first-desk.jpg", out: "07-first-desk.webp", position: "attention" },
 ];
 
 mkdirSync(OUT, { recursive: true });

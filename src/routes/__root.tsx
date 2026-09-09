@@ -16,6 +16,7 @@ const menuGroups: MenuGroup[] = [
 			{ label: "Home", href: "/" },
 			{ label: "About", href: "#about" },
 			{ label: "The rooms", href: "#the-room" },
+			{ label: "Gallery", href: "#gallery" },
 			{ label: "Book", href: "#book" },
 		],
 	},

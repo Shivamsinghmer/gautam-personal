@@ -16,6 +16,7 @@ import { BookSection } from "#/components/book-section";
 import { BookingSection } from "#/components/booking-section";
 import { CollageSection } from "#/components/collage-section";
 import { FeaturedInSection } from "#/components/featured-in-section";
+import { GallerySection } from "#/components/gallery-section";
 import { HeroBackdrop } from "#/components/hero-backdrop";
 import { JourneySection } from "#/components/journey-section";
 import { ReachSection } from "#/components/reach-section";
@@ -445,6 +446,12 @@ function Home() {
 			<ReachSection />
 
 			<CollageSection />
+
+			{/* The counterpoint to the collage, and it has to follow it: that
+			    section is the rooms he is booked into, this one is everywhere
+			    else. Read the other way round the personal frames would be
+			    standing in front of the evidence. */}
+			<GallerySection />
 
 			<TestimonialsSection />
 

@@ -30,15 +30,21 @@ import { HERO_DEEP, INK_RAISE } from "#/lib/palette";
  *   they do that job instead of competing with it.
  * - The photographs are one graded monochrome set (see
  *   scripts/build-journey-images.mjs). Their filenames carry that script's
- *   ordering, not this section's, so 02-agencies opening the stack is expected
- *   rather than a mistake - the images are matched to the stage they suit.
- *   Four of these frames appear again in colour further down the page; the
- *   grade keeps this from reading as that section repeated.
- * - 01-case-work is the same shoot as the about section's cut-out figure, and
- *   public/ has exactly six distinct photographs for six cards, so one repeat
- *   is unavoidable until there is a seventh. It sits on step 05 to put as much
- *   page between the two as the sequence allows - about is the section
- *   immediately above this one.
+ *   ordering, not this section's, so 07-first-desk opening the stack is
+ *   expected rather than a mistake - the images are matched to the stage they
+ *   suit. Several of these frames appear again in colour further down the page,
+ *   in the collage and the gallery; the grade keeps this from reading as those
+ *   sections repeated.
+ * - Step 01 is the one card whose photograph is actually *of* the years it
+ *   describes: a period shot of him at a home desk, running the grade over a
+ *   green-on-black laptop screen that would otherwise be the exact hacker
+ *   cliche PRODUCT.md rules out. Everything else here is a modern frame
+ *   standing in for its stage, which is why this one earns the opening slot.
+ * - 01-case-work is the same shoot as the about section's cut-out figure. It
+ *   sits on step 05 to put as much page between the two as the sequence allows
+ *   - about is the section immediately above this one. That repeat is now
+ *   avoidable rather than forced: 02-agencies came free when step 01 took the
+ *   period photograph, and is still generated for exactly this swap.
  * - No `overflow-hidden` on the section: the stack is `position: sticky`, and a
  *   clipped ancestor silently turns that back into static.
  */
@@ -61,8 +67,9 @@ const STEPS: CaseStudyFlipItem[] = [
 				text: "Free-internet workarounds on Reliance and Airtel.",
 			},
 		],
-		image: "/journey/02-agencies.webp",
-		imageAlt: "Studio portrait of Gautam Kumawat",
+		image: "/journey/07-first-desk.webp",
+		imageAlt:
+			"A much younger Gautam Kumawat at a home desk, a laptop and a monitor in front of him both running terminal output",
 		background: INK_RAISE,
 		foreground: NEAR_WHITE,
 	},
@@ -78,7 +85,7 @@ const STEPS: CaseStudyFlipItem[] = [
 			{ year: "2012", text: "The casework reached the national newspapers." },
 			{ year: "2013", text: "Sat the 12th again, and scored 61%." },
 		],
-		image: "/journey/05-press.webp",
+		image: "/journey/03-classroom.webp",
 		imageAlt:
 			"Gautam Kumawat on the India Today Future Talk panel, his name card on the table",
 		background: INK_RAISE,
@@ -98,7 +105,7 @@ const STEPS: CaseStudyFlipItem[] = [
 				text: "Featured in India's leading English newspapers.",
 			},
 		],
-		image: "/journey/03-classroom.webp",
+		image: "/journey/05-press.webp",
 		imageAlt:
 			"A student at the lectern putting a question to the room, classmates behind him",
 		background: INK_RAISE,
