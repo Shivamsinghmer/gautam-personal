@@ -45,9 +45,9 @@ import { INK } from "#/lib/palette";
  *
  * The rows are placed by hand on a twelve-column field, the same idiom the
  * collage uses, and each is a beat: the room the work runs from, then the
- * places away from it. A closing line on a rule signs the section off, set
- * heading-left and standfirst-right so it answers the running head the section
- * opens with rather than trailing away on the last photograph.
+ * places away from it. Both rows close flush, so the section ends on the last
+ * photograph and its caption. It carried a sixth frame and a closing line
+ * beside it until the frame came out; the line went with it.
  */
 
 interface Frame {
