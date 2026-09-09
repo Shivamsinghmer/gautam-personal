@@ -1,14 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useLenis } from "lenis/react";
-import {
-	Award,
-	Globe2,
-	Mic,
-	Newspaper,
-	PhoneCall,
-	ShieldCheck,
-	Users,
-} from "lucide-react";
+import { PhoneCall } from "lucide-react";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { AboutSection } from "#/components/about-section";
 import { AnimatedFooter } from "#/components/animated-footer";
@@ -34,9 +26,14 @@ const LiquidMetalButton = lazy(() =>
 	})),
 );
 
-const WarpText = lazy(() =>
-	import("#/components/ui/warp-text").then((m) => ({ default: m.WarpText })),
-);
+/**
+ * A slow sweep of light across the footer's closing wordmark, replacing the
+ * glass-warp shader it used to run - installed via
+ * `npx shadcn add @react-bits/ShinyText-TS-TW`. Lazy for the same reason
+ * `LiquidMetalButton` is: a `useAnimationFrame` loop has no business in the
+ * first chunk for a line nobody sees until they have scrolled the whole page.
+ */
+const ShinyText = lazy(() => import("#/components/ShinyText"));
 
 export const Route = createFileRoute("/")({ component: Home });
 
@@ -65,19 +62,34 @@ const TYPE_SOFT = "#d8efe7";
 
 /**
  * The wordmark as plain type. This is what the server renders and what stands
- * in until ogl arrives, so the footer is never headless.
+ * in until ShinyText's chunk arrives, so the footer is never headless.
  */
+/**
+ * Sized to the string, not guessed: "GAUTAM KUMAWAT" in Archivo ExtraBold at
+ * -0.04em tracking measures ~9.66x its own font size wide. `12vw` (the old
+ * value, carried over from a shorter placeholder word) let the line grow
+ * faster than the viewport did, so past a certain width the string no longer
+ * fit its `px-8` gutters and wrapped to two lines. `8.8vw - 5.6px` is solved
+ * from that same ratio for a line that fills ~85% of the available width at
+ * every size instead - the 15% left over is slack for font-metric rounding,
+ * not a target in itself. Past `9rem` the line stops growing at all, and by
+ * then the viewport has so much more room than the fixed-width text needs
+ * that it can only ever wrap by getting *narrower*, which `clamp` already
+ * rules out.
+ */
+const FOOTER_NAME_SIZE = "clamp(1.4rem, calc(8.8vw - 5.6px), 9rem)";
+
 const FOOTER_NAME_FALLBACK = (
 	<span
-		className="flex w-full items-center justify-center text-center font-extrabold tracking-[-0.04em]"
+		className="block w-full whitespace-nowrap text-center font-extrabold tracking-[-0.04em]"
 		style={{
 			color: TYPE,
-			fontSize: "clamp(2.4rem, 12vw, 9rem)",
-			height: "clamp(120px, 22vw, 320px)",
+			fontFamily: "var(--font-display)",
+			fontSize: FOOTER_NAME_SIZE,
 			lineHeight: 0.9,
 		}}
 	>
-		Gautam Kumawat
+		GAUTAM KUMAWAT
 	</span>
 );
 
@@ -410,7 +422,18 @@ function Home() {
 			>
 				<div className="mx-auto max-w-6xl">
 					{/* Six figures, to match the row the reference carries.
-					
+
+					    This ran as `variant="chip"` - a circular icon badge over each
+					    number - which is the one place on the page that motif showed
+					    up. Every other index on the site (reach, the about section's
+					    figure) is a hairline rule, a tabular number, a label under it;
+					    no glyph, no tint. A shield or a microphone icon does not help
+					    anyone read a count, and a row of coloured badge circles reads
+					    as the stock SaaS "trusted by" strip rather than as this site's
+					    own grammar. `variant="rule"` is that grammar, so this band now
+					    matches the ledger it is meant to be rather than sitting apart
+					    from it as the one page element in a different style.
+
 					    Five are real: four the page already stood behind, plus "Media
 					    outlets", which is simply a count of the mastheads rendered in
 					    the strip directly below this band - so it cannot drift from
@@ -422,17 +445,16 @@ function Home() {
 					    as a factual claim on a real person's site, so replace it with
 					    the true figure - or cut it back to five - before this ships. */}
 					<StatIndex
-						variant="chip"
-						accent={SHADER_BLUE_BRIGHT}
+						size="md"
 						start={revealed}
-						className="grid-cols-2 gap-x-6 gap-y-9 sm:grid-cols-3 sm:gap-x-8 lg:grid-cols-6 lg:gap-x-6"
+						className="grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-3 sm:gap-x-10 lg:grid-cols-6 lg:gap-x-8"
 						items={[
-							{ value: 41, suffix: "K+", label: "Students", icon: Users },
-							{ value: 162, label: "Countries", icon: Globe2 },
-							{ value: 7, suffix: "+", label: "Years", icon: Award },
-							{ value: 30, suffix: "+", label: "Agencies", icon: ShieldCheck },
-							{ value: 11, label: "Media outlets", icon: Newspaper },
-							{ value: 250, suffix: "+", label: "Sessions", icon: Mic },
+							{ value: 41, suffix: "K+", label: "Students" },
+							{ value: 162, label: "Countries" },
+							{ value: 7, suffix: "+", label: "Years" },
+							{ value: 30, suffix: "+", label: "Agencies" },
+							{ value: 11, label: "Media outlets" },
+							{ value: 250, suffix: "+", label: "Sessions" },
 						]}
 					/>
 				</div>
@@ -502,33 +524,47 @@ function Home() {
 					// Sketchfab (https://sketchfab.com/3d-models/stylized-book-dfe34d6fe2404c67a70c3703bff3ba69),
 					// licensed CC BY 4.0.
 					headingLines={["Gautam Kumawat"]}
-					// The wordmark is drawn through WarpText's glass shader instead of
-					// the footer's own per-character unmask. `headingLines` stays for
-					// the accessible name and as the fallback path.
+					// The wordmark is drawn through ShinyText's shine sweep instead
+					// of the footer's own per-character unmask. `headingLines` stays
+					// for the accessible name and as the fallback path.
 					headingSlot={
 						<ClientOnly fallback={FOOTER_NAME_FALLBACK}>
 							<Suspense fallback={FOOTER_NAME_FALLBACK}>
-								<WarpText
-									text="Gautam Kumawat"
-									// Manrope is the site's own face; the component's default
-									// "inherit" would pick up whatever the footer sets, and the
-									// example's monospace is not this brand's voice.
-									fontFamily="Manrope, ui-sans-serif, system-ui, sans-serif"
-									fontWeight={800}
-									fontSize="clamp(2.4rem, 12vw, 9rem)"
-									letterSpacing="-0.04em"
-									color={TYPE}
-									warpStrength={0.15}
-									warpScale={2.5}
-									speed={0.95}
-									pointerInfluence={0.66}
-									pointerStrength={0.71}
-									refraction={0.045}
-									// The ambient warp is already the effect; a ripple chasing the
-									// cursor on top of it is the fidget PRODUCT.md rules out.
-									ripple={false}
-									className="pointer-events-auto min-h-0"
-									style={{ height: "clamp(120px, 22vw, 320px)" }}
+								<ShinyText
+									text="GAUTAM KUMAWAT"
+									speed={2.2}
+									delay={0}
+									color="#181818"
+									shineColor="#f7f6f6"
+									spread={120}
+									direction="left"
+									yoyo={false}
+									pauseOnHover={false}
+									disabled={false}
+									className="pointer-events-auto block w-full whitespace-nowrap font-extrabold leading-[0.9]"
+									style={{
+										display: "block",
+										textAlign: "center",
+										// The site's own display face - Archivo, the same one
+										// every other big heading on the page uses - rather
+										// than the Manrope this carried over from WarpText's
+										// own default.
+										fontFamily: "var(--font-display)",
+										// See the comment on `FOOTER_NAME_SIZE` above - same
+										// formula, so the real wordmark and its plain-text
+										// fallback never disagree on how wide a line they draw.
+										fontSize: FOOTER_NAME_SIZE,
+										letterSpacing: "-0.04em",
+										// No fixed `height` any more. That was sized for
+										// WarpText's canvas, which needed an explicit box; a
+										// plain block of text does not, and against a `9rem`
+										// max font size the old `320px` cap reserved far more
+										// room than the glyphs ever filled - the block element
+										// then rendered its text at the top and left the extra
+										// height as dead space underneath, which is the gap
+										// that was showing above the footer's own bottom
+										// padding.
+									}}
 								/>
 							</Suspense>
 						</ClientOnly>
@@ -537,11 +573,14 @@ function Home() {
 					rightImage="/hand-right.jpg"
 					background={DEEP}
 					textColor="#ffffff"
-					// The glyphs, not the field, are what made the footer read grey: the
-					// theme swap turned HERO_TEAL into a mid grey and 2,800 of them across the
-					// band lifted the whole thing off black. Darker, so the hands are
-					// still drawn but the ground stays black.
-					charColor="#2b2b2b"
+					// The glyphs, not the field, are what made the footer read grey
+					// when this was HERO_TEAL's mid-grey - 2,800 of them across the
+					// band lifted the whole thing off black. The fix for that
+					// overcorrected: #2b2b2b sits close enough to the near-black
+					// field that the hands barely read at all. #454545 is the
+					// middle - the ASCII pattern is legible as two hands again,
+					// without the band reading as a grey panel.
+					charColor="#454545"
 					hoverColor={SHADER_BLUE_BRIGHT}
 					hoverCharColor={DEEP}
 				>

@@ -238,7 +238,13 @@ function FlipCard({
 							{item.number ?? String(index + 1).padStart(2, "0")}
 						</span>
 						{item.year ? (
-							<span className="whitespace-nowrap text-[clamp(11px,0.95vw,14px)] font-semibold uppercase leading-none tracking-[0.18em] tabular-nums">
+							// Was a small tracked-out label - `11-14px`, the same
+							// treatment as an eyebrow - sitting next to a `24-36px`
+							// step number it was clearly meant to answer. The year is
+							// the actual information a timeline card is carrying, so it
+							// now reads at least as loud as the number beside it rather
+							// than as a caption on it.
+							<span className="whitespace-nowrap text-[clamp(22px,2.8vw,38px)] font-bold leading-none tracking-[-0.02em] tabular-nums">
 								{item.year}
 							</span>
 						) : null}
