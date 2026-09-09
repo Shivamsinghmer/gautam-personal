@@ -202,23 +202,6 @@ export function GallerySection() {
 							</figure>
 						</Reveal>
 					))}
-
-					{/* The sign-off. This used to be a half-row block filling the gap
-					    a sixth frame left beside it; with five frames both image rows
-					    close flush, so it is a full-measure rule instead - the same
-					    heading-left / standfirst-right row the section opens on, which
-					    makes the two ends of the section rhyme. */}
-					<Reveal delay={0.14} className="lg:col-span-12 lg:row-start-3">
-						<div className="border-t border-white/15 pt-8 lg:flex lg:items-start lg:justify-between lg:gap-20">
-							<p className="display max-w-[16ch] text-balance text-[clamp(1.5rem,2.8vw,2.2rem)] text-white">
-								Different rooms. Same job.
-							</p>
-							<p className="mt-5 max-w-[44ch] text-[0.9rem] leading-relaxed text-pretty text-white/60 lg:mt-0 lg:text-right">
-								The rooms change, and so does the kit in them. What he is
-								actually doing once he sits down does not.
-							</p>
-						</div>
-					</Reveal>
 				</div>
 			</div>
 		</section>
