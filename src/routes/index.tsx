@@ -520,9 +520,10 @@ function Home() {
 				<AnimatedFooter
 					// The slot renders directly above the wordmark, so the profiles and
 					// the name read as one sign-off block rather than a separate strip.
-					// Attribution note: the book model is "Stylized Book" by Kevin on
-					// Sketchfab (https://sketchfab.com/3d-models/stylized-book-dfe34d6fe2404c67a70c3703bff3ba69),
-					// licensed CC BY 4.0.
+					// Note: public/stylized_book.glb ("Stylized Book" by Kevin on
+					// Sketchfab, CC BY 4.0) is currently unused — the book section
+					// shows a manuscript artifact instead. Delete the asset if the
+					// model is not coming back.
 					headingLines={["Gautam Kumawat"]}
 					// The wordmark is drawn through ShinyText's shine sweep instead
 					// of the footer's own per-character unmask. `headingLines` stays

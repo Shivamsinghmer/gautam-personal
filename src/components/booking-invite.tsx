@@ -1,9 +1,9 @@
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { lazy, Suspense } from "react";
 import { LiquidMetalButtonFallback } from "#/components/liquid-metal-button";
 import { ClientOnly } from "#/components/ui/deferred";
 import { Reveal } from "#/components/ui/scroll-reveal";
-import { INK_DEEP, SIGNAL } from "#/lib/palette";
+import { INK_DEEP } from "#/lib/palette";
 
 const LiquidMetalButton = lazy(() =>
 	import("#/components/liquid-metal-button").then((m) => ({
@@ -69,7 +69,7 @@ export function BookingInvite({ className }: { className?: string }) {
 						<span
 							aria-hidden="true"
 							className="block h-[3px] w-10"
-							style={{ backgroundColor: SIGNAL }}
+							style={{ backgroundColor: "#ffffff" }}
 						/>
 						<span className="display-tight mt-4 block text-[1.4rem] text-white sm:text-[1.7rem]">
 							Gautam Kumawat
@@ -95,7 +95,7 @@ export function BookingInvite({ className }: { className?: string }) {
 							className="decoration-[5px] underline-offset-[10px]"
 							style={{
 								textDecorationLine: "underline",
-								textDecorationColor: SIGNAL,
+								textDecorationColor: "#ffffff",
 							}}
 						>
 							your event
@@ -143,26 +143,6 @@ export function BookingInvite({ className }: { className?: string }) {
 								/>
 							</Suspense>
 						</ClientOnly>
-
-						{/* The reference put a "watch video" link here. There is no video,
-						    and inventing a play button that goes nowhere is worse than
-						    not having one - so the secondary action points at the thing
-						    that actually exists: the photographs of the rooms. */}
-						<a
-							href="#the-room"
-							className="group inline-flex items-center gap-3 text-sm font-medium text-white!"
-						>
-							<span
-								aria-hidden="true"
-								className="flex h-10 w-10 items-center justify-center rounded-full border transition-colors group-hover:bg-white/10"
-								style={{ borderColor: `${SIGNAL}80`, color: SIGNAL }}
-							>
-								<ArrowUpRight className="h-4 w-4" />
-							</span>
-							<span className="underline-offset-4 group-hover:underline">
-								See the rooms
-							</span>
-						</a>
 					</div>
 				</Reveal>
 			</div>

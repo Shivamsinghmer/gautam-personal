@@ -4,9 +4,6 @@ import { PressStrip } from "#/components/press-strip";
 
 import {
 	HERO_DEEP,
-	SHADER_BLUE_BRIGHT,
-	SHADER_BLUE_DEEP,
-	SHADER_BLUE_INK,
 } from "#/lib/palette";
 
 /**
@@ -53,7 +50,7 @@ export function BookingSection() {
 				delayStep={0.04}
 				// Bright at the foot, fading out toward each bar's top edge, so the
 				// comb dissolves into the field instead of ending on a hard line.
-				colors={[SHADER_BLUE_BRIGHT, SHADER_BLUE_DEEP, `${SHADER_BLUE_INK}00`]}
+				colors={["#ffffff", "#ffffffcc", "#ffffff00"]}
 				// 0.4 read as black but lost the comb entirely; 0.9 made the section
 				// blue rather than black. 0.68 keeps the field dark at the top, where
 				// the copy sits, and lets the bars actually read along the bottom.

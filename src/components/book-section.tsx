@@ -1,9 +1,16 @@
 import { ArrowUpRight } from "lucide-react";
 import { lazy, Suspense } from "react";
 import { LiquidMetalButtonFallback } from "#/components/liquid-metal-button";
-import { ClientOnly, InView } from "#/components/ui/deferred";
+import { ClientOnly } from "#/components/ui/deferred";
 import { Reveal } from "#/components/ui/scroll-reveal";
-import { INK, INK_DEEP, SIGNAL } from "#/lib/palette";
+import {
+	INK,
+	INK_RAISE,
+	PAPER,
+	PAPER_INK,
+	PAPER_INK_SOFT,
+	SIGNAL,
+} from "#/lib/palette";
 
 const LiquidMetalButton = lazy(() =>
 	import("#/components/liquid-metal-button").then((m) => ({
@@ -11,139 +18,162 @@ const LiquidMetalButton = lazy(() =>
 	})),
 );
 
-/**
- * three.js plus the GLTF loader is the heaviest import on the page, so it is
- * fetched only when the section is approaching and released again once it is
- * well behind - a WebGL context spinning for a book nobody is looking at is
- * what made this page feel like it was dragging.
- */
-const ModelViewer = lazy(() =>
-	import("#/components/ui/model-viewer").then((m) => ({
-		default: m.ModelViewer,
-	})),
-);
-
-/**
- * The book, on a lit stage.
- *
- * ## The two versions before this one
- *
- * **The original** put the model in a 4:3 box in the right column beside a
- * 26rem block of copy. The object was too small to be the point and too big to
- * be a garnish, and it sat unlit on a dark field - which is most of why it read
- * as not showing at all. A dark model on a dark ground with nothing behind it
- * has no edge to catch.
- *
- * **My first redesign** removed the model and set the section as a quiet
- * typographic half-title page. That was the wrong read of "premium". This
- * brand's personality is Bold, Energetic, Cinematic - "the moment the house
- * lights drop before a keynote" - and a near-empty band of small grey type on
- * near-black is a library at closing time. On a page carrying a shader hero, a
- * wall of mastheads and a drenched blue ledger, restraint that quiet does not
- * read as confidence. It reads as the section that failed to load.
- *
- * ## What it is now
- *
- * The house lights drop and one object is lit. The section is a dark room with
- * a single overhead source - a shaft, a pool on the floor, a contact shadow -
- * and the book stands in it at roughly three times the size it used to be. The
- * copy waits in the dark at the edge of the pool.
- *
- * The light is not decoration bolted on to make the section look designed. It
- * is the one material this brand is actually about, it is the reason the model
- * is legible against ink at all, and it is doing real structural work: the
- * shaft, pool and shadow are CSS, so the stage is fully composed on the server
- * render, before three.js has loaded, and anywhere WebGL is unavailable. The
- * old layout's failure mode was half an empty section. This one's is a lit
- * empty stage, which is a fair picture of what the copy is describing.
- *
- * ## Copy
- *
- * Still no title, no date, nothing to pre-order, and still nothing invented to
- * fill them - a cover line or a ship date for a book that does not exist is the
- * exact guru move this brand rules out. The three blanks are set as a colophon,
- * the way a copyright page states what is not yet settled.
- *
- * ## Attribution
- *
- * The model is "Stylized Book" by Kevin, licensed CC BY 4.0:
- * https://sketchfab.com/3d-models/stylized-book-dfe34d6fe2404c67a70c3703bff3ba69
- * The visible credit line was removed at the client's request. CC BY asks for
- * attribution in a manner reasonable to the medium, so if this ships publicly
- * that line belongs somewhere real - a /credits page, or the about copy -
- * rather than only in this comment.
- */
-
-/**
- * The colophon. Three facts, all of them absences, stated flatly.
- *
- * Deliberately shaped unlike the about section's dossier (label left, detail
- * right, one row each) and unlike `StatIndex` (figure first, label under). This
- * is a single strip on one rule, which is the furniture of a title page.
- */
-const COLOPHON: { term: string; value: string }[] = [
-	{ term: "Working title", value: "Not chosen" },
-	{ term: "Publication", value: "No date" },
-	{ term: "Availability", value: "Nothing to pre-order" },
-];
-
-/**
- * The address is already published by the site - `__root.tsx` puts it in the
- * menu under Connect - so pointing here is not a new disclosure.
- *
- * It is a mailto rather than the `#book` anchor the original button used. That
- * button said "Hear when it lands" and scrolled to the availability block for
- * booking a keynote, which is a promise the page did not keep. This does what
- * it says. Swap it for a real list when there is one.
- */
 const NOTIFY = "mailto:gautam.kumawat.kkb@gmail.com?subject=The%20book";
 
 /**
- * The stage: shaft, pool, contact shadow.
+ * The book, before it is a book.
  *
- * All three are CSS on `aria-hidden` layers, which is the point - they compose
- * the section on the server, before the loader runs, and if WebGL never
- * arrives. The model drops into a stage that is already lit.
+ * There is no title, no cover, no date — and inventing any of them would be
+ * the exact guru move this brand rules out. So the section shows the honest
+ * object instead: a working manuscript, mid-edit, with its title withheld.
+ * The redaction bars are the site's own language (an investigator's case
+ * file), not decoration, and the stamp carries the unlaunched status so no
+ * eyebrow kicker or "in progress" slug line has to.
+ *
+ * One decisive artifact on the dark field — the page's single cut to
+ * daylight in this band — with the copy beside it kept to three things: what
+ * it is, when you'll hear, and the one action. The generic 3D book model is
+ * gone on purpose: a placeholder object spinning under a spotlight read as a
+ * section that hadn't loaded its real asset yet, and three.js is the heaviest
+ * import on the page.
  */
-function Stage() {
+const MANUSCRIPT_ROWS: { id: string; width: string; marked?: boolean }[] = [
+	{ id: "row-1", width: "100%" },
+	{ id: "row-2", width: "94%" },
+	{ id: "row-3", width: "100%", marked: true },
+	{ id: "row-4", width: "88%" },
+	{ id: "row-5", width: "66%" },
+];
+
+function Manuscript() {
 	return (
-		<>
-			{/* The shaft. A cone narrow at the top and wide at the floor, clipped out
-			    of a soft vertical wash, so the light has a visible path instead of
-			    appearing as a glow with no source. */}
+		<div
+			aria-hidden="true"
+			className="relative mx-auto w-full max-w-[20rem] select-none"
+			style={{ perspective: "1400px" }}
+		>
+			{/* Floor light and contact shadow, so the stack sits on ground. */}
 			<div
-				aria-hidden="true"
-				className="pointer-events-none absolute inset-0"
+				className="pointer-events-none absolute -inset-x-10 -bottom-12 h-40"
 				style={{
-					clipPath: "polygon(37% 0%, 63% 0%, 97% 90%, 3% 90%)",
 					background:
-						"linear-gradient(to bottom, rgb(255 255 255 / 0.12) 0%, rgb(255 255 255 / 0.055) 48%, rgb(255 255 255 / 0) 92%)",
+						"radial-gradient(50% 100% at 50% 100%, rgb(255 255 255 / 0.1) 0%, rgb(255 255 255 / 0.03) 45%, rgb(255 255 255 / 0) 75%)",
 				}}
 			/>
+			<div className="pointer-events-none absolute inset-x-6 -bottom-4 h-10 bg-black/60 blur-2xl" />
 
-			{/* The pool where the shaft lands. Warm-neutral rather than tinted: a
-			    coloured spotlight reads as a nightclub, and this section's one
-			    colour is the accent on the button. */}
 			<div
-				aria-hidden="true"
-				className="pointer-events-none absolute inset-0"
-				style={{
-					background:
-						"radial-gradient(ellipse 46% 15% at 50% 85%, rgb(255 255 255 / 0.18) 0%, rgb(255 255 255 / 0.06) 46%, rgb(255 255 255 / 0) 78%)",
-				}}
-			/>
+				className="relative"
+				style={{ transform: "rotateY(-8deg) rotateX(2deg)" }}
+			>
+				{/* The sheet beneath: one corner showing is enough to read a stack. */}
+				<div
+					className="absolute inset-0 translate-x-4 translate-y-3 rotate-[2.5deg] rounded-[3px] border border-white/10"
+					style={{ backgroundColor: INK_RAISE }}
+				/>
 
-			{/* The contact shadow, tight under the object, so it stands on the floor
-			    rather than floating above it. This is what sells the pool as ground. */}
-			<div
-				aria-hidden="true"
-				className="pointer-events-none absolute inset-0"
-				style={{
-					background:
-						"radial-gradient(ellipse 19% 4.5% at 50% 83%, rgb(0 0 0 / 0.72) 0%, rgb(0 0 0 / 0.32) 55%, rgb(0 0 0 / 0) 100%)",
-				}}
-			/>
-		</>
+				{/* The working page. */}
+				<div
+					className="relative rounded-[3px] p-5 shadow-[0_40px_80px_-20px_rgb(0_0_0/0.8)] sm:p-6"
+					style={{ backgroundColor: PAPER }}
+				>
+					<div className="flex items-baseline justify-between gap-4">
+						<p
+							className="text-[0.62rem] font-bold uppercase"
+							style={{ color: PAPER_INK_SOFT, letterSpacing: "0.22em" }}
+						>
+							Working manuscript
+						</p>
+						<p
+							className="text-[0.62rem] font-bold uppercase"
+							style={{ color: SIGNAL, letterSpacing: "0.22em" }}
+						>
+							Draft
+						</p>
+					</div>
+
+					{/* The title, withheld — stated, not faked. */}
+					<div className="mt-5 space-y-2">
+						<div
+							className="h-[12px] rounded-[2px]"
+							style={{ backgroundColor: PAPER_INK, width: "92%" }}
+						/>
+						<div
+							className="h-[12px] rounded-[2px]"
+							style={{ backgroundColor: PAPER_INK, width: "76%" }}
+						/>
+						<div
+							className="h-[12px] rounded-[2px]"
+							style={{ backgroundColor: PAPER_INK, width: "44%" }}
+						/>
+						<p
+							className="pt-1 text-[0.6rem] font-semibold uppercase"
+							style={{ color: PAPER_INK_SOFT, letterSpacing: "0.2em" }}
+						>
+							Title withheld
+						</p>
+					</div>
+
+					<div
+						aria-hidden="true"
+						className="my-5 h-px w-full"
+						style={{ backgroundColor: `${PAPER_INK}26` }}
+					/>
+
+					{/* Body in progress: set lines plus the editor's marks, rather
+					    than lorem ipsum or invented chapters. */}
+					<div className="space-y-2.5">
+						{MANUSCRIPT_ROWS.map((row) => (
+							<div key={row.id} className="flex items-center gap-3">
+								{row.marked ? (
+									<span
+										className="h-4 w-[3px] shrink-0 rounded-full"
+										style={{ backgroundColor: SIGNAL }}
+									/>
+								) : (
+									<span className="h-4 w-[3px] shrink-0" />
+								)}
+								<span
+									className="block h-2 rounded-full"
+									style={{
+										backgroundColor: `${PAPER_INK}1f`,
+										width: row.width,
+									}}
+								/>
+							</div>
+						))}
+					</div>
+
+					<div className="mt-6 flex items-baseline justify-between gap-4">
+						<p
+							className="text-[0.6rem] font-semibold uppercase"
+							style={{ color: PAPER_INK_SOFT, letterSpacing: "0.2em" }}
+						>
+							Not for circulation
+						</p>
+						<p
+							className="text-[0.6rem] font-semibold uppercase"
+							style={{ color: PAPER_INK_SOFT, letterSpacing: "0.2em" }}
+						>
+							GK
+						</p>
+					</div>
+
+					{/* The status, stamped on the object — diegetic, not a kicker. */}
+					<p
+						className="absolute top-20 -right-3 rotate-[7deg] rounded-[3px] border-2 px-2.5 py-1 text-[0.65rem] font-extrabold uppercase sm:-right-5"
+						style={{
+							color: SIGNAL,
+							borderColor: SIGNAL,
+							letterSpacing: "0.24em",
+							backgroundColor: `${PAPER}d9`,
+						}}
+					>
+						In progress
+					</p>
+				</div>
+			</div>
+		</div>
 	);
 }
 
@@ -151,100 +181,69 @@ export function BookSection() {
 	return (
 		<section
 			id="the-book"
-			className="band relative isolate scroll-mt-24 overflow-hidden px-6 sm:px-10"
-			style={{ backgroundColor: INK_DEEP }}
+			className="relative isolate scroll-mt-24 overflow-hidden px-6 py-12 sm:px-10 sm:py-14"
+			style={{ backgroundColor: INK }}
 		>
-			{/* A dip, not a cut. The sections either side are on INK, so both edges
-			    ramp back to it and the darker room reads as the lights going down
-			    rather than as another hard boundary. Alpha-zero INK rather than
-			    `transparent`: `transparent` is rgba(0,0,0,0), and interpolating from
-			    it drags the middle of the ramp toward black. */}
+			{/* Hand-offs into the dark sections either side. Alpha-zero INK,
+			    not `transparent`, so the ramp midpoint never drags to black. */}
 			<div
 				aria-hidden="true"
-				className="pointer-events-none absolute inset-x-0 top-0 z-20 h-40"
+				className="pointer-events-none absolute inset-x-0 top-0 h-40"
 				style={{
 					background: `linear-gradient(to bottom, ${INK} 0%, ${INK}00 100%)`,
 				}}
 			/>
 			<div
 				aria-hidden="true"
-				className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-40"
+				className="pointer-events-none absolute inset-x-0 bottom-0 h-40"
 				style={{
 					background: `linear-gradient(to top, ${INK} 0%, ${INK}00 100%)`,
 				}}
 			/>
+			{/* Grain, to texture the field. Plain alpha, never a blend mode. */}
+			<div
+				aria-hidden="true"
+				className="pointer-events-none absolute inset-0 opacity-[0.07]"
+				style={{
+					backgroundImage:
+						"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+					backgroundSize: "180px 180px",
+				}}
+			/>
 
-			<div className="relative mx-auto max-w-6xl">
-				{/* The slug line. Two items on one rule - a status at the left, the
-				    section's own name at the right - so it reads as a running head
-				    across the top of the band rather than as a kicker sitting on the
-				    heading's shoulder. */}
+			<div className="relative mx-auto w-full max-w-6xl">
+				{/* The opening rule, with the page's one accent on it. */}
 				<Reveal>
-					<div
-						className="flex items-center justify-between gap-6 border-t pt-5"
-						style={{ borderColor: "rgb(255 255 255 / 0.2)" }}
-					>
-						<p
-							className="flex items-center gap-2.5 text-[0.7rem] font-semibold uppercase text-white/60"
-							style={{ letterSpacing: "0.18em" }}
-						>
-							{/* A lit dot, not a pulsing one. "Momentum, never fidget" - a
-							    perpetual ping beside a status line is exactly the ambient
-							    wiggle the brand rules out. */}
-							<span
-								aria-hidden="true"
-								className="h-1.5 w-1.5 shrink-0 rounded-full"
-								style={{
-									backgroundColor: SIGNAL,
-									boxShadow: `0 0 10px 1px ${SIGNAL}80`,
-								}}
-							/>
-							In progress
-						</p>
-
-						<p
-							className="text-[0.7rem] font-semibold uppercase text-white/35"
-							style={{ letterSpacing: "0.18em" }}
-						>
-							The book
-						</p>
+					<div aria-hidden="true" className="flex h-px w-full">
+						<span
+							className="w-[clamp(3rem,7vw,6rem)]"
+							style={{ backgroundColor: SIGNAL }}
+						/>
+						<span className="flex-1 bg-white/15" />
 					</div>
 				</Reveal>
 
-				{/* Copy at the edge of the pool, object in it. The stage takes the
-				    larger share of the row - it is the thing the section is about, and
-				    the original had that ratio the wrong way round. */}
-				<div className="mt-10 grid items-center gap-10 lg:mt-14 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] lg:gap-8">
-					<div className="relative z-10 order-2 lg:order-1">
-						<Reveal>
-							<h2 className="display max-w-[11ch] text-[clamp(2.4rem,5.4vw,4.2rem)] text-white">
-								The work, written down
-							</h2>
-						</Reveal>
+				<Reveal className="mt-8">
+					<h2 className="display max-w-[15ch] text-balance text-[clamp(1.9rem,3.4vw,2.8rem)] text-white">
+						Seven years of cases. One book.
+					</h2>
+				</Reveal>
 
+				<div className="mt-7 grid items-center gap-10 lg:mt-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10">
+					<div>
 						<Reveal delay={0.08}>
-							<p className="mt-7 max-w-[38ch] text-pretty text-base leading-[1.75] text-white/70 sm:text-lg">
-								Case notes, method, and the parts that never make it into a
-								syllabus.
+							<p className="max-w-[42ch] text-pretty text-[0.95rem] leading-[1.7] text-white/75 sm:text-base">
+								Darknet investigations, forensics casework, and the method
+								behind them — the parts that never make it into a syllabus. Now
+								being written as one book.
 							</p>
 						</Reveal>
 
-						<Reveal delay={0.12}>
-							<p className="mt-4 max-w-[38ch] text-pretty text-base leading-[1.75] text-white/45 sm:text-lg">
-								It is being written. That is the whole announcement.
-							</p>
-						</Reveal>
-
-						{/* The same shader button every other primary action on the page
-						    now uses, so this is not one more pill in a different fill and
-						    radius. It is a real `mailto:` anchor - the fallback and the
-						    shader version both are - so right-click and "copy link
-						    address" keep working. */}
-						<Reveal delay={0.18} className="mt-10">
+						<Reveal delay={0.16} className="mt-7">
 							<ClientOnly
 								fallback={
 									<LiquidMetalButtonFallback
-										label="Tell me when it lands"
+										label="Notify me"
 										href={NOTIFY}
 										icon={ArrowUpRight}
 									/>
@@ -253,79 +252,38 @@ export function BookSection() {
 								<Suspense
 									fallback={
 										<LiquidMetalButtonFallback
-											label="Tell me when it lands"
+											label="Notify me"
 											href={NOTIFY}
 											icon={ArrowUpRight}
 										/>
 									}
 								>
 									<LiquidMetalButton
-										label="Tell me when it lands"
+										label="Notify me"
 										href={NOTIFY}
 										icon={ArrowUpRight}
 									/>
 								</Suspense>
 							</ClientOnly>
+							<p className="mt-4 max-w-[42ch] text-sm leading-relaxed text-white/50">
+								No title, no date yet. One email when it lands — nothing else.
+							</p>
 						</Reveal>
 					</div>
 
-					{/* The stage, allowed past the container's right edge from lg so the
-					    object is slightly too big for its frame - which is the reason it
-					    reads as a reveal rather than as an illustration parked in a
-					    column. */}
-					{/* Top right, sized to the copy beside it. As an aspect-square at
-					    the full width of a 1.2fr column it came out 788px tall against
-					    386px of copy - so it stopped reading as an object on a stage and
-					    became the section, sitting low and running past the type. Capped
-					    and pushed to the column's right edge, it sits level with the
-					    heading where it belongs. */}
-					<div className="relative order-1 lg:order-2 lg:-mr-[2vw]">
-						<div className="relative aspect-square w-full max-w-[24rem] lg:ml-auto xl:max-w-[27rem]">
-							<Stage />
-
-							{/* The model stands in the pool: the bottom inset lifts it off
-							    the floor line the pool draws at 85%. */}
-							<div className="absolute inset-x-[5%] top-[1%] bottom-[17%]">
-								<ClientOnly fallback={<div className="size-full" />}>
-									<InView rootMargin="400px" className="size-full">
-										<Suspense fallback={<div className="size-full" />}>
-											<ModelViewer
-												src="/stylized_book.glb"
-												alt="A stylised 3D book, slowly turning under a spotlight"
-												zoom={0.92}
-												className="size-full"
-											/>
-										</Suspense>
-									</InView>
-								</ClientOnly>
-							</div>
-						</div>
-					</div>
+					<Reveal delay={0.12} direction="none">
+						<Manuscript />
+						<p className="mx-auto mt-6 max-w-[20rem] text-center text-sm text-white/50">
+							Working manuscript. Title and cover to be announced.
+						</p>
+					</Reveal>
 				</div>
 
-				{/* The colophon, closing the band on a single rule. */}
-				<Reveal delay={0.1}>
-					<div
-						className="mt-14 border-t pt-8 sm:mt-16"
-						style={{ borderColor: "rgb(255 255 255 / 0.2)" }}
-					>
-						<dl className="grid grid-cols-1 gap-x-12 gap-y-7 sm:grid-cols-3 lg:gap-x-16">
-							{COLOPHON.map(({ term, value }) => (
-								<div key={term}>
-									<dt
-										className="text-[0.68rem] font-semibold uppercase text-white/40"
-										style={{ letterSpacing: "0.14em" }}
-									>
-										{term}
-									</dt>
-									<dd className="display-tight mt-2.5 text-[1.15rem] text-white/85 sm:text-[1.3rem]">
-										{value}
-									</dd>
-								</div>
-							))}
-						</dl>
-					</div>
-				</Reveal>
+				{/* The closing rule, so the band lands rather than stopping. */}
+				<div
+					aria-hidden="true"
+					className="mt-8 border-t border-white/15 lg:mt-10"
+				/>
 			</div>
 		</section>
 	);

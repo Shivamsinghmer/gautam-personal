@@ -31,7 +31,7 @@ interface GradientBarsProps {
 export function GradientBars({
 	className,
 	numBars = 15,
-	colors = ["#000fff", "transparent"],
+	colors = ["#ffffff", "#ffffffcc"],
 	orientation = "vertical",
 	minScale = 0.2,
 	maxScale = 1,
