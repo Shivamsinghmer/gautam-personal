@@ -27,25 +27,59 @@ const Signature = lazy(() =>
  */
 
 const TEXT = "Gautam Kumawat";
-/** Matches the hero beneath, so the overlay leaves on the colour already there. */
-const FIELD = "#001219";
+/**
+ * The field the mark is written on, and it has to be the page's own ground.
+ *
+ * This was `#001219` - a teal-navy left over from the pre-theme palette -
+ * against a page that is now `--ink` (#0a0a0a). The overlay was therefore
+ * fading one colour out over a different one, so the first thing the opening
+ * did was change the colour of the screen. That tonal shift is read as a
+ * flash, and no amount of choreography underneath survives it.
+ */
+const FIELD = "#0a0a0a";
 const INK = "#ffffff";
 
-/** Passed to Signature. Its own default, and the duration asked for. */
-const DURATION = 1;
-/** Signature staggers each character by this much. Fixed inside that component. */
-const STAGGER = 0.2;
-/** Beat after the last stroke lands, before the overlay starts to go. */
-const HOLD = 0.35;
-const FADE = 0.45;
+/** Passed to Signature: how long a single character's stroke takes. */
+const DURATION = 0.72;
+/**
+ * Seconds between characters. 0.11, not the component's 0.2 default: the mark
+ * is fourteen characters, so the stagger - not the stroke - is what sets the
+ * length of the wait, and at 0.2 the last stroke landed at 3.6s. Fast enough
+ * that the hand reads as confident, slow enough that you can still watch it
+ * being written.
+ */
+const STAGGER = 0.11;
+/** Beat after the last stroke lands, before the curtain starts to lift. */
+const HOLD = 0.3;
+/**
+ * The curtain lift. Must match `gk-curtain-lift` in styles.css - this is the
+ * timer that unmounts the overlay, so if it runs short the curtain is cut off
+ * mid-travel.
+ */
+const FADE = 1.05;
 
 /**
- * When the writing finishes. Derived rather than written down, because it is a
- * consequence of Signature's own schedule: it delays character i by i * 0.2 and
- * runs each for `duration`, over every character in the string - the space
- * included, since it is pushed as an empty path and still takes a turn.
+ * When the writing finishes, counted from the first stroke. Derived rather than
+ * written down, because it is a consequence of Signature's own schedule: it
+ * delays character i by i * STAGGER and runs each for `duration`, over every
+ * character in the string - the space included, since it is pushed as an empty
+ * path and still takes a turn.
  */
 const WRITE_END = (TEXT.length - 1) * STAGGER + DURATION;
+
+/**
+ * How long to wait for the mark before giving up on it.
+ *
+ * A failsafe, not a normal-path timeout, and the distinction matters: the
+ * outlines are produced at runtime (opentype.js is a lazy chunk, and it then
+ * fetches and parses the .otf), so on a cold start the first stroke can land
+ * well over a second in. At 2s this fired *before* the font arrived and lifted
+ * the curtain on an empty field - the "signature is not showing" bug. The font
+ * is preloaded from the document head now, which is the actual fix; this only
+ * covers the case where it never arrives at all, and 5s is long enough that a
+ * slow connection still gets to see the mark it waited for.
+ */
+const MARK_WAIT_CAP = 5000;
 
 const SEEN_KEY = "gk:preloader:seen";
 
@@ -63,6 +97,11 @@ export function SignaturePreloader({
 }) {
 	const [active, setActive] = useState(true);
 	const [leaving, setLeaving] = useState(false);
+	/**
+	 * Whether there are glyph outlines on screen yet. The exit is scheduled off
+	 * this, not off mount - see `MARK_WAIT_CAP`.
+	 */
+	const [markReady, setMarkReady] = useState(false);
 	const finish = useRef(onDone);
 	finish.current = onDone;
 	/**
@@ -101,17 +140,7 @@ export function SignaturePreloader({
 		document.body.style.overflow = "hidden";
 		document.documentElement.dataset.preloader = "writing";
 
-		const reduced = window.matchMedia(
-			"(prefers-reduced-motion: reduce)",
-		).matches;
-
-		// Reduced motion still gets the mark, just not a long wait for it.
-		const start = window.setTimeout(
-			() => setLeaving(true),
-			reduced ? 700 : (WRITE_END + HOLD) * 1000,
-		);
-
-		// Skipping goes straight to the fade rather than tearing the overlay away.
+		// Skipping goes straight to the exit rather than tearing the overlay away.
 		const onKey = (e: KeyboardEvent) => {
 			if (e.key === "Escape" || e.key === "Enter" || e.key === " ")
 				setLeaving(true);
@@ -119,11 +148,41 @@ export function SignaturePreloader({
 		window.addEventListener("keydown", onKey);
 
 		return () => {
-			window.clearTimeout(start);
 			window.removeEventListener("keydown", onKey);
 			document.body.style.overflow = prevOverflow;
 		};
 	}, [active]);
+
+	/**
+	 * When to leave.
+	 *
+	 * Its own effect, and keyed on `markReady`, because the clock has to start
+	 * at the first stroke rather than at mount. Timed from mount it was counting
+	 * through the several hundred milliseconds opentype.js spends fetching and
+	 * parsing the font - time when the field is simply empty - and then cutting
+	 * the writing off before the last characters had landed.
+	 *
+	 * Until the mark is ready the only thing scheduled is the cap, so a font
+	 * that never resolves still releases the page.
+	 */
+	useEffect(() => {
+		if (!active || skipped.current) return;
+
+		const reduced = window.matchMedia(
+			"(prefers-reduced-motion: reduce)",
+		).matches;
+
+		// Reduced motion renders the mark already drawn, so there is no writing
+		// to wait through - just long enough to register that it was there.
+		const wait = markReady
+			? reduced
+				? 600
+				: (WRITE_END + HOLD) * 1000
+			: MARK_WAIT_CAP;
+
+		const start = window.setTimeout(() => setLeaving(true), wait);
+		return () => window.clearTimeout(start);
+	}, [active, markReady]);
 
 	// The fade and the unmount are one step behind the decision to go, so every
 	// route into leaving - the timer, a key, a click - ends the same way and the
@@ -153,25 +212,32 @@ export function SignaturePreloader({
 	if (!active) return null;
 
 	return (
+		// The exit is CSS, not an inline opacity transition - see `.gk-curtain`
+		// in styles.css. It is a clip-path edge travelling up and off, with the
+		// mark carried away ahead of it, which needs two elements moving on
+		// different curves; a single `transition` on this node cannot express
+		// that, and the flat fade it used to run is what made the page appear
+		// rather than arrive.
 		<output
 			aria-label={TEXT}
+			data-leaving={leaving ? "true" : "false"}
 			onPointerDown={() => setLeaving(true)}
-			className="fixed inset-0 z-[100] flex cursor-pointer items-center justify-center"
-			style={{
-				backgroundColor: FIELD,
-				opacity: leaving ? 0 : 1,
-				transition: `opacity ${FADE}s cubic-bezier(0.4, 0, 1, 1)`,
-			}}
+			className="gk-curtain fixed inset-0 z-[100] flex cursor-pointer items-center justify-center"
+			style={{ backgroundColor: FIELD }}
 		>
-			<Suspense fallback={null}>
-				<Signature
-					text={TEXT}
-					color={INK}
-					fontSize={64}
-					duration={DURATION}
-					className="h-auto w-[min(86vw,900px)]"
-				/>
-			</Suspense>
+			<div className="gk-curtain__mark">
+				<Suspense fallback={null}>
+					<Signature
+						text={TEXT}
+						color={INK}
+						fontSize={64}
+						duration={DURATION}
+						stagger={STAGGER}
+						onReady={() => setMarkReady(true)}
+						className="h-auto w-[min(86vw,900px)]"
+					/>
+				</Suspense>
+			</div>
 		</output>
 	);
 }

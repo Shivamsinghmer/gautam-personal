@@ -3,7 +3,7 @@ import {
 	CaseStudyFlipStack,
 } from "#/components/ui/case-study-flip-stack";
 import { Reveal } from "#/components/ui/scroll-reveal";
-import { HERO_DEEP, INK_RAISE } from "#/lib/palette";
+import { HERO_DEEP } from "#/lib/palette";
 
 /**
  * The journey: twenty years in the order they happened, as a stack of six cards
@@ -19,15 +19,13 @@ import { HERO_DEEP, INK_RAISE } from "#/lib/palette";
  *   and in the rail up the left margin, which is the whole arc at a glance and
  *   only appears where there is margin to spare. Under the years sits a short
  *   dated list rather than a paragraph - the dates are the argument.
- * - Every card sits on the same ground - `INK_RAISE`, the site's one step up
- *   from the section's own `INK` - rather than each stage getting its own hue.
- *   An earlier version ran teal into the two shader blues into a light mint,
- *   borrowing colours that exist for other jobs (`SIGNAL` is reserved for the
- *   reach section's surface; the "teal"/"mint" names are legacy and now
- *   resolve to plain greys). Six unrelated grounds also fought the one thing
- *   that is actually supposed to carry the arc across the stack: the
- *   photographs, graded as one monochrome set. The panel stays neutral so
- *   they do that job instead of competing with it.
+ * - Each card now carries its own ground, one per stage, rather than sharing
+ *   `INK_RAISE` across all six. The stack cross-fades between them as it flips
+ *   (see `backgroundColor` in case-study-flip-stack.tsx), so the shade itself
+ *   becomes a second signal that a step has changed, alongside the flip. Pure
+ *   greys, not hues - a version with a colour tilt per stage fought the
+ *   photographs, which are graded as one monochrome set, so the six grounds
+ *   below only move up and down the same black-to-charcoal scale.
  * - The photographs are one graded monochrome set (see
  *   scripts/build-journey-images.mjs). Their filenames carry that script's
  *   ordering, not this section's, so 07-first-desk opening the stack is
@@ -51,6 +49,23 @@ import { HERO_DEEP, INK_RAISE } from "#/lib/palette";
 
 const NEAR_WHITE = "#f5f5f5";
 
+/**
+ * One ground per stage, all pure neutral greys - no hue, only lightness - so
+ * the shift between steps reads as the same black deepening or lifting
+ * rather than as a colour change. The curve rises from `HERO_DEEP` (#0a0a0a)
+ * toward `INK_RAISE` (#1c1c1c) and back down again: quiet at the start,
+ * brightest at the stage that is loudest in the copy ("One programme, 162
+ * countries"), settling back toward black for the close.
+ */
+const STEP_GROUND = {
+	beginning: "#101010",
+	struggle: "#161616",
+	recognition: "#1c1c1c",
+	scale: "#232323",
+	impact: "#191919",
+	comeback: "#0e0e0e",
+};
+
 const STEPS: CaseStudyFlipItem[] = [
 	{
 		number: "01",
@@ -70,7 +85,7 @@ const STEPS: CaseStudyFlipItem[] = [
 		image: "/journey/07-first-desk.webp",
 		imageAlt:
 			"A much younger Gautam Kumawat at a home desk, a laptop and a monitor in front of him both running terminal output",
-		background: INK_RAISE,
+		background: STEP_GROUND.beginning,
 		foreground: NEAR_WHITE,
 	},
 	{
@@ -88,7 +103,7 @@ const STEPS: CaseStudyFlipItem[] = [
 		image: "/journey/03-classroom.webp",
 		imageAlt:
 			"Gautam Kumawat on the India Today Future Talk panel, his name card on the table",
-		background: INK_RAISE,
+		background: STEP_GROUND.struggle,
 		foreground: NEAR_WHITE,
 	},
 	{
@@ -108,7 +123,7 @@ const STEPS: CaseStudyFlipItem[] = [
 		image: "/journey/05-press.webp",
 		imageAlt:
 			"A student at the lectern putting a question to the room, classmates behind him",
-		background: INK_RAISE,
+		background: STEP_GROUND.recognition,
 		foreground: NEAR_WHITE,
 	},
 	{
@@ -125,7 +140,7 @@ const STEPS: CaseStudyFlipItem[] = [
 		],
 		image: "/journey/06-scale.webp",
 		imageAlt: "A packed auditorium of students watching from tiered seating",
-		background: INK_RAISE,
+		background: STEP_GROUND.scale,
 		foreground: NEAR_WHITE,
 	},
 	{
@@ -142,7 +157,7 @@ const STEPS: CaseStudyFlipItem[] = [
 		],
 		image: "/journey/01-case-work.webp",
 		imageAlt: "Gautam Kumawat reading case material from a tablet",
-		background: INK_RAISE,
+		background: STEP_GROUND.impact,
 		foreground: NEAR_WHITE,
 	},
 	{
@@ -159,7 +174,7 @@ const STEPS: CaseStudyFlipItem[] = [
 		],
 		image: "/journey/04-stage.webp",
 		imageAlt: "Gautam Kumawat mid-talk on a darkened stage, hands raised",
-		background: INK_RAISE,
+		background: STEP_GROUND.comeback,
 		foreground: NEAR_WHITE,
 	},
 ];

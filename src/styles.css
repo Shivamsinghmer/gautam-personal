@@ -46,6 +46,17 @@
   --band-tight: clamp(2.25rem, 5.5vw, 5rem);
   --band-wide: clamp(4rem, 13vw, 12rem);
 
+  /* ── Motion ─────────────────────────────────────────────────────────────
+     One easing language. The opening used to run five different curves at
+     once - the stage on an expo, the figure on a near-linear (0.22,0.61,
+     0.36,1), the wordmark on a third, the overlay departing on an ease-IN -
+     which is most of why a carefully staggered sequence still read as flat:
+     nothing shared a sense of weight. `--ease-out-expo` is the house curve
+     (decisive, arrives and stays), `--ease-out-quint` the softer sibling for
+     short moves. Nothing bounces: "momentum, never fidget". */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+
   --sea-ink: #fafafa;
   --sea-ink-soft: #a1a1a1;
   --lagoon: #e5e5e5;
@@ -527,7 +538,7 @@ a {
   transform: translateY(105%);
 }
 [data-preloader='done'] .gk-line > span {
-  animation: gk-line-in 0.95s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: gk-line-in 0.95s var(--ease-out-expo) both;
   animation-delay: var(--gk-delay, 0s);
 }
 
@@ -555,13 +566,35 @@ a {
   }
 }
 /* The figure arrives close to the viewer and falls back into place, which is
-   what carries the wordmark behind it on the way. */
+   what carries the wordmark behind it on the way. A wave, not a straight
+   ease-out: it rises past its resting position, recedes a touch short of it,
+   then settles - the same swell-crest-settle shape a wave makes coming in,
+   rather than a lift that simply decelerates to a halt. The overshoot is
+   small (a couple of percent) so it reads as weight settling, not a bounce. */
 @keyframes gk-figure-rise {
-  from {
+  /* Each stop carries its own curve, because one curve across four stops
+     cannot describe a wave: an ease-out spends its whole budget on the first
+     segment and crushes the crest and the settle into the last few frames,
+     which is exactly how a "wave" ends up reading as a plain lift. Declared
+     per segment, the swell travels (weighted ease-in-out, so mass is being
+     moved), the recede drifts (near-symmetric), and the settle stops dead
+     on an expo. */
+  0% {
     opacity: 0;
-    transform: translate3d(0, 9%, 0) scale(1.18);
+    transform: translate3d(0, 14%, 0) scale(1.1);
+    animation-timing-function: cubic-bezier(0.33, 0, 0.15, 1);
   }
-  to {
+  55% {
+    opacity: 1;
+    transform: translate3d(0, -1.6%, 0) scale(1.012);
+    animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
+  }
+  78% {
+    opacity: 1;
+    transform: translate3d(0, 0.7%, 0) scale(0.997);
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  100% {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
@@ -579,35 +612,6 @@ a {
   }
 }
 
-/* The opening wordmark. It belongs to the intro only: it rises behind the
-   figure while he is still large and close, and is gone by the time he has
-   settled - so the resting hero is the corner blocks, not a name across the
-   middle of the picture. `both` holds it at the final keyframe, opacity 0. */
-@keyframes gk-intro-mark {
-  0% {
-    opacity: 0;
-    transform: translateY(0.18em) scale(0.985);
-  }
-  20% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-  46% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-  /* Fully clear by 78%, which is 1.27s - just before the first corner block
-     starts at 1.3s. Running the fade all the way to 100% left the name still
-     at ~37% opacity while the headline was arriving over it. */
-  78% {
-    opacity: 0;
-    transform: translateY(-0.12em) scale(1.02);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-0.12em) scale(1.02);
-  }
-}
 @keyframes gk-mark-in {
   from {
     opacity: 0;
@@ -622,8 +626,13 @@ a {
 .gk-stage {
   transform: scale(1.42);
 }
+/* The slowest layer in the opening, and deliberately slower than the figure
+   in front of it (2.6s against 2.1s). Two large scale moves finishing on the
+   same frame read as one flat lurch; letting the backdrop still be settling
+   after the figure has landed is what makes the two read as separate planes
+   at separate distances. */
 [data-preloader='done'] .gk-stage {
-  animation: gk-stage-settle 2s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: gk-stage-settle 2.6s var(--ease-out-expo) both;
 }
 .gk-figure {
   opacity: 0;
@@ -637,10 +646,14 @@ a {
    so the entrance was running against an image that had not arrived yet,
    finishing before there was anything to see. The picture then simply appeared.
    `data-ready` is set from the image's own load event. */
+/* Starts on the same frame the curtain does, not after it - by the time the
+   travelling edge passes the figure he is already most of the way up, so the
+   page is uncovered mid-movement. Revealing a still frame and then starting
+   the motion is what made the old sequence read as two events instead of one. */
 [data-preloader='done'] .gk-figure[data-ready='true'] {
   animation:
-    gk-figure-rise 1.7s cubic-bezier(0.22, 0.61, 0.36, 1) 0.1s both,
-    gk-figure-float 16s ease-in-out 1.7s infinite alternate;
+    gk-figure-rise 2.1s var(--ease-out-expo) both,
+    gk-figure-float 16s ease-in-out 2.1s infinite alternate;
 }
 .gk-mark {
   opacity: 0;
@@ -648,17 +661,6 @@ a {
 [data-preloader='done'] .gk-mark {
   animation: gk-mark-in 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
 }
-.gk-intro-mark {
-  opacity: 0;
-}
-[data-preloader='done'] .gk-intro-mark {
-  /* Short, because it has the stage to itself. The corner blocks are held
-     until it is clearing (their --gk-delay values start at 1.3s); when this
-     ran for 2.9s they arrived on top of it and the name crossed straight
-     through the headline. */
-  animation: gk-intro-mark 1.5s cubic-bezier(0.33, 0, 0.2, 1) 0.1s both;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .gk-stage,
   [data-preloader='done'] .gk-stage {
@@ -672,13 +674,6 @@ a {
     animation: none;
     opacity: 1;
     transform: none;
-  }
-  /* The intro mark is pure choreography, so reduced motion simply never
-     shows it rather than flashing it up and taking it away again. */
-  .gk-intro-mark,
-  [data-preloader='done'] .gk-intro-mark {
-    animation: none;
-    display: none;
   }
 }
 
@@ -704,12 +699,147 @@ body {
 }
 
 [data-preloader='done'] .gk-reveal {
-  animation: gk-rise 0.7s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+  animation: gk-rise 0.7s var(--ease-out-expo) both;
   animation-delay: var(--gk-delay, 0s);
+}
+
+/* ── The curtain ──────────────────────────────────────────────────────────
+   How the preloader leaves.
+
+   It used to be `opacity: 1 → 0` on an ease-IN curve, which is the worst
+   shape available for a departure: it holds nearly full strength for most
+   of its length and then drops off a cliff. Nothing moved, so the overlay
+   did not leave the page - it switched off, and the hero was simply there
+   afterwards.
+
+   It is a curtain now: the field's bottom edge travels up and off, and the
+   page is uncovered from the floor upward, which is the same direction the
+   figure is already rising in behind it. `clip-path` is the right material
+   for this - it composites without repainting the layers underneath, and
+   the edge stays crisp, which is what makes it read as a physical thing
+   moving rather than as a fade.
+
+   The mark leaves first and faster (an exit is ~75% of an entrance), so the
+   name is gone before the edge reaches it and the two never cross. */
+.gk-curtain {
+  clip-path: inset(0 0 0 0);
+}
+
+/* Not an ease-out, and this is the one place on the site that wants a
+   symmetric curve. An expo puts ~87% of the travel in the first third, which
+   on a full-height edge means the screen is uncovered almost at once and then
+   a thin strip across the top creeps away for another half-second - the exact
+   "sticking" read this rewrite exists to remove. Ease-in-out-cubic spends the
+   speed in the middle, where most of the screen is, and arrives at the top
+   edge without a tail. */
+.gk-curtain[data-leaving='true'] {
+  animation: gk-curtain-lift 0.95s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+
+.gk-curtain[data-leaving='true'] .gk-curtain__mark {
+  animation: gk-curtain-mark-out 0.42s var(--ease-out-quint) forwards;
+}
+
+@keyframes gk-curtain-lift {
+  from {
+    clip-path: inset(0 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 100% 0);
+  }
+}
+
+/* Up and back, not just out: the mark recedes as it goes, so it reads as
+   being carried away with the curtain rather than dissolving in place. */
+@keyframes gk-curtain-mark-out {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, -8%, 0) scale(0.97);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* No travelling edge, no drift - the overlay simply clears. Short, because
+     under this setting it is an obstacle between the visitor and the page,
+     not choreography. */
+  .gk-curtain[data-leaving='true'] {
+    animation: gk-curtain-fade 0.2s linear forwards;
+  }
+  .gk-curtain[data-leaving='true'] .gk-curtain__mark {
+    animation: none;
+  }
+}
+
+@keyframes gk-curtain-fade {
+  to {
+    opacity: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   [data-preloader='done'] .gk-reveal {
+    animation: none;
+  }
+}
+
+/* ── Liquid metal ring ────────────────────────────────────────────────────── */
+/* The chip variant's icon border: a slowly rotating conic gradient standing in
+   for brushed chrome, so the stat icons pick up the same metal grammar as
+   `LiquidMetalButton` without a second WebGL context per icon. The gradient
+   ring is the padding-box, `__fill` sits 1.5px inset on top of it and carries
+   the icon, which is what makes the outer ring read as a border rather than a
+   solid disc. */
+@property --lm-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.liquid-metal-ring {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  padding: 1.5px;
+  background: conic-gradient(
+    from var(--lm-angle),
+    #5a5a5f 0%,
+    #f5f5f5 10%,
+    #8d8d92 22%,
+    #1a1a1c 36%,
+    #eaeaea 50%,
+    #4a4a4e 64%,
+    #fbfbfb 78%,
+    #2a2a2e 90%,
+    #5a5a5f 100%
+  );
+  animation: liquid-metal-spin 6s linear infinite;
+}
+
+.liquid-metal-ring__fill {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  border-radius: inherit;
+  background: var(--ink);
+}
+
+@keyframes liquid-metal-spin {
+  to {
+    --lm-angle: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .liquid-metal-ring {
     animation: none;
   }
 }

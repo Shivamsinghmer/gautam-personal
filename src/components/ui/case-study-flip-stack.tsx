@@ -136,12 +136,16 @@ function FlipCard({
 	total,
 	progress,
 	reduceMotion,
+	prevBackground,
 }: {
 	item: CaseStudyFlipItem;
 	index: number;
 	total: number;
 	progress: MotionValue<number>;
 	reduceMotion: boolean;
+	/** The step behind this one's ground, so the card can fade into its own
+	 *  colour from the one it is replacing instead of cutting to it. */
+	prevBackground: string;
 }) {
 	const segment = 1 / Math.max(total, 1);
 	const start = index * segment;
@@ -208,6 +212,22 @@ function FlipCard({
 		[entryStart, entryEnd],
 		index === 0 ? [0, 0] : [restingOffset, 0],
 	);
+	/**
+	 * The ground itself is part of the flip: each card carries its own hue
+	 * (see the STEPS colours in journey-section.tsx) rather than the single
+	 * neutral panel every step used to share, and it arrives by fading in
+	 * from the step behind it - a colour cross-fade riding the same window as
+	 * the scale/position entry above - rather than cutting straight to it.
+	 * `reduceMotion` skips the interpolation and simply shows the resting
+	 * colour, the same way it already does for the position and rotation.
+	 */
+	const backgroundColor = useTransform(
+		progress,
+		[entryStart, entryEnd],
+		index === 0 || reduceMotion
+			? [item.background, item.background]
+			: [prevBackground, item.background],
+	);
 
 	return (
 		<motion.article
@@ -225,7 +245,7 @@ function FlipCard({
 			<motion.div
 				className="grid h-full grid-rows-[auto_1fr] overflow-hidden rounded-[clamp(18px,2vw,30px)] shadow-[0_16px_50px_rgba(20,17,10,0.18)] sm:grid-cols-[1.3fr_0.7fr] sm:grid-rows-none lg:grid-cols-[1.15fr_0.85fr]"
 				style={{
-					backgroundColor: item.background,
+					backgroundColor,
 					color: item.foreground ?? "white",
 					y: entryY,
 					scale: entryScale,
@@ -448,6 +468,9 @@ export function CaseStudyFlipStack({
 								total={safeItems.length}
 								progress={cardProgress}
 								reduceMotion={reduceMotion}
+								prevBackground={
+									safeItems[index - 1]?.background ?? item.background
+								}
 							/>
 						);
 					})}

@@ -21,18 +21,19 @@ import { cn } from "#/lib/utils";
  * scroll feel like a template, and this is the beat where the lights come up
  * before the reach section drops them again into full brand blue.
  *
- * Logo treatment: desaturated at rest, in their own colours under the cursor.
- * Eleven mastheads carry eleven brand palettes, and all eleven at once on a
- * white wall is a colour chart rather than a body of evidence - grey, they
- * read as one set, and the colour arrives on the single mark being looked at.
- * `grayscale`, not `brightness-0`: two of these are filled broadcast bugs with
- * the mark knocked out in white, and flattening to one ink would fill the tile
- * solid and swallow it.
+ * Logo treatment: every masthead in its own brand colour from the first paint.
+ * This ran desaturated-at-rest, colour-on-hover - eleven brand palettes read
+ * as a colour chart rather than a body of evidence, so the plan was to let
+ * grey carry the set and colour arrive only on the mark being looked at. In
+ * practice a wall of grey logos read as a placeholder strip rather than as
+ * eleven real outlets, and a hover reveal a touch-screen reader never sees at
+ * all is the wrong trade for that. Colour now IS the evidence, all the time.
  *
- * The hover therefore does one thing, not two. It used to fade the mark out
- * and bring the outlet's name up in its place; that name is still worth having
- * - a red "R." tile does not say Republic TV to most readers - so it now sits
- * at the foot of the cell as a caption rather than standing where the logo is.
+ * The hover still does one thing: the outlet's name comes up as a caption -
+ * worth having since two of these are broadcast bugs rather than wordmarks (a
+ * red "R." tile does not say Republic TV to most readers) - at the foot of the
+ * cell rather than over the mark, so nothing is swapped away at the moment it
+ * is being looked at.
  */
 
 export function FeaturedInSection() {
@@ -92,22 +93,7 @@ export function FeaturedInSection() {
 									// Height per logo, width free. A fixed box squeezes every
 									// wordmark into the same width, which renders the wide ones
 									// as slivers and lets the square marks fill it.
-									//
-									// Grey at rest, their own colour under the cursor. Eleven
-									// mastheads in eleven brand palettes is eleven colours
-									// competing on one white wall; desaturated they read as one
-									// set of evidence, and the colour arrives on the one you
-									// are actually looking at.
-									//
-									// `grayscale` rather than `brightness-0`: flattening to a
-									// single ink would fill the two broadcast tiles solid and
-									// swallow the marks knocked out of them.
-									//
-									// A touch screen has no cursor to reveal anything with, so
-									// there the marks simply start in colour - Tailwind's
-									// `hover` variant is itself gated on `(hover: hover)`, so
-									// without this the phone would only ever see grey.
-									"w-auto max-w-full object-contain grayscale transition-[filter,opacity] duration-300 group-hover:grayscale-0 [@media(hover:none)]:grayscale-0",
+									"w-auto max-w-full object-contain",
 									press.size,
 									press.tile && "rounded-[3px]",
 								)}

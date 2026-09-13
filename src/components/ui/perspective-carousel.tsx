@@ -1,6 +1,14 @@
 "use client";
 
-import { motion, type Transition } from "framer-motion";
+import {
+	animate as animateMotionValue,
+	motion,
+	type MotionValue,
+	motionValue,
+	type Transition,
+	useAnimationFrame,
+	useMotionValue,
+} from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import * as React from "react";
 import { cn } from "#/lib/utils.ts";
@@ -29,10 +37,24 @@ export interface PerspectiveCarouselProps
 	slideWidth?: number;
 	/** Card height, when the items carry a quote. */
 	slideHeight?: number;
-	/** Snap to the nearest slide on release. */
+	/** Snap to the nearest slide on release. Ignored when `continuous` is set. */
 	draggable?: boolean;
-	/** Advance every N ms. 0 turns it off. Requires `loop` to run forever. */
+	/**
+	 * In the default (stepped) mode: advance every N ms, 0 turns it off.
+	 * In `continuous` mode: the time it takes the ring to drift the width of
+	 * one slide - the rate of the drift, not a pause between discrete jumps.
+	 * Requires `loop` to run forever either way.
+	 */
 	autoPlayMs?: number;
+	/**
+	 * A conveyor belt rather than a slideshow: the ring drifts at a constant
+	 * rate every frame instead of holding a slide and then jumping to the
+	 * next. Dragging scrubs the drift directly rather than snapping to a
+	 * neighbour, and a click still glides the chosen card to centre - it just
+	 * rejoins the drift from there instead of stopping. Hover still pauses it
+	 * (see `heldRef`), same as the stepped mode.
+	 */
+	continuous?: boolean;
 	rotationStep?: number;
 	inactiveScale?: number;
 	transition?: Transition;
@@ -54,6 +76,18 @@ const DEFAULT_TRANSITION: Transition = {
 const clamp = (value: number, min: number, max: number) =>
 	Math.min(Math.max(value, min), max);
 
+/** Shortest signed distance from `from` to `to` around a ring of size `length`. */
+function shortestOffset(
+	from: number,
+	to: number,
+	length: number,
+	loop: boolean,
+) {
+	const raw = to - from;
+	if (!loop || length <= 0) return raw;
+	return raw - length * Math.round(raw / length);
+}
+
 export function PerspectiveCarousel({
 	items,
 	activeIndex,
@@ -64,6 +98,7 @@ export function PerspectiveCarousel({
 	slideHeight = 460,
 	draggable = false,
 	autoPlayMs = 0,
+	continuous = false,
 	rotationStep = 60,
 	inactiveScale = 0.85,
 	transition = DEFAULT_TRANSITION,
@@ -131,50 +166,108 @@ export function PerspectiveCarousel({
 		[activeIndex, items.length, loop, maxIndex, onActiveIndexChange],
 	);
 
+	// ── Continuous mode ──────────────────────────────────────────────────────
+	// A single motion value carries the ring's position in fractional "slide
+	// units" - 2.3 sits three tenths of the way from card 2 to card 3 - and a
+	// per-frame loop below drifts it, drags scrub it, and clicks glide it to a
+	// target. Nothing here touches `currentIndex`/`selectSlide` above except to
+	// keep them mirrored for `aria-current` and `onActiveIndexChange`.
+	const phase = useMotionValue(currentIndex);
 	/**
-	 * Advance on a timer.
+	 * One set of motion values per slide, held in a ref and grown in place.
 	 *
-	 * Stopped when the rail is off screen or the tab is in the background - a
-	 * carousel stepping through itself where nobody can see it is pure cost -
-	 * and never started under reduced motion, which is exactly the kind of
-	 * unrequested movement that setting asks to be spared.
+	 * Deliberately not a `useMemo`: the honest dependency is `items`, and the
+	 * caller builds that array inline, so a memo keyed on it would hand every
+	 * render a new set of motion values - the per-frame loop below would then be
+	 * writing to objects the DOM is no longer bound to, and the ring would sit
+	 * frozen at its initial transform. Keyed on `items.length` instead it lies
+	 * about what it reads. A ref sidesteps the question: these are plain
+	 * objects, not subscriptions, so creating them during render is safe, and
+	 * the pool only ever grows to fit.
 	 */
+	const itemMotionRef = React.useRef<
+		{
+			x: MotionValue<number>;
+			rotateY: MotionValue<number>;
+			scale: MotionValue<number>;
+			opacity: MotionValue<number>;
+		}[]
+	>([]);
+	while (itemMotionRef.current.length < items.length) {
+		itemMotionRef.current.push({
+			x: motionValue(0),
+			rotateY: motionValue(0),
+			scale: motionValue(1),
+			opacity: motionValue(1),
+		});
+	}
+	const itemMotion = itemMotionRef.current;
+	const onScreenRef = React.useRef(true);
+	const reducedMotionRef = React.useRef(false);
+
 	React.useEffect(() => {
-		if (!autoPlayMs) return;
+		if (!continuous) return;
+		reducedMotionRef.current = window.matchMedia(
+			"(prefers-reduced-motion: reduce)",
+		).matches;
 		const node = rootRef.current;
 		if (!node) return;
-		if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-		let onScreen = true;
-		let timer = 0;
-		const stop = () => {
-			window.clearInterval(timer);
-			timer = 0;
-		};
-		const start = () => {
-			stop();
-			if (!onScreen || document.visibilityState !== "visible") return;
-			timer = window.setInterval(() => {
-				if (heldRef.current || draggingRef.current) return;
-				selectSlide(currentIndexRef.current + 1);
-			}, autoPlayMs);
-		};
-
 		const io = new IntersectionObserver((entries) => {
-			onScreen = entries[0]?.isIntersecting ?? true;
-			start();
+			onScreenRef.current = entries[0]?.isIntersecting ?? true;
 		});
 		io.observe(node);
-		const onVisibility = () => start();
-		document.addEventListener("visibilitychange", onVisibility);
-		start();
+		return () => io.disconnect();
+	}, [continuous]);
 
-		return () => {
-			stop();
-			io.disconnect();
-			document.removeEventListener("visibilitychange", onVisibility);
-		};
-	}, [autoPlayMs, selectSlide]);
+	useAnimationFrame((_time, delta) => {
+		if (!continuous || !items.length) return;
+		const canRun =
+			onScreenRef.current &&
+			document.visibilityState === "visible" &&
+			!heldRef.current &&
+			!draggingRef.current;
+
+		if (canRun && autoPlayMs > 0 && !reducedMotionRef.current) {
+			const slidesPerMs = 1 / autoPlayMs;
+			phase.set(phase.get() + delta * slidesPerMs);
+		}
+
+		const p = phase.get();
+		items.forEach((_, index) => {
+			const offset = shortestOffset(p, index, items.length, loop);
+			const m = itemMotion[index];
+			m.x.set(offset * safeSlideWidth);
+			m.rotateY.set(-offset * rotationStep);
+			// Continuous rather than a binary active/inactive cut, so the scale
+			// breathes as a card drifts toward and away from centre instead of
+			// snapping the instant it crosses some threshold.
+			const closeness = clamp(1 - Math.abs(offset), 0, 1);
+			m.scale.set(safeInactiveScale + (1 - safeInactiveScale) * closeness);
+			m.opacity.set(Math.abs(offset) > visibleArc ? 0 : 1);
+		});
+
+		const rounded =
+			((Math.round(p) % items.length) + items.length) % items.length;
+		if (rounded !== currentIndexRef.current) {
+			currentIndexRef.current = rounded;
+			if (activeIndex === undefined) setUncontrolledIndex(rounded);
+			onActiveIndexChange?.(rounded);
+		}
+	});
+
+	/** Glide the ring so `index` lands at centre, the short way round. */
+	const glideTo = React.useCallback(
+		(index: number) => {
+			const target =
+				phase.get() + shortestOffset(phase.get(), index, items.length, loop);
+			animateMotionValue(phase, target, {
+				type: "spring",
+				stiffness: 140,
+				damping: 24,
+			});
+		},
+		[phase, items.length, loop],
+	);
 
 	if (!items.length) {
 		return null;
@@ -191,12 +284,14 @@ export function PerspectiveCarousel({
 
 		if (event.key === "ArrowLeft") {
 			event.preventDefault();
-			selectSlide(currentIndex - 1);
+			if (continuous) glideTo(Math.round(phase.get()) - 1);
+			else selectSlide(currentIndex - 1);
 		}
 
 		if (event.key === "ArrowRight") {
 			event.preventDefault();
-			selectSlide(currentIndex + 1);
+			if (continuous) glideTo(Math.round(phase.get()) + 1);
+			else selectSlide(currentIndex + 1);
 		}
 	};
 
@@ -243,7 +338,24 @@ export function PerspectiveCarousel({
 					onDragStart={() => {
 						draggingRef.current = true;
 					}}
+					onDrag={(_event, info) => {
+						// Continuous mode treats the drag as scrubbing the belt directly
+						// rather than throwing the whole rail - the container itself
+						// stays pinned at x:0 (see `dragConstraints`) and only feeds the
+						// gesture into `phase`.
+						if (continuous)
+							phase.set(phase.get() - info.delta.x / safeSlideWidth);
+					}}
 					onDragEnd={(_event, info) => {
+						if (continuous) {
+							// The belt simply keeps drifting from wherever the gesture left
+							// it - no snap, the same way it never snaps between automatic
+							// steps either.
+							window.setTimeout(() => {
+								draggingRef.current = false;
+							}, 0);
+							return;
+						}
 						// Snap by whichever is more decisive: how far it was thrown, or how
 						// fast. A short flick should still advance a slide.
 						const byOffset = -info.offset.x / safeSlideWidth;
@@ -265,6 +377,7 @@ export function PerspectiveCarousel({
 						const offset = loop
 							? raw - items.length * Math.round(raw / items.length)
 							: raw;
+						const m = continuous ? itemMotion[index] : undefined;
 
 						return (
 							<div
@@ -288,32 +401,50 @@ export function PerspectiveCarousel({
 									// towards it - otherwise every card paints stacked at the
 									// centre until the first frame runs.
 									initial={false}
-									animate={{
-										x: offset * safeSlideWidth,
-										rotateY: -offset * rotationStep,
-										scale: isActive ? 1 : safeInactiveScale,
-										// Cards beyond the visible arc are hidden, so the one
-										// that wraps from one end of the ring to the other does
-										// it out of sight rather than flying across the frame.
-										opacity: Math.abs(offset) > visibleArc ? 0 : 1,
-									}}
-									transition={transition}
-									style={{ transformStyle: "preserve-3d" }}
+									{...(m
+										? {
+												style: {
+													x: m.x,
+													rotateY: m.rotateY,
+													scale: m.scale,
+													opacity: m.opacity,
+													transformStyle: "preserve-3d",
+												},
+											}
+										: {
+												animate: {
+													x: offset * safeSlideWidth,
+													rotateY: -offset * rotationStep,
+													scale: isActive ? 1 : safeInactiveScale,
+													// Cards beyond the visible arc are hidden, so the one
+													// that wraps from one end of the ring to the other does
+													// it out of sight rather than flying across the frame.
+													opacity: Math.abs(offset) > visibleArc ? 0 : 1,
+												},
+												transition,
+												style: { transformStyle: "preserve-3d" },
+											})}
 								>
 									{item.quote ? (
-										// Card form: a 3:4 portrait with the words laid over it.
+										// Card form: a 5:6 portrait with the words laid over it.
 										// The text sits on the picture rather than beneath it, so
 										// the card is one object instead of an image with a panel
-										// stapled underneath.
+										// stapled underneath. 5:6, not the taller 3:4 this used to
+										// run: at 3:4 the ring's wrapping box (sized to match) left
+										// no vertical slack, so a card nudged out of true centre by
+										// drag or the settle from a click clipped its own top edge
+										// against the viewport's `overflow-hidden`. Shorter cards
+										// carry that margin instead.
 										<button
 											type="button"
 											aria-label={`Show ${item.name ?? item.title}`}
 											aria-current={isActive ? "true" : undefined}
 											onClick={() => {
 												if (draggingRef.current) return;
-												selectSlide(index);
+												if (continuous) glideTo(index);
+												else selectSlide(index);
 											}}
-											className="relative aspect-[3/4] w-full cursor-pointer overflow-hidden rounded-2xl border border-white/10 text-left shadow-xl"
+											className="relative aspect-[5/6] w-full cursor-pointer overflow-hidden rounded-2xl border border-white/10 text-left shadow-xl"
 										>
 											<img
 												src={item.src}
@@ -359,7 +490,8 @@ export function PerspectiveCarousel({
 												className="aspect-[3/4] w-full cursor-pointer"
 												onClick={() => {
 													if (draggingRef.current) return;
-													selectSlide(index);
+													if (continuous) glideTo(index);
+													else selectSlide(index);
 												}}
 											>
 												<img
@@ -407,7 +539,11 @@ export function PerspectiveCarousel({
 						aria-label="Show previous slide"
 						disabled={isPreviousDisabled}
 						className="inline-flex size-9 items-center justify-center rounded-full transition-colors hover:bg-white/70 disabled:cursor-not-allowed disabled:opacity-35 dark:hover:bg-white/10"
-						onClick={() => selectSlide(currentIndex - 1)}
+						onClick={() =>
+							continuous
+								? glideTo(Math.round(phase.get()) - 1)
+								: selectSlide(currentIndex - 1)
+						}
 					>
 						<ChevronLeft className="size-5" />
 					</button>
@@ -426,7 +562,9 @@ export function PerspectiveCarousel({
 											? "w-7 opacity-100"
 											: "w-2 opacity-30",
 									)}
-									onClick={() => selectSlide(index)}
+									onClick={() =>
+										continuous ? glideTo(index) : selectSlide(index)
+									}
 								/>
 							))}
 						</div>
@@ -437,7 +575,11 @@ export function PerspectiveCarousel({
 						aria-label="Show next slide"
 						disabled={isNextDisabled}
 						className="inline-flex size-9 items-center justify-center rounded-full transition-colors hover:bg-white/70 disabled:cursor-not-allowed disabled:opacity-35 dark:hover:bg-white/10"
-						onClick={() => selectSlide(currentIndex + 1)}
+						onClick={() =>
+							continuous
+								? glideTo(Math.round(phase.get()) + 1)
+								: selectSlide(currentIndex + 1)
+						}
 					>
 						<ChevronRight className="size-5" />
 					</button>

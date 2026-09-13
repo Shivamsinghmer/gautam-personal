@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Facebook, Instagram, Linkedin, Mail } from "lucide-react";
 import { lazy, Suspense } from "react";
 import { LiquidMetalButtonFallback } from "#/components/liquid-metal-button";
 import { ClientOnly } from "#/components/ui/deferred";
@@ -62,10 +62,10 @@ const LiquidMetalButton = lazy(() =>
  * replace every `value` with the true figure before this goes anywhere public.
  */
 const CHANNELS = [
-	{ value: 175, suffix: "K+", label: "Facebook" },
-	{ value: 62, suffix: "K+", label: "Instagram" },
-	{ value: 12, suffix: "K+", label: "LinkedIn" },
-	{ value: 500, suffix: "K+", label: "Newsletter" },
+	{ value: 175, suffix: "K+", label: "Facebook", icon: Facebook },
+	{ value: 62, suffix: "K+", label: "Instagram", icon: Instagram },
+	{ value: 12, suffix: "K+", label: "LinkedIn", icon: Linkedin },
+	{ value: 500, suffix: "K+", label: "Newsletter", icon: Mail },
 ];
 
 export function ReachSection() {
@@ -84,10 +84,14 @@ export function ReachSection() {
 			    than a blend mode: a blend over a full-bleed section forces the
 			    whole thing onto its own compositor layer and re-blends it every
 			    frame it is on screen, which is a real cost for a texture you only
-			    notice if you look. */}
+			    notice if you look. 0.02, not 0.07: the noise is mid-grey on
+			    average, so compositing it at 0.07 over a near-black field lifted
+			    the whole section to a visibly lighter charcoal than the flat-black
+			    sections either side of it - the seam read as a bug, not texture.
+			    0.02 keeps the grain without the lift. */}
 			<div
 				aria-hidden="true"
-				className="pointer-events-none absolute inset-0 -z-10 opacity-[0.07]"
+				className="pointer-events-none absolute inset-0 -z-10 opacity-[0.02]"
 				style={{
 					backgroundImage:
 						"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
@@ -220,6 +224,7 @@ export function ReachSection() {
 						<StatIndex
 							items={CHANNELS}
 							tone="ink"
+							variant="chip"
 							className="mt-5 grid-cols-2 gap-x-8 gap-y-6 sm:grid-cols-4 sm:gap-x-6"
 						/>
 					</div>

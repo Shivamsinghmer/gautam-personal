@@ -214,15 +214,15 @@ export function FloatingMenu({
 			const isMobile = width < 768;
 			const isTablet = width >= 768 && width < 1024;
 
-			let maxWidthOpen = "75%";
-			let maxWidthInitial = "50%";
+			let maxWidthOpen = "98%";
+			let maxWidthInitial = "95%";
 
 			if (isMobile) {
 				maxWidthOpen = "100%";
-				maxWidthInitial = "95%";
+				maxWidthInitial = "97%";
 			} else if (isTablet) {
-				maxWidthOpen = "85%";
-				maxWidthInitial = "70%";
+				maxWidthOpen = "98%";
+				maxWidthInitial = "95%";
 			}
 
 			ctx?.revert();
@@ -328,7 +328,7 @@ export function FloatingMenu({
 				ref={containerRef}
 				data-slot="root"
 				className={cn(
-					"fixed top-2 left-1/2 z-50 w-full max-w-[95vw] -translate-x-1/2 rounded-md border border-[var(--line)] bg-[var(--header-bg)] text-[var(--sea-ink)] shadow-md transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.625,0.05,0,1)] md:top-4 md:max-w-[70vw] lg:max-w-[50vw]",
+					"fixed top-2 left-1/2 z-50 w-full max-w-[97vw] -translate-x-1/2 rounded-md border border-[var(--line)] bg-[var(--header-bg)] text-[var(--sea-ink)] shadow-md transition-[transform,opacity] duration-300 ease-[cubic-bezier(0.625,0.05,0,1)] md:top-4 md:max-w-[95vw] lg:max-w-[95vw]",
 					hidden && "-translate-y-24 opacity-0 pointer-events-none",
 					className,
 					classes?.root,

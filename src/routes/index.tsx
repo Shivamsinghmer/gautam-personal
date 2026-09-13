@@ -1,6 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useLenis } from "lenis/react";
-import { PhoneCall } from "lucide-react";
+import {
+	Building2,
+	CalendarRange,
+	Globe,
+	Mic2,
+	Newspaper,
+	PhoneCall,
+} from "lucide-react";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { AboutSection } from "#/components/about-section";
 import { AnimatedFooter } from "#/components/animated-footer";
@@ -228,19 +235,17 @@ function Home() {
 					}}
 				/>
 
-				{/* The opening wordmark, and only the opening. It rises behind the
-				    figure while he is still large and close to the viewer, then
-				    clears as he settles - so the resting hero is the corner blocks
-				    rather than a name laid across his chest. `aria-hidden` because
-				    the name is already the document title and the top-left label;
-				    this is choreography, not a second heading. */}
-				<p
-					aria-hidden="true"
-					className="gk-intro-mark pointer-events-none absolute inset-x-0 top-1/2 z-0 -translate-y-1/2 text-center font-extrabold leading-[0.9] tracking-[-0.05em] text-white/85"
-					style={{ fontSize: "clamp(2.4rem, 10vw, 7.5rem)" }}
-				>
-					Gautam Kumawat
-				</p>
+				{/* The opening wordmark that used to sit here is gone, and the
+				    preloader is why. It was written for a hero that arrived behind a
+				    0.45s fade, where a large name rising behind the figure was the
+				    first beat of the page. The overlay is a curtain now: it takes
+				    0.95s to clear, and this mark ran 0.1s-1.27s - so it played out
+				    almost entirely underneath the curtain and what you actually saw
+				    was the tail of it fading, a ghost flashing off at the exact
+				    moment the page was uncovering. Worse, it was the third time the
+				    name appeared in four seconds: the preloader writes it by hand,
+				    the corner label states it, and this repeated it in between. One
+				    name beat, and the handwritten one is the better of the two. */}
 
 				{/* The figure, centred and bottom-anchored, standing in front of
 				    his own enlarged face. Sized by width rather than height: the
@@ -292,9 +297,18 @@ function Home() {
 					// tucked under it rather than clear of it.
 					className="pointer-events-none relative z-20 mx-auto flex w-full max-w-[104rem] flex-col justify-start self-stretch pt-24 pb-10 text-center sm:justify-between sm:pt-28 sm:pb-14 sm:text-left"
 				>
+					{/* The copy cascade is timed against the curtain, not after it.
+					    These delays used to start at 1.3s - 0.35s past the moment the
+					    overlay had completely gone - so the page uncovered onto a bare
+					    photograph, held, and then the words arrived: two events where
+					    there should be one. They now land through the curtain's last
+					    third, in reading order, so the text is already arriving as the
+					    edge passes over it. The figure is still rising underneath the
+					    whole cascade (2.1s) and the backdrop still settling (2.6s),
+					    which is what gives the opening its depth. */}
 					<p
 						className="gk-reveal pointer-events-auto text-[0.78rem] leading-snug sm:text-[0.85rem]"
-						style={{ color: TYPE, ["--gk-delay" as string]: "1.3s" }}
+						style={{ color: TYPE, ["--gk-delay" as string]: "0.62s" }}
 					>
 						Gautam Kumawat /
 						<br />
@@ -319,19 +333,19 @@ function Home() {
 						>
 							<span
 								className="gk-line"
-								style={{ ["--gk-delay" as string]: "1.42s" }}
+								style={{ ["--gk-delay" as string]: "0.72s" }}
 							>
 								<span>Cybercrime</span>
 							</span>
 							<span
 								className="gk-line"
-								style={{ ["--gk-delay" as string]: "1.54s" }}
+								style={{ ["--gk-delay" as string]: "0.82s" }}
 							>
 								<span>investigator.</span>
 							</span>
 							<span
 								className="gk-line"
-								style={{ ["--gk-delay" as string]: "1.66s" }}
+								style={{ ["--gk-delay" as string]: "0.92s" }}
 							>
 								<span>Trainer to officers.</span>
 							</span>
@@ -344,7 +358,7 @@ function Home() {
 						    `sm`, where it was right-aligned inside a 24%-wide column. */}
 						<p
 							className="gk-reveal text-center text-[0.78rem] leading-snug sm:max-w-[24%] sm:text-right sm:text-[0.85rem]"
-							style={{ color: TYPE_SOFT, ["--gk-delay" as string]: "1.78s" }}
+							style={{ color: TYPE_SOFT, ["--gk-delay" as string]: "1.00s" }}
 						>
 							Law-enforcement agencies
 							<br />
@@ -361,7 +375,7 @@ function Home() {
 						    shader compiles. */}
 						<div
 							className="gk-reveal pointer-events-auto"
-							style={{ ["--gk-delay" as string]: "1.92s" }}
+							style={{ ["--gk-delay" as string]: "1.12s" }}
 						>
 							<ClientOnly
 								fallback={<PlainConnectButton onClick={goToConnect} />}
@@ -387,19 +401,19 @@ function Home() {
 						>
 							<span
 								className="gk-line"
-								style={{ ["--gk-delay" as string]: "1.62s" }}
+								style={{ ["--gk-delay" as string]: "0.88s" }}
 							>
 								<span>Cybercrime scales.</span>
 							</span>
 							<span
 								className="gk-line"
-								style={{ ["--gk-delay" as string]: "1.72s" }}
+								style={{ ["--gk-delay" as string]: "0.96s" }}
 							>
 								<span>So must the people</span>
 							</span>
 							<span
 								className="gk-line"
-								style={{ ["--gk-delay" as string]: "1.82s" }}
+								style={{ ["--gk-delay" as string]: "1.04s" }}
 							>
 								<span>who stop it.</span>
 							</span>
@@ -421,40 +435,33 @@ function Home() {
 				}}
 			>
 				<div className="mx-auto max-w-6xl">
-					{/* Six figures, to match the row the reference carries.
+					{/* Five figures, each under its own glyph in the liquid-metal ring
+					    (see `.liquid-metal-ring` in styles.css) - the same rotating-chrome
+					    border `LiquidMetalButton` renders as a fill. "Students" is cut:
+					    the journey section already carries "41,000 students enrolled" a
+					    few sections down, and losing it here is what lets the row land
+					    on five across evenly instead of six with an empty seat.
 
-					    This ran as `variant="chip"` - a circular icon badge over each
-					    number - which is the one place on the page that motif showed
-					    up. Every other index on the site (reach, the about section's
-					    figure) is a hairline rule, a tabular number, a label under it;
-					    no glyph, no tint. A shield or a microphone icon does not help
-					    anyone read a count, and a row of coloured badge circles reads
-					    as the stock SaaS "trusted by" strip rather than as this site's
-					    own grammar. `variant="rule"` is that grammar, so this band now
-					    matches the ledger it is meant to be rather than sitting apart
-					    from it as the one page element in a different style.
-
-					    Five are real: four the page already stood behind, plus "Media
-					    outlets", which is simply a count of the mastheads rendered in
-					    the strip directly below this band - so it cannot drift from
-					    what the page shows.
+					    Four are real: the ones the page already stood behind. "Media
+					    outlets" is simply a count of the mastheads rendered in the strip
+					    directly below this band, so it cannot drift from what the page
+					    shows.
 
 					    ⚠️ "Sessions" is a PLACEHOLDER. There is no source behind 250
 					    anywhere in this project; it exists because the row was asked to
 					    be six wide and nothing verifiable was left to fill it. It reads
 					    as a factual claim on a real person's site, so replace it with
-					    the true figure - or cut it back to five - before this ships. */}
+					    the true figure - or cut it back further - before this ships. */}
 					<StatIndex
-						size="md"
+						variant="chip"
 						start={revealed}
-						className="grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-3 sm:gap-x-10 lg:grid-cols-6 lg:gap-x-8"
+						className="grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-3 sm:gap-x-10 lg:grid-cols-5 lg:gap-x-8"
 						items={[
-							{ value: 41, suffix: "K+", label: "Students" },
-							{ value: 162, label: "Countries" },
-							{ value: 7, suffix: "+", label: "Years" },
-							{ value: 30, suffix: "+", label: "Agencies" },
-							{ value: 11, label: "Media outlets" },
-							{ value: 250, suffix: "+", label: "Sessions" },
+							{ value: 162, label: "Countries", icon: Globe },
+							{ value: 7, suffix: "+", label: "Years", icon: CalendarRange },
+							{ value: 30, suffix: "+", label: "Agencies", icon: Building2 },
+							{ value: 11, label: "Media outlets", icon: Newspaper },
+							{ value: 250, suffix: "+", label: "Sessions", icon: Mic2 },
 						]}
 					/>
 				</div>
@@ -533,7 +540,7 @@ function Home() {
 							<Suspense fallback={FOOTER_NAME_FALLBACK}>
 								<ShinyText
 									text="GAUTAM KUMAWAT"
-									speed={2.2}
+									speed={3.2}
 									delay={0}
 									color="#181818"
 									shineColor="#f7f6f6"

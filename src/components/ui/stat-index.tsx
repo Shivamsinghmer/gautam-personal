@@ -12,12 +12,13 @@ import { cn } from "#/lib/utils";
  * because the rule belongs to each cell rather than sitting between cells, it
  * survives any wrap without stranding a divider at the end of a row.
  *
- * `chip` is the icon form - a circular glyph above each figure. This file
- * originally argued against it: big number, small label, accent tint is the
- * hero-metric template, and a shield glyph does not help anyone read a count.
- * That argument still holds in the abstract; it is here because it was asked
- * for, and because the band now sits on its own under the hero rather than
- * repeating inside it, which was the specific problem back then.
+ * `chip` is the icon form - a glyph above each figure, ringed in the same
+ * rotating-chrome border `LiquidMetalButton` renders as a fill (see
+ * `.liquid-metal-ring` in styles.css). This file originally argued against a
+ * flat tinted badge here: big number, small label, accent tint is the
+ * hero-metric template, and a coloured circle reads as the stock SaaS
+ * "trusted by" strip. Chrome rather than a colour wash is the site's own
+ * grammar instead of a borrowed one, which is what earns the glyph its place.
  *
  * No accent on the suffixes in either form. "One accent, used with intent" -
  * a blue plus sign on every figure is everything highlighted, which is
@@ -85,10 +86,14 @@ export function StatIndex({
 						{Icon ? (
 							<span
 								aria-hidden="true"
-								className="mb-4 flex h-11 w-11 items-center justify-center rounded-full sm:h-12 sm:w-12"
-								style={{ backgroundColor: `${glyph}1f`, color: glyph }}
+								className="liquid-metal-ring mb-4 h-11 w-11 sm:h-12 sm:w-12"
 							>
-								<Icon className="h-[18px] w-[18px] sm:h-5 sm:w-5" />
+								<span className="liquid-metal-ring__fill">
+									<Icon
+										className="h-[18px] w-[18px] sm:h-5 sm:w-5"
+										style={{ color: glyph }}
+									/>
+								</span>
 							</span>
 						) : null}
 						<dt

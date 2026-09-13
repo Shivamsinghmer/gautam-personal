@@ -200,10 +200,14 @@ export function BookSection() {
 					background: `linear-gradient(to top, ${INK} 0%, ${INK}00 100%)`,
 				}}
 			/>
-			{/* Grain, to texture the field. Plain alpha, never a blend mode. */}
+			{/* Grain, to texture the field. Plain alpha, never a blend mode. 0.02,
+			    not 0.07: the noise is mid-grey on average, and at 0.07 it lifted
+			    this section to a visibly lighter charcoal than the flat-black
+			    sections either side of it - the seam between them read as a bug.
+			    0.02 keeps the texture without the lift. */}
 			<div
 				aria-hidden="true"
-				className="pointer-events-none absolute inset-0 opacity-[0.07]"
+				className="pointer-events-none absolute inset-0 opacity-[0.02]"
 				style={{
 					backgroundImage:
 						"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
@@ -229,7 +233,13 @@ export function BookSection() {
 					</h2>
 				</Reveal>
 
-				<div className="mt-7 grid items-center gap-10 lg:mt-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10">
+				{/* `items-start`, not `items-center`: the manuscript card is taller
+				    than the copy beside it, and centring the shorter column against
+				    that height stranded the paragraph and button in the middle of a
+				    mostly empty cell - a gap between the heading above and the copy
+				    it belongs with. Top-aligned, the copy sits right under the
+				    heading and the manuscript simply runs taller beside it. */}
+				<div className="mt-7 grid items-start gap-10 lg:mt-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-10">
 					<div>
 						<Reveal delay={0.08}>
 							<p className="max-w-[42ch] text-pretty text-[0.95rem] leading-[1.7] text-white/75 sm:text-base">

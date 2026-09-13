@@ -119,6 +119,14 @@ export function CollageSection() {
 						    spans past all four cards and they sit on top, which is what
 						    makes the layers read as depth.
 
+						    `object-cover`, not `object-contain`: contain fits the whole
+						    20:9 plate inside the box's height, which on this row is far
+						    shorter than 20:9 needs to reach full width - so the "full-bleed"
+						    box was framing a much narrower picture with dark gutters either
+						    side of it. Cover scales until the box's width is met and crops
+						    the excess height instead, which is what actually reaches both
+						    edges of the screen. `object-top` keeps that crop off his head.
+
 						    The plate is 20:9 and already shot on black - measured, its
 						    corners read 0-1 and four fifths of it sits in the darkest
 						    luminance bin. So the radial mask that used to hide a pale
@@ -137,7 +145,7 @@ export function CollageSection() {
 							// section composites to 213, which is the washed-out grey this
 							// page is meant to be rid of. At 0.5 it reads as a spotlight and
 							// the field stays black.
-							className="h-full w-full object-contain object-center opacity-50 mix-blend-screen"
+							className="h-full w-full object-cover object-top opacity-50 mix-blend-screen"
 						/>
 					</div>
 

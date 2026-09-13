@@ -1,10 +1,7 @@
 import { BookingInvite } from "#/components/booking-invite";
-import { GradientBars } from "#/components/gradient-bars";
 import { PressStrip } from "#/components/press-strip";
 
-import {
-	HERO_DEEP,
-} from "#/lib/palette";
+import { HERO_DEEP } from "#/lib/palette";
 
 /**
  * What this section replaced: a generic template "join our waitlist" block -
@@ -17,6 +14,11 @@ import {
  * and a centred "Three Ways to Book Gautam" above a left-right composition was
  * announcing a layout that no longer exists. One heading, on the copy column,
  * where the eye lands after the photograph.
+ *
+ * The animated bar comb that used to fill the section's floor is gone: on a
+ * dark, near-black field it read as a busy stripe pattern rather than as the
+ * quiet close the page wants here, and this is the section right before the
+ * footer - the page settling, not one more thing in motion.
  */
 export function BookingSection() {
 	return (
@@ -25,42 +27,10 @@ export function BookingSection() {
 			className="relative isolate scroll-mt-24 overflow-hidden px-6 pt-16 pb-36 sm:px-10 sm:pt-24 sm:pb-72"
 			style={{ backgroundColor: HERO_DEEP }}
 		>
-			{/* A finer comb: more bars, so the row reads as a texture rather than
-			    as counted columns. The scale curve is a valley - shortest at the
-			    centre, tallest at the edges.
-
-			    The comb is a band along the bottom edge, not the whole section.
-			    Full height, it ran up through the copy: the formats row sat
-			    directly on a bright blue bar, which is both a collision and a
-			    contrast failure. The band is shorter than the section's bottom
-			    padding, so the bars have the floor to themselves and the copy has
-			    clear ground - and because nothing needs scrimming down there, the
-			    bars can read at full strength right to the bottom edge. */}
-			<GradientBars
-				animation="wave"
-				duration={2}
-				numBars={30}
-				// Full height, not a strip along the bottom. `top-auto` plus a fixed
-				// h-64 pinned the comb to a shallow band, so the tallest bars still
-				// only reached a fraction of the section - which is what read as
-				// "half". Left to fill the section, maxScale 1 puts the outer bars
-				// at the full height and the valley does the rest.
-				minScale={0.12}
-				maxScale={1}
-				delayStep={0.04}
-				// Bright at the foot, fading out toward each bar's top edge, so the
-				// comb dissolves into the field instead of ending on a hard line.
-				colors={["#ffffff", "#ffffffcc", "#ffffff00"]}
-				// 0.4 read as black but lost the comb entirely; 0.9 made the section
-				// blue rather than black. 0.68 keeps the field dark at the top, where
-				// the copy sits, and lets the bars actually read along the bottom.
-				className="-z-20 opacity-[0.68]"
-				raiseOnView
-			/>
-			{/* The other half of the hand-off. The hero fades down to DEEP; this
-			    starts on DEEP and clears, so the bars rise out of the same colour
-			    the hero ended on instead of beginning at full strength against a
-			    hard edge. Alpha-zero DEEP again, not `transparent`. */}
+			{/* The hand-off from the hero, which fades down to DEEP - this section
+			    starts on DEEP and clears, so the two read as one continuous field
+			    rather than meeting on a hard edge. Alpha-zero DEEP again, not
+			    `transparent`. */}
 			<div
 				aria-hidden="true"
 				className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[30vh]"
@@ -70,10 +40,7 @@ export function BookingSection() {
 			/>
 
 			{/* Scrim over the copy, built from the hero's own deep tone (hex +
-			    alpha suffix) so the hand-off reads as one field. It clears before
-			    the bars start: it used to end on d9 - 85% opaque - which is what
-			    blacked the comb out exactly where it met the bottom edge and made
-			    the bars look cut short. */}
+			    alpha suffix) so the hand-off reads as one field. */}
 			<div
 				aria-hidden="true"
 				className="absolute inset-x-0 top-0 bottom-40 -z-10 sm:bottom-56"
@@ -82,15 +49,18 @@ export function BookingSection() {
 				}}
 			/>
 			{/* Grain: SVG feTurbulence noise, to texture the field and break up
-			    banding across the bars and scrim.
+			    banding across the scrim.
 
 			    Plain alpha rather than mix-blend-overlay. A blend mode over a
 			    full-bleed section forces the whole thing onto its own layer and
 			    re-blends it every frame it is on screen, which is a real cost for
-			    a texture you only notice if you look for it. */}
+			    a texture you only notice if you look for it. 0.02, not 0.07: the
+			    noise is mid-grey on average, and at 0.07 it lifted this section to
+			    a visibly lighter charcoal than the flat-black sections around it.
+			    0.02 keeps the texture without the lift. */}
 			<div
 				aria-hidden="true"
-				className="pointer-events-none absolute inset-0 z-0 opacity-[0.07]"
+				className="pointer-events-none absolute inset-0 z-0 opacity-[0.02]"
 				style={{
 					backgroundImage:
 						"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",

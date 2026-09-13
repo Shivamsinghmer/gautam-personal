@@ -134,19 +134,30 @@ export function TestimonialsSection() {
 
 			{/* Cards, not a strip of portraits: each slide carries the quote and
 			    the attribution inside it, so nothing has to be read from a caption
-			    parked outside the card. Draggable, with the arrows and dots kept
-			    as the keyboard- and pointer-accessible path. */}
+			    parked outside the card. A conveyor rather than a slideshow - the
+			    ring drifts on its own without ever holding still, `continuous`
+			    scrubs that drift under a drag instead of snapping to a neighbour,
+			    and hovering pauses it (the carousel's own `heldRef`). The bottom
+			    bar - arrows plus a dot per testimonial - existed to navigate and
+			    report position for a carousel that otherwise sat still between
+			    steps; a belt that is always moving needs neither, so it's gone
+			    along with the height that used to reserve room for it. */}
 			<Reveal delay={0.1} className="mt-12 sm:mt-14">
-				<div style={{ height: Math.round((size.width * 4) / 3) + 132 }}>
+				{/* The card is 5:6 (see perspective-carousel.tsx); +24px of slack on
+				    top of that so a card unsettled from centre - mid-drag, or still
+				    gliding back after a click - has margin to move in before its own
+				    top edge meets the viewport's `overflow-hidden` clip. */}
+				<div style={{ height: Math.round((size.width * 6) / 5) + 24 }}>
 					<PerspectiveCarousel
 						draggable
 						loop
+						continuous
 						autoPlayMs={5000}
+						showControls={false}
 						slideWidth={size.width}
 						rotationStep={38}
 						inactiveScale={0.86}
 						items={TESTIMONIALS.map((t) => ({ ...t, title: t.name ?? "" }))}
-						controlsClassName="border-white/10! bg-white/5! text-white!"
 					/>
 				</div>
 			</Reveal>
