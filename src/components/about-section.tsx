@@ -121,31 +121,35 @@ export function AboutSection() {
 						<Reveal delay={0.06}>
 							<div className="prose-measure space-y-6 text-base leading-[1.75] text-white/80 sm:text-[1.0625rem]">
 								<p>
-									Gautam Kumawat spent seven years inside law-enforcement
-									institutions in India and the United States, training serving
-									officials and working{" "}
-									<strong className={TERM}>darknet investigations</strong> and{" "}
-									<strong className={TERM}>digital forensics</strong> of a
-									complexity that never reaches a syllabus.
+									Gautam Kumawat grew up walking 8km to school, studying by the
+									light of a homemade oil lamp. Privilege wasn't part of the
+									story — <strong className={TERM}>determination</strong> was.
 								</p>
 
 								<p>
-									What he teaches now is that material, opened up. The same
-									cases, rebuilt for whoever is in the room — a hall of
-									first-years, a batch of new recruits, or a{" "}
-									<strong className={TERM}>
-										unit that has worked cyber for a decade
-									</strong>
-									. Forty-one thousand students across 162 countries have taken
-									it so far.
+									At 12, curiosity about how phones worked led him into hacking,
+									self-taught and relentless. By 16, he was working with{" "}
+									<strong className={TERM}>global law enforcement</strong> on
+									cybercrime investigations — a path that's since grown into{" "}
+									<strong className={TERM}>3,000+ cases solved</strong>. His
+									work drew national and global media attention, with features
+									in Times of India, Economic Times, India Today, Hindustan
+									Times, The Hindu, and Thrive Global.
 								</p>
 
 								<p>
-									He makes the same argument in public as often as in a
-									classroom — on national news panels, on stages, and in print.
-									Cybercrime scales faster than any unit investigating it. The
-									only defence that scales with it is a population that already
-									knows.
+									But the numbers are only half the story. Gautam meditates 2
+									hours a day (Vipassana, for over a decade), draws inspiration
+									from Vivekananda and Bhagat Singh, and finds balance through
+									MMA, golf, and horseback riding — with a bit of mind-reading
+									magic thrown in to keep wonder alive.
+								</p>
+
+								<p>
+									He's flown planes, built companies, left comfort behind for
+									harder problems, and traveled to 21 countries in search of
+									truth, not just business. His life is proof that anyone, from
+									anywhere, can build a life without limits.
 								</p>
 							</div>
 						</Reveal>
@@ -220,12 +224,9 @@ export function AboutSection() {
 					</div>
 				</div>
 
-				{/* The closing rule. All that survives of the dossier that used to
-				    sit here, and it is kept rather than dropped because the figure above
-				    is a trimmed cut-out standing on this line - without it he ends in
-				    mid-air on bare ink, which is the exact failure the dossier was added
-				    to fix. One hairline does that job; three rows of facts the page
-				    states elsewhere were not needed to. */}
+				{/* The rule the figure stands on. Kept rather than dropped because the
+				    figure above is a trimmed cut-out landing on this line - without it
+				    he ends in mid-air on bare ink. */}
 				<div aria-hidden="true" className="border-t border-white/15" />
 			</div>
 		</section>
