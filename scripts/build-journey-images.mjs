@@ -4,12 +4,21 @@
  *
  * The frames were shot in different venues, years and lighting, and four of
  * them appear again in their original colour further down the page - in the
- * collage, and now in the gallery too. Running them through one grade solves
- * both problems at once:
- * the spiral reads as a single sequence rather than a mixed bag, and it does
- * not look like the collage repeated. Neutral grayscale specifically - the
- * slider's fragment shader nudges saturation up by 1.18, which would re-tint a
- * duotone but leaves a true grayscale exactly where it is.
+ * collage, and now in the gallery too. One grade solved both problems at once:
+ * the stack read as a single sequence rather than a mixed bag, and it did not
+ * look like the collage repeated.
+ *
+ * That grade is applied at runtime now, not baked in here. The stack's cards
+ * desaturate as they leave and come back to full colour as they reach centre
+ * (see the `grayscale` filter in case-study-flip-stack.tsx), which needs the
+ * colour to still be in the file - a grayscale webp has nothing to restore.
+ * The sequence still reads as one set, because at any moment every frame but
+ * the one you are looking at is grey; the difference is that the grade is now
+ * something the scroll can move.
+ *
+ * `grade: "mono"` is therefore per-job rather than global, and only
+ * `02-agencies.webp` still takes it: that frame is not in the stack at all
+ * (see below), and the section that does use it wants the flat graded plate.
  *
  * Output is 800x1000. The flip-stack card gives its photograph a tall panel on
  * desktop and a wide one on a phone, so a 4:5 source has the least to lose to
@@ -39,7 +48,7 @@ const OUT = "public/journey";
  */
 const JOBS = [
 	{ in: "public/collage/middle.jpg", out: "01-case-work.webp", position: "attention" },
-	{ in: "public/gautam.png", out: "02-agencies.webp", position: "top" },
+	{ in: "public/gautam.png", out: "02-agencies.webp", position: "top", grade: "mono" },
 	{ in: "public/collage/t2.webp", out: "03-classroom.webp", position: "attention" },
 	{ in: "public/collage/b2.webp", out: "04-stage.webp", position: "attention" },
 	{ in: "public/collage/b1.webp", out: "05-press.webp", position: "attention" },
@@ -54,13 +63,21 @@ const JOBS = [
 mkdirSync(OUT, { recursive: true });
 
 for (const job of JOBS) {
-	const info = await sharp(job.in)
-		.resize(800, 1000, { fit: "cover", position: job.position })
-		.grayscale()
-		// A light contrast lift, so the desaturated frames keep their subject
-		// against the section's near-black ground.
+	const mono = job.grade === "mono";
+	let pipeline = sharp(job.in).resize(800, 1000, {
+		fit: "cover",
+		position: job.position,
+	});
+	if (mono) pipeline = pipeline.grayscale();
+	const info = await pipeline
+		// A light contrast lift, so the frames keep their subject against the
+		// section's near-black ground. It is worth as much in colour as it was
+		// in grayscale: these are dark rooms and stage lighting, and the card
+		// sits on near-black.
 		.linear(1.08, -8)
 		.webp({ quality: 82 })
 		.toFile(`${OUT}/${job.out}`);
-	console.log(`${job.out}  ${info.width}x${info.height}  ${Math.round(info.size / 1024)}KB`);
+	console.log(
+		`${job.out}  ${mono ? "mono  " : "colour"}  ${info.width}x${info.height}  ${Math.round(info.size / 1024)}KB`,
+	);
 }

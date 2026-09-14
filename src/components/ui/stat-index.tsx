@@ -34,6 +34,14 @@ export interface StatEntry {
 	icon?: React.ComponentType<{ className?: string }>;
 }
 
+/**
+ * How long a figure takes to count up. Slower than it reads on paper: these
+ * sit in a row, and a count short enough to feel brisk on one number reads as
+ * a flicker across six of them. Long enough here that you can watch a figure
+ * climb rather than just catch it landing.
+ */
+const COUNT_SECONDS = 2.6;
+
 type Tone = "ink" | "signal";
 
 const TONE: Record<Tone, { rule: string; figure: string; label: string }> = {
@@ -100,7 +108,11 @@ export function StatIndex({
 							className="display-tight tnum text-[clamp(1.5rem,2.6vw,2.15rem)]"
 							style={{ color: t.figure }}
 						>
-							<StatsCounter value={value} duration={1.6} start={start} />
+							<StatsCounter
+								value={value}
+								duration={COUNT_SECONDS}
+								start={start}
+							/>
 							{suffix ? (
 								<span style={{ fontVariationSettings: "'wght' 500" }}>
 									{suffix}
@@ -136,7 +148,11 @@ export function StatIndex({
 						)}
 						style={{ color: t.figure }}
 					>
-						<StatsCounter value={value} duration={1.6} start={start} />
+						<StatsCounter
+							value={value}
+							duration={COUNT_SECONDS}
+							start={start}
+						/>
 						{suffix ? (
 							<span style={{ fontVariationSettings: "'wght' 500" }}>
 								{suffix}

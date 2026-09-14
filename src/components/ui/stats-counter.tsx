@@ -60,9 +60,14 @@ export default function StatsCounter({
 			setDisplayValue(value);
 			return;
 		}
-		// Only arm once the gate is open, or the safety net would fire during
-		// the wait and hand over the finished figure before the count begins.
-		if (!start) return;
+		// Armed on `isInView`, not on `start` alone. Keyed on the gate by itself
+		// this fired for every counter still far below the fold - `start` is
+		// simply true from mount for most callers - and stamped the finished
+		// figure in ~2s flat. By the time you scrolled down to a band there was
+		// nothing left to count: every number on the page was already sitting at
+		// its final value. It is a net for an observer that never reports, so it
+		// belongs behind the same condition that starts the count.
+		if (!isInView || !start) return;
 		const t = setTimeout(
 			() => {
 				setDisplayValue((shown) => (shown === 0 ? value : shown));
@@ -70,7 +75,7 @@ export default function StatsCounter({
 			(duration + 0.6) * 1000,
 		);
 		return () => clearTimeout(t);
-	}, [still, value, duration, start]);
+	}, [still, value, duration, start, isInView]);
 
 	useEffect(() => {
 		const unsubscribe = springValue.on("change", (latest) => {

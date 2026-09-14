@@ -228,6 +228,28 @@ function FlipCard({
 			? [item.background, item.background]
 			: [prevBackground, item.background],
 	);
+	/**
+	 * The photograph is grey until this step is the one you are reading, and
+	 * greys out again as it leaves - so colour marks the card at centre, and
+	 * the pile above and below it stays a single monochrome set.
+	 *
+	 * That grade used to be baked into the files by scripts/build-journey-images.mjs,
+	 * which made this impossible: there is nothing to restore in a grayscale
+	 * webp. The six frames in the stack ship in colour now and are graded here
+	 * instead, on the same windows the entry and exit already use, so the
+	 * colour arrives with the card rather than on a timer of its own.
+	 *
+	 * The last card holds rather than exiting (`holds`), so it keeps its
+	 * colour rather than draining on a flip that never comes. Under reduced
+	 * motion nothing is scroll-linked at all and every frame simply stays in
+	 * colour.
+	 */
+	const grayscale = useTransform(
+		progress,
+		[entryStart, entryEnd, exitStart, exitEnd],
+		reduceMotion ? [0, 0, 0, 0] : holds ? [1, 0, 0, 0] : [1, 0, 0, 1],
+	);
+	const imageFilter = useMotionTemplate`grayscale(${grayscale})`;
 
 	return (
 		<motion.article
@@ -302,12 +324,13 @@ function FlipCard({
 				</div>
 
 				<div className="relative m-[clamp(10px,1.2vw,18px)] min-h-[140px] overflow-hidden rounded-[clamp(12px,1.4vw,22px)] sm:ml-0 sm:min-h-[180px]">
-					<img
+					<motion.img
 						src={item.image}
 						alt={item.imageAlt}
 						className="h-full w-full object-cover"
 						loading={index < 2 ? "eager" : "lazy"}
 						draggable={false}
+						style={{ filter: imageFilter }}
 					/>
 					<div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-white/10" />
 				</div>
