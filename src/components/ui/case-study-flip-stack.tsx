@@ -229,24 +229,34 @@ function FlipCard({
 			: [prevBackground, item.background],
 	);
 	/**
-	 * The photograph is grey until this step is the one you are reading, and
-	 * greys out again as it leaves - so colour marks the card at centre, and
-	 * the pile above and below it stays a single monochrome set.
+	 * Colour marks the card you are reading, and only that card: the pile
+	 * waiting behind it and the ones already flipped past it stay a single
+	 * monochrome set.
 	 *
-	 * That grade used to be baked into the files by scripts/build-journey-images.mjs,
-	 * which made this impossible: there is nothing to restore in a grayscale
-	 * webp. The six frames in the stack ship in colour now and are graded here
-	 * instead, on the same windows the entry and exit already use, so the
-	 * colour arrives with the card rather than on a timer of its own.
+	 * The grade used to be baked into the files by scripts/build-journey-images.mjs,
+	 * which made this impossible - there is nothing to restore in a grayscale
+	 * webp. The six frames in the stack ship in colour now and are graded here.
 	 *
-	 * The last card holds rather than exiting (`holds`), so it keeps its
-	 * colour rather than draining on a flip that never comes. Under reduced
-	 * motion nothing is scroll-linked at all and every frame simply stays in
-	 * colour.
+	 * These windows are deliberately NOT the entry/exit windows the card's
+	 * position uses. Entry opens a full segment early, because a card spends
+	 * that segment sliding up the stack behind the one in front - so grading on
+	 * it meant the next photograph was already better than half in colour while
+	 * it was still stacked behind the active card, and several frames carried
+	 * colour at once. The ramp is a quarter-segment instead, landing on `start`:
+	 * a card reaches full colour exactly as it arrives at centre, holds it while
+	 * it is the step being read, and drains across its flip - reaching grey at
+	 * `exitEnd`, the same instant the next card reaches full colour. One
+	 * handover, no overlap.
+	 *
+	 * The last card holds rather than exiting (`holds`), so it keeps its colour
+	 * rather than draining on a flip that never comes. Under reduced motion
+	 * nothing is scroll-linked and every frame simply stays in colour.
 	 */
+	const gradeEnd = index === 0 ? 0.0001 : start;
+	const gradeStart = index === 0 ? 0 : Math.max(0, start - segment * 0.25);
 	const grayscale = useTransform(
 		progress,
-		[entryStart, entryEnd, exitStart, exitEnd],
+		[gradeStart, gradeEnd, exitStart, exitEnd],
 		reduceMotion ? [0, 0, 0, 0] : holds ? [1, 0, 0, 0] : [1, 0, 0, 1],
 	);
 	const imageFilter = useMotionTemplate`grayscale(${grayscale})`;
