@@ -101,8 +101,13 @@ const STEPS: CaseStudyFlipItem[] = [
 			{ year: "2013", text: "Sat the 12th again, and scored 61%." },
 		],
 		image: "/journey/03-classroom.webp",
+		// This and step 03's alt were swapped: 03-classroom is built from the
+		// lectern frame and 05-press from the India Today panel, but each
+		// carried the other's description - so a screen reader was told this
+		// card showed a name card on a panel table, and the panel card showed a
+		// student at a lectern.
 		imageAlt:
-			"Gautam Kumawat on the India Today Future Talk panel, his name card on the table",
+			"A young man putting a question to the room from a lectern, classmates behind him",
 		background: STEP_GROUND.struggle,
 		foreground: NEAR_WHITE,
 	},
@@ -122,7 +127,7 @@ const STEPS: CaseStudyFlipItem[] = [
 		],
 		image: "/journey/05-press.webp",
 		imageAlt:
-			"A student at the lectern putting a question to the room, classmates behind him",
+			"Gautam Kumawat on the India Today Future Talk panel, his name card on the table",
 		background: STEP_GROUND.recognition,
 		foreground: NEAR_WHITE,
 	},

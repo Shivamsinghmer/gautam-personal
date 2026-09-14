@@ -49,7 +49,12 @@ const OUT = "public/journey";
 const JOBS = [
 	{ in: "public/collage/middle.jpg", out: "01-case-work.webp", position: "attention" },
 	{ in: "public/gautam.png", out: "02-agencies.webp", position: "top", grade: "mono" },
-	{ in: "public/collage/t2.webp", out: "03-classroom.webp", position: "attention" },
+	// "left", not "attention". The subject is the man at the lectern, and he
+	// stands in the left third of a wide frame - sharp's attention heuristic
+	// went for the livelier group of faces on the right instead and cropped him
+	// out of his own photograph entirely. Gravity beats the heuristic when you
+	// already know where the subject is.
+	{ in: "public/collage/t2.webp", out: "03-classroom.webp", position: "left" },
 	{ in: "public/collage/b2.webp", out: "04-stage.webp", position: "attention" },
 	{ in: "public/collage/b1.webp", out: "05-press.webp", position: "attention" },
 	{ in: "public/collage/t1.webp", out: "06-scale.webp", position: "attention" },
