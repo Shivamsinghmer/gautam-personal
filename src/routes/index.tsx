@@ -1,11 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import {
-	Building2,
-	CalendarRange,
-	Globe,
-	Mic2,
-	Newspaper,
-} from "lucide-react";
+import { Building2, CalendarRange, Globe, Mic2, Newspaper } from "lucide-react";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { AboutSection } from "#/components/about-section";
 import { AnimatedFooter } from "#/components/animated-footer";
@@ -261,28 +255,37 @@ function Home() {
 					// claim landed across his face.
 					className="pointer-events-none relative z-20 mx-auto flex w-full max-w-[104rem] flex-col justify-center self-stretch pt-24 pb-10 text-left sm:pt-28 sm:pb-14"
 				>
-					{/* The copy cascade is timed against the curtain, not after it.
-					    These delays used to start at 1.3s - 0.35s past the moment the
-					    overlay had completely gone - so the page uncovered onto a bare
-					    photograph, held, and then the words arrived: two events where
-					    there should be one. They now land through the curtain's last
-					    third, in reading order, so the text is already arriving as the
-					    edge passes over it. The figure is still rising underneath the
-					    whole cascade (2.1s) and the backdrop still settling (2.6s),
-					    which is what gives the opening its depth. */}
+					{/* The line is split across the composition rather than stacked in
+					    one corner: "A Man On" holds the left edge, "A Mission" the
+					    right, and the figure standing between them is what the sentence
+					    is about. Read left to right, he is literally in the middle of
+					    it.
+
+					    Only from `sm`. At 375px the two halves want ~345px of a 327px
+					    container, so below that they stack on the left as before -
+					    flanking a figure that already fills a phone screen would put
+					    display type across his chest.
+
+					    The delays now clear the curtain rather than riding it. The
+					    overlay takes 0.95s to lift (`gk-curtain-lift`), and these used
+					    to start at 0.72s so the words arrived through the travelling
+					    edge - deliberate then, because the old copy was a four-block
+					    cascade that wanted to overlap the reveal. Two words either side
+					    of the frame are a single beat, and a beat lands better after
+					    the thing it follows than underneath it. */}
 					<h1
-						className="display max-w-[12ch] text-[clamp(2.4rem,7vw,4.8rem)] sm:max-w-[14ch] sm:text-[clamp(2.4rem,5.2vw,5.2rem)]"
+						className="display flex w-full flex-col gap-1 text-[clamp(2.4rem,7vw,4.8rem)] sm:flex-row sm:items-center sm:justify-between sm:gap-10 sm:text-[clamp(2.4rem,5.2vw,5.2rem)]"
 						style={{ color: TYPE }}
 					>
 						<span
 							className="gk-line"
-							style={{ ["--gk-delay" as string]: "0.72s" }}
+							style={{ ["--gk-delay" as string]: "1.05s" }}
 						>
 							<span>A Man On</span>
 						</span>
 						<span
-							className="gk-line"
-							style={{ ["--gk-delay" as string]: "0.82s" }}
+							className="gk-line sm:text-right"
+							style={{ ["--gk-delay" as string]: "1.18s" }}
 						>
 							<span>A Mission</span>
 						</span>
