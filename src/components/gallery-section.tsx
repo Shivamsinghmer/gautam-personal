@@ -14,108 +14,176 @@ import { PAPER, PAPER_INK, PAPER_INK_SOFT } from "#/lib/palette";
  * just the collage with different photographs. So these are `<figure>`s.
  * Nothing to click, nothing to book.
  *
- * ## The wall
+ * ## One screen, and why that ruled out masonry
  *
- * Ten frames on paper, in a masonry of mixed tile ratios. Built to a reference
- * the client supplied: photographs at deliberately different sizes and heights
- * on a white ground, tight gaps, generous corner radius, no captions.
+ * Built to a supplied reference: a collage of ten photographs at deliberately
+ * different sizes and heights on white, tight gaps, generous radius, no
+ * captions, the whole thing taking a single screen.
  *
- * **The ratios are assigned, not inherited, and that is the whole mechanism.**
- * Every source here is a portrait phone frame at an identical 9:16, so a wall
- * that respected the source ratios would stack into a dead-even grid - the one
- * thing the reference is not. Each tile is given a ratio from `RATIOS` instead
- * and `object-cover` crops to it, which is what produces the staggered column
- * heights. The order of the list is therefore load-bearing: it is sequenced so
- * no two neighbouring tiles share a height.
+ * It is the *wall* that is a screen tall, not the section. The heading sits
+ * above it in normal flow and the section runs past the fold - which is the
+ * reference's own framing, where the wall fills the view and the heading is
+ * cropped off the top of it. Holding the section to `h-svh` instead would
+ * have meant the wall taking whatever the heading left over, and on a short
+ * laptop window that is not much.
  *
- * Cropping a 9:16 frame to 1:1 throws away a lot of picture, so the crops were
- * checked rather than assumed - each one rendered at its assigned ratio and
- * inspected for whether the subject survived. `object-center` holds for all
- * ten; where a crop needed biasing it is set per frame.
+ * The height constraint is what set the technique. This was `columns-*`
+ * masonry, and masonry cannot be held to a height: the column flow decides
+ * where each tile lands from its own intrinsic height, so the wall is as tall
+ * as it is and a fixed height on the parent would only clip it. The
+ * composition is explicit instead - five columns, two tiles each, the tiles
+ * sized by flex ratio rather than by aspect. Give the wall a height and the
+ * ratios divide it exactly, at any viewport.
  *
- * No captions, which is the reference and also the safer answer. The notes
- * this section used to carry named cities that had been read off the
- * photographs rather than from a source - a warning sat in this file asking
- * for them to be confirmed before shipping. The alt text names a place only
- * where the frame names itself (the Jungfraujoch sign, the Eiffel Tower,
- * Saint Basil's) and otherwise says what is visible and stops.
+ * Three things produce the reference's rhythm:
+ *
+ * - **`grow` per tile.** Within a column one tile takes more of the height
+ *   than the other, and which one varies column to column, so no two columns
+ *   break at the same place.
+ * - **`offset` per column.** A padding-top inside a fixed-height column both
+ *   drops that column's start and shortens the space its tiles divide, so the
+ *   columns disagree at the top *and* the bottom. That ragged lower edge is
+ *   most of what stops this reading as a grid.
+ * - **No shared crop.** Every source is a portrait phone frame at an identical
+ *   9:16, so respecting the sources would give ten tiles of one shape.
+ *   `object-cover` against the flex-derived box is what varies them.
+ *
+ * Cropping 9:16 into a landscape box discards a lot of picture, so the crops
+ * were rendered at their target shapes and checked rather than assumed. All
+ * ten subjects survive centred; `position` exists per tile for when one does
+ * not.
+ *
+ * ## Below `lg`
+ *
+ * One screen is a desktop composition and it does not survive translation: ten
+ * photographs inside a phone screen are ten postage stamps. So the height
+ * constraint is `lg`-only. Below it the same five columns wrap two-up and
+ * flow at their own height, with the tiles falling back from flex ratios to
+ * aspect ratios - `mobileRatio` is what they use when there is no fixed height
+ * to divide.
  *
  * ## The white
  *
- * This is now the page's second cut to daylight, after the press wall, and it
- * was asked for. Worth knowing what it costs: that wall's white was built as
- * *the* one break in a dark page, so a second one makes the device ordinary
- * rather than structural. The two are at least doing different jobs - one is
- * mastheads printed on white, this is a photo wall - and on white these
- * saturated frames carry themselves without the ring they needed on ink.
+ * This is the page's second cut to daylight, after the press wall, and it was
+ * asked for. Worth knowing the cost: that wall's white was built as *the* one
+ * break in a dark page, so a second makes the device ordinary rather than
+ * structural. They are at least doing different jobs - one is mastheads
+ * printed on white, this is a photo wall - and on white these saturated frames
+ * carry themselves without the ring they needed on ink.
+ *
+ * No captions, which is the reference and also the safer answer: the notes
+ * this section used to carry named cities read off the photographs rather than
+ * from a source. The alt text names a place only where the frame names itself
+ * (the Jungfraujoch sign, the Eiffel Tower, Saint Basil's) and otherwise says
+ * what is visible and stops.
  */
 
-interface Frame {
+interface Tile {
 	src: string;
 	alt: string;
-	/** Tailwind aspect class. Assigned for rhythm - see the note above. */
-	ratio: string;
-	/** Crop bias, where centring loses the subject. */
+	/** Share of its column's height at `lg`. Varied so columns break unevenly. */
+	grow: number;
+	/** Height when there is no column height to divide - below `lg`. */
+	mobileRatio: string;
+	/** Crop bias, where centring would lose the subject. */
 	position?: string;
 }
 
-/**
- * Four heights, cycled so neighbours differ. Tall, three-quarter, four-fifths
- * and square: enough spread to break the columns without any single tile
- * looking like a mistake.
- */
-const FRAMES: Frame[] = [
+/** `offset` drops the column's start and shortens what its tiles divide. */
+interface Column {
+	offset: string;
+	tiles: Tile[];
+}
+
+const COLUMNS: Column[] = [
 	{
-		src: "/gallery/eiffel-tower.webp",
-		alt: "Gautam Kumawat beneath the Eiffel Tower, lit gold against a night sky",
-		ratio: "aspect-[3/4]",
+		offset: "lg:pt-0 lg:pb-[6svh]",
+		tiles: [
+			{
+				src: "/gallery/eiffel-tower.webp",
+				alt: "Gautam Kumawat beneath the Eiffel Tower, lit gold against a night sky",
+				grow: 5,
+				mobileRatio: "aspect-[3/4]",
+			},
+			{
+				src: "/gallery/alpine-valley.webp",
+				alt: "Gautam Kumawat at a railing above a green alpine valley, a chalet below and cloud sitting on the peaks",
+				grow: 4,
+				mobileRatio: "aspect-[4/5]",
+			},
+		],
 	},
 	{
-		src: "/gallery/st-basils.webp",
-		alt: "Gautam Kumawat with both arms thrown wide in front of Saint Basil's Cathedral and its painted domes",
-		ratio: "aspect-[9/16]",
+		offset: "lg:pt-[8svh]",
+		tiles: [
+			{
+				src: "/gallery/st-basils.webp",
+				alt: "Gautam Kumawat with both arms thrown wide in front of Saint Basil's Cathedral and its painted domes",
+				grow: 6,
+				mobileRatio: "aspect-[9/16]",
+			},
+			{
+				src: "/gallery/city-dusk.webp",
+				alt: "Gautam Kumawat on a city street at dusk, towers and moving traffic behind him",
+				grow: 3,
+				mobileRatio: "aspect-[1/1]",
+			},
+		],
 	},
 	{
-		src: "/gallery/alpine-valley.webp",
-		alt: "Gautam Kumawat at a railing above a green alpine valley, a chalet below and cloud sitting on the peaks",
-		ratio: "aspect-[4/5]",
+		offset: "lg:pt-0 lg:pb-[13svh]",
+		tiles: [
+			{
+				src: "/gallery/jungfraujoch.webp",
+				alt: "Gautam Kumawat beside the Jungfraujoch 'Top of Europe' sign, snow and rock behind him",
+				grow: 4,
+				mobileRatio: "aspect-[4/5]",
+			},
+			{
+				src: "/gallery/palace-stairs.webp",
+				alt: "Gautam Kumawat seated on the balustraded staircase of a white and gold palace",
+				grow: 5,
+				mobileRatio: "aspect-[3/4]",
+			},
+		],
 	},
 	{
-		src: "/gallery/palace-stairs.webp",
-		alt: "Gautam Kumawat seated on the balustraded staircase of a white and gold palace",
-		ratio: "aspect-[1/1]",
+		offset: "lg:pt-[11svh] lg:pb-[3svh]",
+		tiles: [
+			{
+				src: "/gallery/glass-towers.webp",
+				alt: "Gautam Kumawat in front of a cluster of glass skyscrapers rising into haze",
+				grow: 5,
+				mobileRatio: "aspect-[3/4]",
+			},
+			{
+				src: "/gallery/rooftops.webp",
+				alt: "Gautam Kumawat at a parapet above a city of red tiled rooftops",
+				grow: 4,
+				mobileRatio: "aspect-[1/1]",
+			},
+		],
 	},
 	{
-		src: "/gallery/jungfraujoch.webp",
-		alt: "Gautam Kumawat beside the Jungfraujoch 'Top of Europe' sign, snow and rock behind him",
-		ratio: "aspect-[9/16]",
-	},
-	{
-		src: "/gallery/glass-towers.webp",
-		alt: "Gautam Kumawat in front of a cluster of glass skyscrapers rising into haze",
-		ratio: "aspect-[3/4]",
-	},
-	{
-		src: "/gallery/palace-flag.webp",
-		alt: "Gautam Kumawat on the steps of a gilded baroque palace, a flag flying from its roof",
-		ratio: "aspect-[1/1]",
-	},
-	{
-		src: "/gallery/rooftops.webp",
-		alt: "Gautam Kumawat at a parapet above a city of red tiled rooftops",
-		ratio: "aspect-[4/5]",
-	},
-	{
-		src: "/gallery/horse-statue.webp",
-		alt: "Gautam Kumawat at the plinth of a bronze statue of a man wrestling a rearing horse",
-		ratio: "aspect-[9/16]",
-	},
-	{
-		src: "/gallery/city-dusk.webp",
-		alt: "Gautam Kumawat on a city street at dusk, towers and moving traffic behind him",
-		ratio: "aspect-[3/4]",
+		offset: "lg:pt-[4svh] lg:pb-[9svh]",
+		tiles: [
+			{
+				src: "/gallery/palace-flag.webp",
+				alt: "Gautam Kumawat on the steps of a gilded baroque palace, a flag flying from its roof",
+				grow: 4,
+				mobileRatio: "aspect-[4/5]",
+			},
+			{
+				src: "/gallery/horse-statue.webp",
+				alt: "Gautam Kumawat at the plinth of a bronze statue of a man wrestling a rearing horse",
+				grow: 5,
+				mobileRatio: "aspect-[9/16]",
+			},
+		],
 	},
 ];
+
+const TILE_COUNT = COLUMNS.reduce((n, c) => n + c.tiles.length, 0);
 
 export function GallerySection() {
 	return (
@@ -125,77 +193,91 @@ export function GallerySection() {
 			style={{ backgroundColor: PAPER }}
 		>
 			<div className="mx-auto w-full max-w-6xl">
-				{/* The running head the journey section opens with - a rule with the
-				    span at one end and the count at the other. Reused rather than
-				    reinvented, which makes it the page's grammar instead of a device
-				    that appears once. `--rule-paper` and the paper inks, because on
-				    white the white/20 rule and white/60 label of the dark sections
-				    would both be invisible. The count is read off the list so it
-				    cannot drift from what renders. */}
-				<Reveal>
-					<div className="flex items-center justify-between gap-6 border-t border-[color:var(--rule-paper)] pt-5">
-						<p
-							className="text-[0.7rem] font-semibold uppercase"
-							style={{ color: PAPER_INK_SOFT, letterSpacing: "0.18em" }}
-						>
-							Off the stage
-						</p>
-						<p
-							className="tnum text-[0.7rem] font-semibold uppercase"
-							style={{ color: PAPER_INK_SOFT, letterSpacing: "0.18em" }}
-						>
-							{FRAMES.length} frames
-						</p>
-					</div>
-				</Reveal>
-
-				{/* Heading left, standfirst right on the same baseline - the same row
-				    the journey and the collage open with. */}
-				<div className="mt-9 lg:flex lg:items-end lg:justify-between lg:gap-20">
+				<div>
+					{/* The running head the journey section opens with - a rule with
+					    the span at one end and the count at the other. Reused rather
+					    than reinvented, which makes it the page's grammar instead of a
+					    device that appears once. `--rule-paper` and the paper inks:
+					    on white, the dark sections' white/20 rule and white/60 label
+					    would both be invisible. The count is derived from the columns
+					    so it cannot drift from what renders. */}
 					<Reveal>
-						<h2
-							className="display max-w-[11ch] text-balance text-[clamp(2.3rem,5vw,4.1rem)]"
-							style={{ color: PAPER_INK }}
-						>
-							The rest of it
-						</h2>
+						<div className="flex items-center justify-between gap-6 border-t border-[color:var(--rule-paper)] pt-5">
+							<p
+								className="text-[0.7rem] font-semibold uppercase"
+								style={{ color: PAPER_INK_SOFT, letterSpacing: "0.18em" }}
+							>
+								Off the stage
+							</p>
+							<p
+								className="tnum text-[0.7rem] font-semibold uppercase"
+								style={{ color: PAPER_INK_SOFT, letterSpacing: "0.18em" }}
+							>
+								{TILE_COUNT} frames
+							</p>
+						</div>
 					</Reveal>
 
-					<Reveal delay={0.08}>
-						<p
-							className="mt-5 max-w-[40ch] text-[0.95rem] leading-relaxed text-pretty sm:text-base lg:mt-0 lg:pb-3 lg:text-right"
-							style={{ color: PAPER_INK_SOFT }}
-						>
-							Twenty-one countries, and not one of them for the conference room.
-						</p>
-					</Reveal>
+					{/* Heading left, standfirst right on the same baseline - the same
+					    row the journey and the collage open with, at the same clamps,
+					    because the wall below no longer has to be squeezed out of
+					    whatever this leaves behind. */}
+					<div className="mt-9 lg:flex lg:items-end lg:justify-between lg:gap-20">
+						<Reveal>
+							<h2
+								className="display max-w-[11ch] text-balance text-[clamp(2.3rem,5vw,4.1rem)]"
+								style={{ color: PAPER_INK }}
+							>
+								The rest of it
+							</h2>
+						</Reveal>
+
+						<Reveal delay={0.08}>
+							<p
+								className="mt-5 max-w-[40ch] text-[0.95rem] leading-relaxed text-pretty sm:text-base lg:mt-0 lg:pb-3 lg:text-right"
+								style={{ color: PAPER_INK_SOFT }}
+							>
+								Twenty-one countries, and not one of them for the conference
+								room.
+							</p>
+						</Reveal>
+					</div>
 				</div>
 
-				{/* Masonry. `break-inside-avoid` is what stops a figure being split
-				    across a column break - without it the browser balances the
-				    columns by slicing a tile in half. */}
+				{/* The wall, one screen tall at `lg`. `svh` rather than `vh` for the
+				    reason the hero uses it: `vh` is the viewport with the browser
+				    chrome retracted, the tallest it ever gets, so a `vh` box is
+				    taller than what is actually on screen while the address bar
+				    shows. Below `lg` the height comes off and the columns wrap
+				    two-up at their own height. */}
 				<RevealGroup
-					className="mt-12 columns-2 gap-3 sm:columns-3 sm:gap-4 lg:mt-16 lg:columns-4"
+					className="mt-12 flex flex-wrap gap-3 sm:gap-4 lg:mt-16 lg:h-svh lg:flex-nowrap"
 					stagger={0.05}
 				>
-					{FRAMES.map((frame) => (
+					{COLUMNS.map((column) => (
 						<RevealItem
-							key={frame.src}
-							className="mb-3 break-inside-avoid sm:mb-4"
+							key={column.tiles[0].src}
+							className={`flex basis-[calc(50%-0.375rem)] flex-col gap-3 sm:basis-[calc(50%-0.5rem)] sm:gap-4 lg:h-full lg:basis-0 lg:grow ${column.offset}`}
 						>
-							{/* A soft shadow rather than the ring these carried on ink. A
-							    hairline that read as a frame edge on near-black reads as a
-							    grey box on paper; a shadow lifts the photograph off the
-							    white instead, which is what the reference does. */}
-							<figure className="group m-0 overflow-hidden rounded-2xl shadow-[0_2px_10px_-2px_rgb(10_10_10/0.12),0_12px_28px_-12px_rgb(10_10_10/0.18)]">
-								<img
-									src={frame.src}
-									alt={frame.alt}
-									loading="lazy"
-									decoding="async"
-									className={`block h-full w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100 ${frame.ratio} ${frame.position ?? "object-center"}`}
-								/>
-							</figure>
+							{column.tiles.map((tile) => (
+								<figure
+									key={tile.src}
+									// `flex-grow` with `basis-0` at lg, so the tile takes its
+									// share of the column rather than its own intrinsic
+									// height. Below lg there is no column height to divide, so
+									// the aspect class carries it instead.
+									className={`group m-0 overflow-hidden rounded-2xl shadow-[0_2px_10px_-2px_rgb(10_10_10/0.12),0_12px_28px_-12px_rgb(10_10_10/0.18)] lg:min-h-0 lg:basis-0 ${tile.mobileRatio} lg:aspect-auto`}
+									style={{ flexGrow: tile.grow }}
+								>
+									<img
+										src={tile.src}
+										alt={tile.alt}
+										loading="lazy"
+										decoding="async"
+										className={`block h-full w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100 ${tile.position ?? "object-center"}`}
+									/>
+								</figure>
+							))}
 						</RevealItem>
 					))}
 				</RevealGroup>
