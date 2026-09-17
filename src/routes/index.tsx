@@ -277,14 +277,23 @@ function Home() {
 						className="display flex w-full flex-col gap-1 text-[clamp(2.4rem,7vw,4.8rem)] sm:flex-row sm:items-center sm:justify-between sm:gap-10 sm:text-[clamp(2.4rem,5.2vw,5.2rem)]"
 						style={{ color: TYPE }}
 					>
+						{/* Staggered off the shared baseline - the left half lifted, the
+						    right dropped - so the pair reads as a diagonal across his
+						    face rather than as one line a photograph happens to interrupt.
+
+						    `translate`, not margin: the offset is purely optical, and
+						    leaving the layout boxes where they are keeps the h1 centred
+						    on its own midpoint. It also stays clear of the entrance -
+						    that animation transforms the inner span, this transforms the
+						    masking one, so neither overwrites the other. */}
 						<span
-							className="gk-line"
+							className="gk-line sm:-translate-y-6 lg:-translate-y-10"
 							style={{ ["--gk-delay" as string]: "1.05s" }}
 						>
 							<span>A Man On</span>
 						</span>
 						<span
-							className="gk-line sm:text-right"
+							className="gk-line sm:translate-y-6 sm:text-right lg:translate-y-10"
 							style={{ ["--gk-delay" as string]: "1.18s" }}
 						>
 							<span>A Mission</span>

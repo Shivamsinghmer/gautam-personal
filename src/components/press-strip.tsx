@@ -1,4 +1,5 @@
 import { Reveal } from "#/components/ui/scroll-reveal";
+import { PAPER } from "#/lib/palette";
 import { PRESS } from "#/lib/press";
 
 /**
@@ -16,10 +17,21 @@ import { PRESS } from "#/lib/press";
  * The list is imported from lib/press.ts, the same one the press wall renders,
  * so the two cannot drift apart.
  *
- * The marks are dark artwork on transparency, so on this field
- * `brightness-0 invert` flattens each to its alpha and lifts it to white; the
- * two broadcast bugs are filled tiles, which that would swallow, so they
- * desaturate instead.
+ * ## Why the row sits on paper
+ *
+ * The marks run in their own brand colours, and that is only possible because
+ * the row has its own light ground. They cannot do it on the section's field:
+ * these are dark inks on transparency, and five of the eleven have no colour
+ * to reveal at all - economic-times and times-of-india are pure black paths,
+ * the-hindu is #161615, hindustan-times sets its wordmark in #333, and ndtv's
+ * is flat black with only the dot in red. Dropped onto near-black they do not
+ * turn colourful, they disappear.
+ *
+ * That is the same problem the press wall solved by cutting to daylight -
+ * mastheads live on white, which is where they are printed - so this strip
+ * takes the same answer rather than inventing a second one. One band of paper,
+ * the site's own `PAPER`, with the marquee masked to fade into it at both
+ * ends. Which also means this is not eleven cards: it is one surface.
  */
 
 /**
@@ -55,36 +67,47 @@ export function PressStrip({ className }: { className?: string }) {
 				</p>
 			</div>
 
-			<div className="mt-6 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]">
-				<div
-					className="gk-marquee flex w-max items-center"
-					style={{ "--gk-marquee-copies": COPIES } as React.CSSProperties}
-				>
-					{Array.from({ length: COPIES }).flatMap((_, copy) =>
-						PRESS.map((press) => (
-							<span
-								// biome-ignore lint/suspicious/noArrayIndexKey: the same list is laid down COPIES times on purpose, so the outlet name alone is not unique - the pass number is the rest of the identity, and neither the list nor its order ever changes
-								key={`${press.name}-${copy}`}
-								className="flex shrink-0 items-center pr-12 sm:pr-16"
-								// Only the first pass is read out; the rest are the same
-								// eleven names again and would be announced as a list of
-								// thirty-three outlets.
-								aria-hidden={copy > 0 ? "true" : undefined}
-							>
-								<img
-									src={press.src}
-									alt={copy > 0 ? "" : press.name}
-									loading="lazy"
-									decoding="async"
-									className={`w-auto object-contain ${press.size} ${
-										press.tile
-											? "rounded-[3px] opacity-70 grayscale"
-											: "opacity-60 brightness-0 invert"
-									}`}
-								/>
-							</span>
-						)),
-					)}
+			{/* The band. `overflow-hidden` lives here so the paper keeps its own
+			    square corners while the mask inside fades only the marks - masking
+			    the band itself would fade the ground out at both ends and leave the
+			    row floating on nothing. */}
+			<div
+				className="mt-6 overflow-hidden rounded-lg py-5"
+				style={{ backgroundColor: PAPER }}
+			>
+				<div className="overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]">
+					<div
+						className="gk-marquee flex w-max items-center"
+						style={{ "--gk-marquee-copies": COPIES } as React.CSSProperties}
+					>
+						{Array.from({ length: COPIES }).flatMap((_, copy) =>
+							PRESS.map((press) => (
+								<span
+									// biome-ignore lint/suspicious/noArrayIndexKey: the same list is laid down COPIES times on purpose, so the outlet name alone is not unique - the pass number is the rest of the identity, and neither the list nor its order ever changes
+									key={`${press.name}-${copy}`}
+									className="flex shrink-0 items-center pr-12 sm:pr-16"
+									// Only the first pass is read out; the rest are the same
+									// eleven names again and would be announced as a list of
+									// thirty-three outlets.
+									aria-hidden={copy > 0 ? "true" : undefined}
+								>
+									{/* No filter and no opacity. Both existed to make dark
+								    artwork legible on a dark field; on paper they would
+								    only be throwing away the colour this row is for, and
+								    a masthead at 60% is a masthead you are hedging on. */}
+									<img
+										src={press.src}
+										alt={copy > 0 ? "" : press.name}
+										loading="lazy"
+										decoding="async"
+										className={`w-auto object-contain ${press.size} ${
+											press.tile ? "rounded-[3px]" : ""
+										}`}
+									/>
+								</span>
+							)),
+						)}
+					</div>
 				</div>
 			</div>
 		</Reveal>
