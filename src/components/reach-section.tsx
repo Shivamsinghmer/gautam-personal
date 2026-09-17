@@ -122,19 +122,27 @@ export function ReachSection() {
 					</figure>
 				</Reveal>
 
-				<div className="mt-8 grid gap-8 sm:mt-10 lg:grid-cols-[22rem_minmax(0,1fr)] lg:items-center lg:gap-14">
+				<div className="mt-8 grid gap-8 sm:mt-10 lg:grid-cols-[55%_minmax(0,1fr)] lg:items-center lg:gap-14">
 					<Reveal direction="right">
-						{/* 3:2 at every size now, where this was 3:2 on a phone and 4:3
-						    from `sm` - a landscape card, which is the proportion the
-						    reference for this block carries.
+						{/* 2:1 at 55% of the measure, where this was 4:3 inside a fixed
+						    22rem column - the proportion and the share the reference for
+						    this block carries.
 
-						    Still capped at a fixed 22rem from lg rather than sized off a
-						    grid fraction: the fr-based column used to render the card at
-						    574×431, which on its own was most of what pushed the section
-						    past one screen. The ratio change is free against that budget
-						    - 3:2 at 22rem is 235px tall where 4:3 was 264px - so the card
-						    got wider in proportion without getting taller in fact. */}
-						<figure className="relative m-0 aspect-[3/2] max-w-[22rem] overflow-hidden rounded-[1.5rem]">
+						    The fixed cap it replaces was there for a reason worth
+						    restating: an `fr`-sized column once rendered this card at
+						    574x431 and that alone was most of what pushed the section past
+						    one screen. This is wider than that (634px) and still costs
+						    less height, because 2:1 is so much shallower than 4:3: 317px
+						    against 431. The section runs a little past one screen as a
+						    result, which is the trade the width asked for.
+
+						    A ratio, not a crop. See the reach job in
+						    build-journey-images.mjs: 2:1 cannot be cropped out of this
+						    photograph without taking the top of his head off, so the plate
+						    is built at 2:1 by extending the studio sweep instead. The card
+						    and the file are the same shape, which is why there is no
+						    `object-position` here to tune. */}
+						<figure className="relative m-0 aspect-[2/1] overflow-hidden rounded-[1.5rem]">
 							{/* The plate keeps its own white studio ground, so this card is the
 							    page's one cut to daylight outside the press wall. That is why
 							    there is nothing layered over it: the blue wash this card used to
@@ -147,20 +155,15 @@ export function ReachSection() {
 							    invisible on white, and the old radial highlight was white light
 							    drawn on a white ground. White on near-black draws its own edge.
 
-							    A dedicated 3:2 derivative, and no `object-position`. This used
-							    `02-agencies.webp` - an 800x1000 plate already cropped out of a
-							    square original with `top` gravity - and then cropped that again
-							    to the card's ratio. Two crops deep there is no headroom left to
-							    bias: at 3:2 the hair meets the top edge and the shoulders go.
-							    `02-agencies-wide.webp` is cut straight from the square source at
-							    the ratio this card renders, so the framing is the crop rather
-							    than a rescue of it. 3:2 is as wide as this photograph goes -
-							    16:10 crowds the hair, 16:9 clips it - so a wider card than this
-							    wants a differently composed photograph. */}
+							    The plate is `02-agencies-wide.webp`, built for this card. It
+							    used to be `02-agencies.webp` - an 800x1000 frame already cut
+							    out of the square original with `top` gravity - cropped a second
+							    time to the card's ratio, and two crops deep there is no
+							    headroom left to bias with `object-position`. */}
 							<img
 								src="/journey/02-agencies-wide.webp"
 								alt="Studio portrait of Gautam Kumawat"
-								width={1200}
+								width={1600}
 								height={800}
 								loading="lazy"
 								decoding="async"

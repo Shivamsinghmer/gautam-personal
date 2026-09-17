@@ -76,26 +76,31 @@ const JOBS = [
 		position: "attention",
 		sharpen: true,
 	},
-	// The reach card, and the one job here that is not 800x1000.
+	// The reach card, and the one job here that is neither 800x1000 nor a crop.
 	//
-	// That section's card is a landscape frame, and it had been cropping
-	// `02-agencies.webp` to get there - cropping a derivative that was itself
-	// already cropped out of the square original with `top` gravity. Two crops
-	// deep the headroom is gone: at 3:2 his hair touches the top edge and the
-	// shoulders are cut, and anything wider takes the top of his head off.
+	// That card is 2:1, and cropping cannot get a 2:1 frame out of this
+	// photograph. The source is a 900x927 square; at 2:1 a crop keeps only the
+	// middle 45% of its height, which takes the top of his hair and his chin
+	// with it. Rendered and checked at every step on the way: 3:2 is the
+	// widest crop that survives, 16:10 crowds the hair against the top edge,
+	// 16:9 clips it, 2:1 is a band across the face.
 	//
-	// Cut straight from the square source instead, at the ratio the card
-	// actually renders, there is room for the whole head plus shoulders and
-	// the studio ground around them. 3:2 is the widest this photograph will
-	// go - 16:10 crowds the hair against the top and 16:9 clips it - so a
-	// wider card than this needs a differently composed photograph, not a
-	// different crop.
+	// So the frame is widened rather than the picture cropped. The whole
+	// figure is fitted to the output height and the studio sweep is extended
+	// sideways to reach 2:1, which works because the sweep is flat: measured,
+	// its edge columns run 248-255 and are pure 255 at mid-height.
+	// `extendWith: "copy"` replicates those edge pixels rather than filling
+	// with a flat colour - a flat fill leaves a visible tonal step where the
+	// plate's slight vignette meets it.
+	//
+	// `left` is smaller than `right` on purpose: it places him left of centre
+	// with the open sweep to his right, which is the reference's composition
+	// and, on this page, points the empty half at the copy column beside it.
 	{
 		in: "public/gautam.png",
 		out: "02-agencies-wide.webp",
-		position: "top",
 		grade: "mono",
-		size: { width: 1200, height: 800 },
+		extend: { width: 1600, height: 800, left: 150 },
 	},
 ];
 
@@ -103,13 +108,29 @@ mkdirSync(OUT, { recursive: true });
 
 for (const job of JOBS) {
 	const mono = job.grade === "mono";
-	// 800x1000 is the stack's card; `size` is the override for the one job
-	// that feeds a landscape frame elsewhere.
-	const { width, height } = job.size ?? { width: 800, height: 1000 };
-	let pipeline = sharp(job.in).resize(width, height, {
-		fit: "cover",
-		position: job.position,
-	});
+	// Every job but one is a cover-crop to the stack's 800x1000 card. `extend`
+	// is the other shape: fit the whole picture to the output height, then
+	// replicate its edges outward to the target width. See the reach card's
+	// note in JOBS for why that job cannot be a crop.
+	let pipeline = sharp(job.in);
+	if (job.extend) {
+		const fitted = await sharp(job.in)
+			.flatten({ background: "#ffffff" })
+			.resize({ height: job.extend.height })
+			.toBuffer({ resolveWithObject: true });
+		pipeline = sharp(fitted.data).extend({
+			top: 0,
+			bottom: 0,
+			left: job.extend.left,
+			right: job.extend.width - job.extend.left - fitted.info.width,
+			extendWith: "copy",
+		});
+	} else {
+		pipeline = pipeline.resize(800, 1000, {
+			fit: "cover",
+			position: job.position,
+		});
+	}
 	if (mono) pipeline = pipeline.grayscale();
 	// Only the upscaled thumbnail asks for this; every other source is larger
 	// than the output and comes out of the resize sharp already.
