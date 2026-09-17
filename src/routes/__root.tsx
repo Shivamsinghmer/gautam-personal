@@ -3,6 +3,7 @@ import { createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { ReactLenis } from "lenis/react";
 import signatureLogo from "#/assets/signature.svg";
+import { BackgroundAudio } from "#/components/background-audio";
 import type { MenuGroup } from "#/components/floating-menu";
 import { FloatingMenu } from "#/components/floating-menu";
 import { SOCIALS } from "#/lib/socials";
@@ -139,6 +140,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
 							</a>
 						}
 					/>
+					{/* Off until asked, and it owns its own control - see the file for
+					    why this is never an autoplaying track. */}
+					<BackgroundAudio />
 				</ReactLenis>
 				{/* `once` per browser session. The overlay locks scrolling and holds
 				    the page for the length of the writing plus the hold and fade -
