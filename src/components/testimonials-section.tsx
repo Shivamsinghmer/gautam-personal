@@ -10,14 +10,29 @@ const UNSPLASH = (id: string, w: number, h: number) =>
 	`https://images.unsplash.com/photo-${id}?w=${w}&h=${h}&q=80&auto=format&fit=crop`;
 
 /**
- * Placeholder portraits (Unsplash) and placeholder quotes under generic
- * designations rather than named individuals - stand-ins for real testimonial
- * photos and quotes from officers Gautam has trained. Swap for the real
- * thing before this ships.
+ * Placeholder quotes under generic designations rather than named individuals -
+ * stand-ins for real testimonial copy from officers Gautam has trained. Swap
+ * for the real thing before this ships.
+ *
+ * ⚠️ TWO ROWS NOW CARRY PHOTOGRAPHS OF REAL, IDENTIFIABLE PEOPLE, AND THEY ARE
+ * THERE TO TEST THE LAYOUT WITH REAL PORTRAITS - NOTHING MORE.
+ *
+ * The quotes beside them are invented and the designations are generic on
+ * purpose: nobody is named, so no real person is shown saying anything. Those
+ * two facts are what keep this honest, and they have to stay true together. The
+ * moment a real name is typed next to one of these invented quotes, the page is
+ * publishing a fabricated endorsement by a former Deputy National Security
+ * Advisor and a serving DG of Police - which is a defamation and false-
+ * endorsement claim from people well placed to bring one, quite apart from
+ * what it would do to the credibility this whole site exists to build.
+ *
+ * So: real quotes, or generic attributions. Never a real name on an invented
+ * one. The image rights are a separate open question - both files came off
+ * Wikipedia and Instagram rather than from the subjects.
  */
 const TESTIMONIALS: Omit<PerspectiveCarouselItem, "title">[] = [
 	{
-		src: UNSPLASH("1519085360753-af0119f7cbe7", 480, 640),
+		src: "/testimonials/pankaj-kumar-singh.avif",
 		alt: "Portrait of a senior police officer",
 		name: "Deputy Superintendent of Police",
 		role: "State Police, Cyber Cell",
@@ -25,7 +40,7 @@ const TESTIMONIALS: Omit<PerspectiveCarouselItem, "title">[] = [
 			"The training reshaped how our unit approaches digital evidence - practical, current, and built for the field, not a classroom.",
 	},
 	{
-		src: UNSPLASH("1573496359142-b8d87734a5a2", 480, 640),
+		src: "/testimonials/navdeep-singh-virk.jpg",
 		alt: "Portrait of a police training academy officer",
 		name: "Faculty",
 		role: "Police Training Academy",
