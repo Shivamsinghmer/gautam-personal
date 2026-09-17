@@ -6,27 +6,33 @@ import { useCallback, useEffect, useRef, useState } from "react";
 /**
  * The site's background track, and the control that owns it.
  *
- * It does not start on its own, and that is not a limitation being worked
- * around - it is the only correct behaviour here, for three separate reasons:
+ * On by default, as far as a browser will actually allow - which is the whole
+ * difficulty. Chrome, Safari and Firefox all reject `play()` with sound until
+ * the page has had a user gesture, so "autoplay" cannot be implemented as
+ * "call play() on mount" and be done with it. That call is still made, because
+ * it does succeed for a returning visitor Chrome has built up media engagement
+ * for; when it is refused, the track is armed against the first gesture the
+ * visitor makes anyway - a click, a key, a touch - and starts there instead.
  *
- * 1. Browsers block it. Chrome, Safari and Firefox all refuse `play()` with
- *    sound before a user gesture, so an "autoplay" track would simply throw on
- *    first load and play for nobody.
- * 2. WCAG 2.2 SC 1.4.2 (Audio Control) requires a way to stop any sound that
- *    plays automatically for more than three seconds. PRODUCT.md targets AA.
- * 3. Two of this site's audiences arrive on a desktop during working hours -
- *    a training coordinator opening a candidate's site at their desk is the
- *    worst possible person to startle with music.
+ * So the sequence is: try immediately, and failing that, start at the first
+ * thing they do. Nobody has to find the button to hear it.
  *
- * So the button is the feature: off until asked, and one click away either
- * direction. The choice is remembered, and on a return visit playback is
- * attempted once - if the browser blocks it, the control simply shows as off
- * rather than lying about its state.
+ * Two things this deliberately keeps:
  *
- * `preload="none"` is load-bearing. The file is ~6.4MB, four times the hero
- * plate, and fetching it on every visit to a page almost nobody will turn the
- * sound on for would be the single most expensive thing this site downloads.
- * Nothing is requested until the first click.
+ * - **An explicit "off" is permanent.** Turning it off stores that, and no
+ *   later visit or gesture overrides it. Autoplay is the default, not a thing
+ *   that keeps reasserting itself over someone who has said no.
+ * - **The control stays visible and reachable.** WCAG 2.2 SC 1.4.2 does not
+ *   forbid autoplaying audio; it requires a mechanism to stop it when it runs
+ *   past three seconds. The button is that mechanism, which is what keeps this
+ *   conformant - so it must never be hidden or moved behind a menu.
+ *
+ * `preload="none"` stays. The track is fetched when playback is first
+ * attempted rather than on every page load, which matters because the request
+ * now happens for essentially every visitor: at 256kbps stereo this file was
+ * 6.4MB, more than the hero plate, and is re-encoded to 96kbps mono (2.3MB) on
+ * the grounds that nothing playing at 28% volume behind a web page needs
+ * mastering bitrate.
  */
 
 const SRC = "/bgm.mp3";
@@ -35,6 +41,14 @@ const PREF_KEY = "gk:bgm";
 const VOLUME = 0.28;
 /** A cut to silence reads as a fault. This is short enough not to feel slow. */
 const FADE_MS = 650;
+/**
+ * What counts as the gesture that unlocks audio. `pointerdown` rather than
+ * `click` so the preloader's own dismiss-on-tap counts, and `scroll` because
+ * on this page that is the first thing most people do - it is not a gesture
+ * that unlocks audio on its own in every engine, but where it does, it is the
+ * earliest one available.
+ */
+const GESTURES = ["pointerdown", "keydown", "touchstart", "scroll"] as const;
 
 export function BackgroundAudio() {
 	const [on, setOn] = useState(false);
@@ -61,26 +75,62 @@ export function BackgroundAudio() {
 		fadeRef.current = requestAnimationFrame(step);
 	}, []);
 
-	// A visitor who turned it on last time gets it back, if the browser allows.
-	// A rejected play() is the expected path, not an error: it just means this
-	// visit has not had a gesture yet, and the control stays off until it does.
+	// Start it, one way or the other.
+	//
+	// The immediate attempt is expected to be refused on a first visit - that is
+	// not an error, it is the autoplay policy doing its job - so a refusal arms
+	// the same attempt against the first gesture instead. Only an explicit
+	// "off" stops both paths.
 	useEffect(() => {
 		let stored: string | null = null;
 		try {
 			stored = localStorage.getItem(PREF_KEY);
 		} catch {
-			// Private mode, or storage blocked. Treat as "no preference".
+			// Private mode, or storage blocked. Treat as "no preference", which
+			// means on - the default.
 		}
-		if (stored !== "on") return;
+		if (stored === "off") return;
+
 		const el = audioRef.current;
 		if (!el) return;
-		el.volume = 0;
-		el.play()
-			.then(() => {
-				fadeTo(VOLUME);
-				setOn(true);
-			})
-			.catch(() => {});
+
+		let done = false;
+		const cleanup = () => {
+			for (const type of GESTURES) {
+				window.removeEventListener(type, onGesture);
+			}
+		};
+
+		const start = () => {
+			if (done) return;
+			el.volume = 0;
+			return el
+				.play()
+				.then(() => {
+					done = true;
+					cleanup();
+					fadeTo(VOLUME);
+					setOn(true);
+					return true;
+				})
+				.catch(() => false);
+		};
+
+		function onGesture() {
+			start();
+		}
+
+		start().then((ok) => {
+			// Blocked. Wait for the visitor to do anything at all, then retry -
+			// `once` is not used because a gesture can arrive before the file is
+			// ready and fail again; the listeners are removed on success instead.
+			if (ok || done) return;
+			for (const type of GESTURES) {
+				window.addEventListener(type, onGesture, { passive: true });
+			}
+		});
+
+		return cleanup;
 	}, [fadeTo]);
 
 	useEffect(
