@@ -76,13 +76,37 @@ const JOBS = [
 		position: "attention",
 		sharpen: true,
 	},
+	// The reach card, and the one job here that is not 800x1000.
+	//
+	// That section's card is a landscape frame, and it had been cropping
+	// `02-agencies.webp` to get there - cropping a derivative that was itself
+	// already cropped out of the square original with `top` gravity. Two crops
+	// deep the headroom is gone: at 3:2 his hair touches the top edge and the
+	// shoulders are cut, and anything wider takes the top of his head off.
+	//
+	// Cut straight from the square source instead, at the ratio the card
+	// actually renders, there is room for the whole head plus shoulders and
+	// the studio ground around them. 3:2 is the widest this photograph will
+	// go - 16:10 crowds the hair against the top and 16:9 clips it - so a
+	// wider card than this needs a differently composed photograph, not a
+	// different crop.
+	{
+		in: "public/gautam.png",
+		out: "02-agencies-wide.webp",
+		position: "top",
+		grade: "mono",
+		size: { width: 1200, height: 800 },
+	},
 ];
 
 mkdirSync(OUT, { recursive: true });
 
 for (const job of JOBS) {
 	const mono = job.grade === "mono";
-	let pipeline = sharp(job.in).resize(800, 1000, {
+	// 800x1000 is the stack's card; `size` is the override for the one job
+	// that feeds a landscape frame elsewhere.
+	const { width, height } = job.size ?? { width: 800, height: 1000 };
+	let pipeline = sharp(job.in).resize(width, height, {
 		fit: "cover",
 		position: job.position,
 	});
