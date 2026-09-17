@@ -39,6 +39,30 @@
 import { mkdirSync } from "node:fs";
 import sharp from "sharp";
 
+/**
+ * ## The twelve travel frames, and the HEIC problem
+ *
+ * They arrived as iPhone HEIC files dropped straight into `public/gallery/`,
+ * which could not have shipped: no browser but Safari renders HEIC, so every
+ * one of them would have been a broken image, and 22MB of unservable file
+ * would have gone into the build regardless.
+ *
+ * They also cannot be processed here. sharp reports HEIF input support and
+ * reads their metadata happily, but full decode dies on these particular
+ * files - `bad seek`, then `heif: Decoder plugin generated an error`. ffmpeg
+ * decodes them fine, so the import was a one-time step outside this script:
+ *
+ *   ffmpeg -y -i IMG_xxxx.HEIC -frames:v 1 -q:v 2 out.jpg
+ *
+ * (HEIC stores a tiled grid, so ffmpeg builds a complex filtergraph for it
+ * and will reject a plain `-vf scale` alongside that - decode at native size
+ * and let sharp resize.)
+ *
+ * What is committed is the result: 1600px JPEGs in `photos/gallery/` as the
+ * re-runnable originals, and the derivatives below. Re-running this script
+ * reproduces `public/gallery/` from those; reproducing `photos/gallery/`
+ * needs the HEICs and the ffmpeg line above.
+ */
 const SRC = "photos";
 const OUT = "public/gallery";
 
@@ -53,6 +77,23 @@ const JOBS = [
 	{ in: "budapest-anonymus.jpg", out: "budapest-anonymus.webp", width: 900 },
 	{ in: "budapest-parliament.jpg", out: "budapest-parliament.webp", width: 900 },
 	{ in: "moscow-embankment.jpg", out: "moscow-embankment.webp", width: 900 },
+
+	// The travel wall. All twelve are portrait phone frames, and 900 is the cap
+	// for the same reason the three above take it: the widest a mosaic column
+	// gets is a quarter of a 72rem container (~264px), so 900 already covers a
+	// 2x DPR twice over.
+	{ in: "gallery/city-square.jpg", out: "city-square.webp", width: 900 },
+	{ in: "gallery/eiffel-tower.jpg", out: "eiffel-tower.webp", width: 900 },
+	{ in: "gallery/mountain-train.jpg", out: "mountain-train.webp", width: 900 },
+	{ in: "gallery/jungfraujoch.jpg", out: "jungfraujoch.webp", width: 900 },
+	{ in: "gallery/alpine-valley.jpg", out: "alpine-valley.webp", width: 900 },
+	{ in: "gallery/st-basils.jpg", out: "st-basils.webp", width: 900 },
+	{ in: "gallery/glass-towers.jpg", out: "glass-towers.webp", width: 900 },
+	{ in: "gallery/palace-flag.jpg", out: "palace-flag.webp", width: 900 },
+	{ in: "gallery/palace-stairs.jpg", out: "palace-stairs.webp", width: 900 },
+	{ in: "gallery/horse-statue.jpg", out: "horse-statue.webp", width: 900 },
+	{ in: "gallery/city-dusk.jpg", out: "city-dusk.webp", width: 900 },
+	{ in: "gallery/rooftops.jpg", out: "rooftops.webp", width: 900 },
 ];
 
 mkdirSync(OUT, { recursive: true });
