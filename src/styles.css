@@ -623,6 +623,39 @@ a {
   }
 }
 
+/* Behind wordmark: one continuous dolly from front to back, then out.
+   Single-direction scale (large -> resting -> small) with no blur and no
+   axis changes, so the compositor handles transform + opacity only and the
+   velocity never reverses. Two segments: ease-out to settle into focus,
+   then ease-in-out to recede and fade with the curtain. Keyed off `done`
+   like the figure/stage, ends at opacity 0 with `both` fill. */
+@keyframes gk-behind-fly {
+  0% {
+    opacity: 0;
+    transform: scale(1.42);
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1.05);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+}
+
+.gk-behind {
+  opacity: 0;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+[data-preloader='done'] .gk-behind {
+  animation: gk-behind-fly 2.6s linear 0s both;
+}
+
 .gk-stage {
   transform: scale(1.42);
 }
@@ -673,6 +706,12 @@ a {
   [data-preloader='done'] .gk-mark {
     animation: none;
     opacity: 1;
+    transform: none;
+  }
+  .gk-behind,
+  [data-preloader='done'] .gk-behind {
+    animation: none;
+    opacity: 0;
     transform: none;
   }
 }

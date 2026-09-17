@@ -28,16 +28,24 @@ import { HERO_DEEP } from "#/lib/palette";
  *   below only move up and down the same black-to-charcoal scale.
  * - The photographs are one graded monochrome set (see
  *   scripts/build-journey-images.mjs). Their filenames carry that script's
- *   ordering, not this section's, so 07-first-desk opening the stack is
+ *   ordering, not this section's, so 08-village-years opening the stack is
  *   expected rather than a mistake - the images are matched to the stage they
  *   suit. Several of these frames appear again in colour further down the page,
  *   in the collage and the gallery; the grade keeps this from reading as those
  *   sections repeated.
  * - Step 01 is the one card whose photograph is actually *of* the years it
- *   describes: a period shot of him at a home desk, running the grade over a
- *   green-on-black laptop screen that would otherwise be the exact hacker
- *   cliche PRODUCT.md rules out. Everything else here is a modern frame
- *   standing in for its stage, which is why this one earns the opening slot.
+ *   describes: a snapshot of him as a teenager on open ground, the only frame
+ *   on the page from the years the copy beside it is about. Everything else
+ *   here is a modern frame standing in for its stage, which is why this one
+ *   earns the opening slot. It is also by far the softest image in the set -
+ *   the source is a 179x228 thumbnail - so it opens the stack partly because
+ *   the opening card is the one the eye passes through fastest, and the grade
+ *   plus the near-black ground hide the upscale better than a bright stage
+ *   frame would.
+ * - `07-first-desk.webp` is still built by the script and no longer rendered:
+ *   it held this slot until the period snapshot arrived. Left in place because
+ *   it is the obvious candidate for step 02, whose photograph is currently the
+ *   only modern frame on the page standing in for a school year.
  * - 01-case-work is the same shoot as the about section's cut-out figure. It
  *   sits on step 05 to put as much page between the two as the sequence allows
  *   - about is the section immediately above this one. That repeat is now
@@ -82,9 +90,9 @@ const STEPS: CaseStudyFlipItem[] = [
 				text: "Free-internet workarounds on Reliance and Airtel.",
 			},
 		],
-		image: "/journey/07-first-desk.webp",
+		image: "/journey/08-village-years.webp",
 		imageAlt:
-			"A much younger Gautam Kumawat at a home desk, a laptop and a monitor in front of him both running terminal output",
+			"Gautam Kumawat as a teenager, standing on open ground in a checked shirt with bright haze behind him",
 		background: STEP_GROUND.beginning,
 		foreground: NEAR_WHITE,
 	},
@@ -100,7 +108,7 @@ const STEPS: CaseStudyFlipItem[] = [
 			{ year: "2012", text: "The casework reached the national newspapers." },
 			{ year: "2013", text: "Sat the 12th again, and scored 61%." },
 		],
-		image: "/journey/03-classroom.webp",
+		image: "/journey/07-first-desk.webp",
 		// This and step 03's alt were swapped: 03-classroom is built from the
 		// lectern frame and 05-press from the India Today panel, but each
 		// carried the other's description - so a screen reader was told this
@@ -125,7 +133,7 @@ const STEPS: CaseStudyFlipItem[] = [
 				text: "Featured in India's leading English newspapers.",
 			},
 		],
-		image: "/journey/05-press.webp",
+		image: "/journey/03-classroom.webp",
 		imageAlt:
 			"Gautam Kumawat on the India Today Future Talk panel, his name card on the table",
 		background: STEP_GROUND.recognition,
@@ -143,7 +151,7 @@ const STEPS: CaseStudyFlipItem[] = [
 			{ text: "41,000 students enrolled." },
 			{ text: "162 countries between them." },
 		],
-		image: "/journey/06-scale.webp",
+		image: "/journey/05-press.webp",
 		imageAlt: "A packed auditorium of students watching from tiered seating",
 		background: STEP_GROUND.scale,
 		foreground: NEAR_WHITE,
@@ -160,7 +168,7 @@ const STEPS: CaseStudyFlipItem[] = [
 			{ year: "2019", text: "Started consulting for Fortune 500 companies." },
 			{ year: "2020", text: "500+ live webinars, and Impact Billions Online." },
 		],
-		image: "/journey/01-case-work.webp",
+		image: "/journey/04-stage.webp",
 		imageAlt: "Gautam Kumawat reading case material from a tablet",
 		background: STEP_GROUND.impact,
 		foreground: NEAR_WHITE,
@@ -177,7 +185,7 @@ const STEPS: CaseStudyFlipItem[] = [
 			{ year: "2022–2025", text: "Retired, four more times." },
 			{ year: "2026", text: "HackingFlix, ten times over." },
 		],
-		image: "/journey/04-stage.webp",
+		image: "/journey/09.jpg",
 		imageAlt: "Gautam Kumawat mid-talk on a darkened stage, hands raised",
 		background: STEP_GROUND.comeback,
 		foreground: NEAR_WHITE,

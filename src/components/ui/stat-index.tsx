@@ -31,7 +31,7 @@ export interface StatEntry {
 	suffix?: string;
 	label: string;
 	/** Only drawn by the `chip` variant. Decorative: the label carries meaning. */
-	icon?: React.ComponentType<{ className?: string }>;
+	icon?: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
 }
 
 /**
@@ -105,7 +105,7 @@ export function StatIndex({
 							</span>
 						) : null}
 						<dt
-							className="display-tight tnum text-[clamp(1.5rem,2.6vw,2.15rem)]"
+							className="display tnum text-[clamp(1.5rem,2.6vw,2.15rem)]"
 							style={{ color: t.figure }}
 						>
 							<StatsCounter
@@ -141,7 +141,7 @@ export function StatIndex({
 				>
 					<dt
 						className={cn(
-							"display-tight tnum",
+							"display tnum",
 							big
 								? "text-[clamp(2.6rem,5.4vw,4.75rem)]"
 								: "text-[clamp(1.75rem,3.1vw,2.6rem)]",

@@ -1,12 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useLenis } from "lenis/react";
 import {
 	Building2,
 	CalendarRange,
 	Globe,
 	Mic2,
 	Newspaper,
-	PhoneCall,
 } from "lucide-react";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { AboutSection } from "#/components/about-section";
@@ -27,45 +25,17 @@ import { StatIndex } from "#/components/ui/stat-index";
 import { HERO_DEEP as DEEP, SHADER_BLUE_BRIGHT } from "#/lib/palette";
 import { usePreloaderDone } from "#/lib/use-preloader-done";
 
-const LiquidMetalButton = lazy(() =>
-	import("#/components/liquid-metal-button").then((m) => ({
-		default: m.LiquidMetalButton,
-	})),
-);
-
 /**
  * A slow sweep of light across the footer's closing wordmark, replacing the
  * glass-warp shader it used to run - installed via
- * `npx shadcn add @react-bits/ShinyText-TS-TW`. Lazy for the same reason
- * `LiquidMetalButton` is: a `useAnimationFrame` loop has no business in the
- * first chunk for a line nobody sees until they have scrolled the whole page.
+ * `npx shadcn add @react-bits/ShinyText-TS-TW`.
  */
 const ShinyText = lazy(() => import("#/components/ShinyText"));
 
 export const Route = createFileRoute("/")({ component: Home });
 
-/**
- * What stands in for the shader button until its chunk arrives, and what the
- * server renders. A real button with the real action - not a placeholder -
- * so the primary CTA is never dead on first paint.
- */
-function PlainConnectButton({ onClick }: { onClick: () => void }) {
-	return (
-		<button
-			type="button"
-			onClick={onClick}
-			className="inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold transition-opacity hover:opacity-90"
-			style={{ backgroundColor: SHADER_BLUE_BRIGHT, color: "#ffffff" }}
-		>
-			<PhoneCall className="h-4 w-4" aria-hidden="true" />
-			Let's Connect
-		</button>
-	);
-}
-
-/** Copy tints, chosen against the shader's brightest moment (see below). */
+/** Copy tint, chosen against the shader's brightest moment (see below). */
 const TYPE = "#f4fbf8";
-const TYPE_SOFT = "#d8efe7";
 
 /**
  * The wordmark as plain type. This is what the server renders and what stands
@@ -114,20 +84,6 @@ function Home() {
 	// The hero plate is large, and its entrance must not start before it can be
 	// seen. `complete` covers the cached case, where the load event has already
 	// fired by the time this runs.
-	/**
-	 * The page's scroll is owned by Lenis, so an in-page jump goes through it
-	 * rather than through the browser - `href="#connect"` would land instantly
-	 * and fight the smooth scroller on the way.
-	 */
-	const lenis = useLenis();
-	const goToConnect = () => {
-		const target = document.querySelector("#connect");
-		if (!target) return;
-		if (lenis) lenis.scrollTo(target as HTMLElement, { duration: 1.2 });
-		else target.scrollIntoView({ behavior: "smooth", block: "start" });
-		window.history.replaceState(null, "", "#connect");
-	};
-
 	const figureRef = useRef<HTMLImageElement>(null);
 	const [figureReady, setFigureReady] = useState(false);
 	useEffect(() => {
@@ -235,17 +191,32 @@ function Home() {
 					}}
 				/>
 
-				{/* The opening wordmark that used to sit here is gone, and the
-				    preloader is why. It was written for a hero that arrived behind a
-				    0.45s fade, where a large name rising behind the figure was the
-				    first beat of the page. The overlay is a curtain now: it takes
-				    0.95s to clear, and this mark ran 0.1s-1.27s - so it played out
-				    almost entirely underneath the curtain and what you actually saw
-				    was the tail of it fading, a ghost flashing off at the exact
-				    moment the page was uncovering. Worse, it was the third time the
-				    name appeared in four seconds: the preloader writes it by hand,
-				    the corner label states it, and this repeated it in between. One
-				    name beat, and the handwritten one is the better of the two. */}
+				{/* Behind wordmark below: front-to-back fly-in that clears with
+				    the curtain, so the resting hero is the headline rather than
+				    a name laid across his chest. Timed off `done` (0.1s delay,
+				    2.2s run) to play through the curtain's last third like the
+				    figure and copy cascade. */}
+
+				{/* Behind wordmark: flies in from the front, drops back, then
+				    clears with the preloader (see `gk-behind-fly` in styles.css).
+				    Outer div centers it; inner p animates, so the entrance
+				    transform never fights the centering. Color carries the dimming
+				    (not `opacity`), since the keyframes own opacity. */}
+				<div
+					aria-hidden="true"
+					className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center"
+				>
+					<p
+						className="gk-behind text-center font-extrabold leading-[0.9] tracking-[-0.05em] whitespace-nowrap"
+						style={{
+							color: "rgb(244 251 248 / 0.9)",
+							fontFamily: "var(--font-display)",
+							fontSize: "clamp(2rem, 9.5vw, 7.5rem)",
+						}}
+					>
+						GAUTAM KUMAWAT
+					</p>
+				</div>
 
 				{/* The figure, centred and bottom-anchored, standing in front of
 				    his own enlarged face. Sized by width rather than height: the
@@ -281,21 +252,14 @@ function Home() {
 					/>
 				</div>
 
-				{/* Five blocks in three rows, in the shape of the reference: an
-				    identifier top left, the claim and a quiet label on the middle
-				    line, the action and the summing-up line along the bottom. The
-				    secondary "Read the story" link went - the reference carries one
-				    action here, and the story is one scroll away regardless. */}
+				{/* Left-side headline, vertically centered. Only this copy and the
+				    background wordmark remain in the hero - the identifier,
+				    credential lines, closing line and CTA were removed. */}
 				<div // `self-stretch`, because `h-full` resolves to auto against a
 					// `min-h-svh` parent - the column was shrink-wrapping its content
 					// and being centred, so `mt-auto` had no space to push into and the
 					// claim landed across his face.
-					// `pt-24`, not the `pt-16` this briefly was: the floating nav is
-					// `fixed`, outside this flow entirely, so it does not push this
-					// column down on its own - `pt-16` put the identity line only
-					// ~13px under the nav's own bottom edge, close enough to read as
-					// tucked under it rather than clear of it.
-					className="pointer-events-none relative z-20 mx-auto flex w-full max-w-[104rem] flex-col justify-start self-stretch pt-24 pb-10 text-center sm:justify-between sm:pt-28 sm:pb-14 sm:text-left"
+					className="pointer-events-none relative z-20 mx-auto flex w-full max-w-[104rem] flex-col justify-center self-stretch pt-24 pb-10 text-left sm:pt-28 sm:pb-14"
 				>
 					{/* The copy cascade is timed against the curtain, not after it.
 					    These delays used to start at 1.3s - 0.35s past the moment the
@@ -306,119 +270,23 @@ function Home() {
 					    edge passes over it. The figure is still rising underneath the
 					    whole cascade (2.1s) and the backdrop still settling (2.6s),
 					    which is what gives the opening its depth. */}
-					<p
-						className="gk-reveal pointer-events-auto text-[0.78rem] leading-snug sm:text-[0.85rem]"
-						style={{ color: TYPE, ["--gk-delay" as string]: "0.62s" }}
+					<h1
+						className="display max-w-[12ch] text-[clamp(2.4rem,7vw,4.8rem)] sm:max-w-[14ch] sm:text-[clamp(2.4rem,5.2vw,5.2rem)]"
+						style={{ color: TYPE }}
 					>
-						Gautam Kumawat /
-						<br />
-						<span style={{ color: TYPE_SOFT }}>Cybercrime investigator.</span>
-					</p>
-
-					<div className="mt-auto flex flex-col items-center justify-between gap-8 sm:mt-0 sm:flex-row sm:items-center">
-						{/* Below `sm` this used to sit in normal flow with the caption,
-						    which `mt-auto` then pushed down to share the bottom third
-						    with the button - stacked on his chest rather than read
-						    against clear ground. Pulled out with `absolute` and set just
-						    under the identity line, above where the figure actually
-						    starts (~341px at a 375-wide phone), it reads before the
-						    photograph rather than over it. `sm:static` hands it straight
-						    back to the flex row for the desktop composition, unchanged.
-						    Sized up on the way, too - `6.6vw` at 375px landed a hair
-						    under the 1.55rem floor, which read as small for the one line
-						    doing the most work in the hero. */}
-						<h1
-							className="display absolute inset-x-0 top-40 z-10 max-w-[17ch] text-[clamp(2rem,9vw,3rem)] sm:static sm:inset-auto sm:top-auto sm:z-auto sm:max-w-[30%] sm:text-[clamp(1.55rem,3.3vw,3rem)]"
-							style={{ color: TYPE }}
+						<span
+							className="gk-line"
+							style={{ ["--gk-delay" as string]: "0.72s" }}
 						>
-							<span
-								className="gk-line"
-								style={{ ["--gk-delay" as string]: "0.72s" }}
-							>
-								<span>Cybercrime</span>
-							</span>
-							<span
-								className="gk-line"
-								style={{ ["--gk-delay" as string]: "0.82s" }}
-							>
-								<span>investigator.</span>
-							</span>
-							<span
-								className="gk-line"
-								style={{ ["--gk-delay" as string]: "0.92s" }}
-							>
-								<span>Trainer to officers.</span>
-							</span>
-						</h1>
-
-						{/* Desktop-only before this: `hidden sm:block` cut it entirely
-						    on a phone, which was one of two credential lines this hero
-						    carries just gone, and left the gap under the headline with
-						    nothing in it. Centred and unconstrained in width below
-						    `sm`, where it was right-aligned inside a 24%-wide column. */}
-						<p
-							className="gk-reveal text-center text-[0.78rem] leading-snug sm:max-w-[24%] sm:text-right sm:text-[0.85rem]"
-							style={{ color: TYPE_SOFT, ["--gk-delay" as string]: "1.00s" }}
+							<span>A Man On</span>
+						</span>
+						<span
+							className="gk-line"
+							style={{ ["--gk-delay" as string]: "0.82s" }}
 						>
-							Law-enforcement agencies
-							<br />
-							India · United States
-						</p>
-					</div>
-
-					<div className="mt-7 flex flex-col items-center justify-between gap-7 sm:mt-0 sm:flex-row sm:items-end sm:gap-8">
-						{/* The same shader button the nav carries, so the page's one
-						    primary action looks like one action wherever it appears. It
-						    is a <button>, not a link, so the destination is handled by
-						    `goToConnect`; the fallback below is a real button too, which
-						    means the CTA works from first paint rather than after a
-						    shader compiles. */}
-						<div
-							className="gk-reveal pointer-events-auto"
-							style={{ ["--gk-delay" as string]: "1.12s" }}
-						>
-							<ClientOnly
-								fallback={<PlainConnectButton onClick={goToConnect} />}
-							>
-								<Suspense
-									fallback={<PlainConnectButton onClick={goToConnect} />}
-								>
-									<LiquidMetalButton
-										label="Let's Connect"
-										onClick={goToConnect}
-									/>
-								</Suspense>
-							</ClientOnly>
-						</div>
-
-						{/* Also cut entirely below `sm` before this - the bottom row on
-						    a phone was the button alone, with the closing line that
-						    balances it on desktop simply missing. Centred under the
-						    button rather than right-aligned in a 30%-wide column. */}
-						<p
-							className="display text-center max-w-none text-[clamp(1rem,1.8vw,1.7rem)] sm:max-w-[30%] sm:text-right"
-							style={{ color: TYPE }}
-						>
-							<span
-								className="gk-line"
-								style={{ ["--gk-delay" as string]: "0.88s" }}
-							>
-								<span>Cybercrime scales.</span>
-							</span>
-							<span
-								className="gk-line"
-								style={{ ["--gk-delay" as string]: "0.96s" }}
-							>
-								<span>So must the people</span>
-							</span>
-							<span
-								className="gk-line"
-								style={{ ["--gk-delay" as string]: "1.04s" }}
-							>
-								<span>who stop it.</span>
-							</span>
-						</p>
-					</div>
+							<span>A Mission</span>
+						</span>
+					</h1>
 				</div>
 			</section>
 

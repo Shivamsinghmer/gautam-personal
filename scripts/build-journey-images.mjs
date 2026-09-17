@@ -63,6 +63,19 @@ const JOBS = [
 	// him plus both screens; a centre crop clips the second monitor, and "top"
 	// loses the laptop the picture is actually about.
 	{ in: "photos/first-desk.jpg", out: "07-first-desk.webp", position: "attention" },
+	// The second period photograph, and the one that now opens the stack. Its
+	// source is a 179x228 thumbnail - the only surviving copy - so this job is
+	// a 4.5x upscale and the only one that takes `sharpen`. A light unsharp
+	// pass buys back some edge without turning the JPEG's
+	// blocking into texture; anything stronger made the haze behind him crawl.
+	// It is still the softest frame in the set, which the card's own grade and
+	// near-black ground carry better than a full-bleed hero would.
+	{
+		in: "photos/village-years.jpg",
+		out: "08-village-years.webp",
+		position: "attention",
+		sharpen: true,
+	},
 ];
 
 mkdirSync(OUT, { recursive: true });
@@ -74,6 +87,9 @@ for (const job of JOBS) {
 		position: job.position,
 	});
 	if (mono) pipeline = pipeline.grayscale();
+	// Only the upscaled thumbnail asks for this; every other source is larger
+	// than the output and comes out of the resize sharp already.
+	if (job.sharpen) pipeline = pipeline.sharpen({ sigma: 1, m1: 0.6, m2: 2 });
 	const info = await pipeline
 		// A light contrast lift, so the frames keep their subject against the
 		// section's near-black ground. It is worth as much in colour as it was
