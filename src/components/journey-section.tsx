@@ -77,7 +77,7 @@ const STEP_GROUND = {
 const STEPS: CaseStudyFlipItem[] = [
 	{
 		number: "01",
-		year: "2006–2011",
+		year: "2006–2010",
 		eyebrow: "The beginning",
 		title: "A chimni lamp and an 8 km walk",
 		description:
@@ -86,7 +86,7 @@ const STEPS: CaseStudyFlipItem[] = [
 			{ year: "2006", text: "First telephone hacking tricks." },
 			{ year: "2007", text: "Broke the PIN lock on a Nokia 1100." },
 			{
-				year: "2011",
+				year: "2010",
 				text: "Free-internet workarounds on Reliance and Airtel.",
 			},
 		],
@@ -98,13 +98,13 @@ const STEPS: CaseStudyFlipItem[] = [
 	},
 	{
 		number: "02",
-		year: "2012–2013",
+		year: "2011–2013",
 		eyebrow: "Struggle into purpose",
 		title: "The talent the marksheet missed",
 		description:
 			"47% in the 10th, 59% in the 12th — and police already asking him for help on live cases.",
 		facts: [
-			{ year: "2012", text: "Began helping police with investigations." },
+			{ year: "2011", text: "Began helping police with investigations." },
 			{ year: "2012", text: "The casework reached the national newspapers." },
 			{ year: "2013", text: "Sat the 12th again, and scored 61%." },
 		],
@@ -121,15 +121,15 @@ const STEPS: CaseStudyFlipItem[] = [
 	},
 	{
 		number: "03",
-		year: "2016–2017",
+		year: "2014–2016",
 		eyebrow: "Recognition",
 		title: "From 47% to college topper",
 		description:
 			"The student the exams had written off finished the year at the top of his college.",
 		facts: [
-			{ year: "2016", text: "College topper." },
+			{ year: "2014", text: "College topper." },
 			{
-				year: "2017",
+				year: "2015",
 				text: "Featured in India's leading English newspapers.",
 			},
 		],
@@ -141,12 +141,13 @@ const STEPS: CaseStudyFlipItem[] = [
 	},
 	{
 		number: "04",
-		year: "2018",
+		year: "2017–2018",
 		eyebrow: "Teaching at scale",
 		title: "One programme, 162 countries",
 		description:
 			"The casework became a course, and the course did not stop at the border.",
 		facts: [
+			{ year: "2017", text: "Started the hacking programme." },
 			{ year: "2018", text: "Launched his hacking programme." },
 			{ text: "41,000 students enrolled." },
 			{ text: "162 countries between them." },
