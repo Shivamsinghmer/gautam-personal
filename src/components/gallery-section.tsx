@@ -1,168 +1,119 @@
 import { Reveal, RevealGroup, RevealItem } from "#/components/ui/scroll-reveal";
-import { INK } from "#/lib/palette";
+import { PAPER, PAPER_INK, PAPER_INK_SOFT } from "#/lib/palette";
 
 /**
- * The gallery: the rooms nobody books him for.
+ * The gallery: the places away from the desk.
  *
- * ## Why it exists, and why it is not the collage again
+ * ## Why it is not the collage again
  *
  * `CollageSection` is the on-stage evidence - full auditoriums, panels, a
- * lectern - and it is built to sell: every frame is a link into the booking
- * block, and the hover swaps the format for "Book this". That section answers
- * "can he hold a room". This one answers the question a visitor asks straight
- * afterwards, which is "who is this", and it has to answer it without a CTA
- * on every tile or it is just the collage with different photographs.
- *
- * So the frames here are `<figure>`s, not links. Nothing to click, nothing to
- * book.
+ * lectern - and it is built to sell: every frame links into the booking block
+ * and the hover swaps the format for "Book this". That section answers "can he
+ * hold a room". This one answers what a visitor asks straight afterwards -
+ * "who is this" - and it has to answer without a CTA on every tile or it is
+ * just the collage with different photographs. So these are `<figure>`s.
+ * Nothing to click, nothing to book.
  *
  * ## The wall
  *
- * It was five frames placed by hand on a twelve-column field, each with a
- * title and a descriptive note beside it. It is a mosaic now - seventeen
- * frames, masonry columns, no captions - because the set grew past what the
- * old layout could hold: hand-placing seventeen cells is not a layout, it is
- * seventeen decisions, and seventeen captions would bury the pictures under
- * text nobody came here to read.
+ * Ten frames on paper, in a masonry of mixed tile ratios. Built to a reference
+ * the client supplied: photographs at deliberately different sizes and heights
+ * on a white ground, tight gaps, generous corner radius, no captions.
  *
- * Losing the captions also retires a standing risk. The old notes named
- * cities, and two were read off the photographs rather than from any source -
- * a warning sat in this file asking for both to be confirmed before shipping.
- * Twelve more frames would have meant twelve more guesses. The alt text now
- * describes rather than asserts: where a place names itself in frame it is
- * named (the Jungfraujoch sign, the Eiffel Tower, Saint Basil's), and where it
- * does not, the alt says what is visible and stops.
+ * **The ratios are assigned, not inherited, and that is the whole mechanism.**
+ * Every source here is a portrait phone frame at an identical 9:16, so a wall
+ * that respected the source ratios would stack into a dead-even grid - the one
+ * thing the reference is not. Each tile is given a ratio from `RATIOS` instead
+ * and `object-cover` crops to it, which is what produces the staggered column
+ * heights. The order of the list is therefore load-bearing: it is sequenced so
+ * no two neighbouring tiles share a height.
  *
- * `columns-*` rather than a grid with spans. Masonry is what this wants -
- * every frame at its own height, no common crop - and CSS columns do it in one
- * declaration with no per-item bookkeeping. The cost is DOM order running down
- * each column rather than across, which for an unordered wall of photographs
- * is not a cost.
+ * Cropping a 9:16 frame to 1:1 throws away a lot of picture, so the crops were
+ * checked rather than assumed - each one rendered at its assigned ratio and
+ * inspected for whether the subject survived. `object-center` holds for all
+ * ten; where a crop needed biasing it is set per frame.
  *
- * Mixed ratios are load-bearing here, not incidental. Twelve of these are
- * portrait phone frames at the same 9:16, so left to themselves they would
- * stack into an even grid with no stagger at all; `threat-map` (4:3) and
- * `studio-desk` (3:4) are what break the rows and make the columns read as
- * masonry. That is why the two of them sit early in the list rather than at
- * the end.
+ * No captions, which is the reference and also the safer answer. The notes
+ * this section used to carry named cities that had been read off the
+ * photographs rather than from a source - a warning sat in this file asking
+ * for them to be confirmed before shipping. The alt text names a place only
+ * where the frame names itself (the Jungfraujoch sign, the Eiffel Tower,
+ * Saint Basil's) and otherwise says what is visible and stops.
  *
- * The ground stays `INK`. The reference for this layout was on white, but the
- * page already spends its one cut to daylight on the press wall, and a second
- * white section would make that cut mean less - these are saturated travel
- * frames and they carry themselves on near-black.
+ * ## The white
+ *
+ * This is now the page's second cut to daylight, after the press wall, and it
+ * was asked for. Worth knowing what it costs: that wall's white was built as
+ * *the* one break in a dark page, so a second one makes the device ordinary
+ * rather than structural. The two are at least doing different jobs - one is
+ * mastheads printed on white, this is a photo wall - and on white these
+ * saturated frames carry themselves without the ring they needed on ink.
  */
 
 interface Frame {
 	src: string;
-	/** Intrinsic size of the derivative, so the column reserves its height. */
-	width: number;
-	height: number;
-	/** Describes what is in the frame. Never asserts a place the photo does not. */
 	alt: string;
+	/** Tailwind aspect class. Assigned for rhythm - see the note above. */
+	ratio: string;
+	/** Crop bias, where centring loses the subject. */
+	position?: string;
 }
 
+/**
+ * Four heights, cycled so neighbours differ. Tall, three-quarter, four-fifths
+ * and square: enough spread to break the columns without any single tile
+ * looking like a mistake.
+ */
 const FRAMES: Frame[] = [
 	{
-		src: "/gallery/threat-map.webp",
-		width: 1400,
-		height: 1050,
-		alt: "A darkened desk with a live cyberthreat map, a packet capture and a laptop showing the HackingFlix logo",
-	},
-	{
 		src: "/gallery/eiffel-tower.webp",
-		width: 900,
-		height: 1600,
 		alt: "Gautam Kumawat beneath the Eiffel Tower, lit gold against a night sky",
-	},
-	{
-		src: "/gallery/jungfraujoch.webp",
-		width: 900,
-		height: 1600,
-		alt: "Gautam Kumawat beside the Jungfraujoch 'Top of Europe' sign, snow and rock behind him",
-	},
-	{
-		src: "/gallery/studio-desk.webp",
-		width: 1100,
-		height: 1467,
-		alt: "Gautam Kumawat at his studio desk, hands steepled, a boom microphone and monitors behind him",
+		ratio: "aspect-[3/4]",
 	},
 	{
 		src: "/gallery/st-basils.webp",
-		width: 900,
-		height: 1600,
 		alt: "Gautam Kumawat with both arms thrown wide in front of Saint Basil's Cathedral and its painted domes",
+		ratio: "aspect-[9/16]",
 	},
 	{
 		src: "/gallery/alpine-valley.webp",
-		width: 900,
-		height: 1600,
 		alt: "Gautam Kumawat at a railing above a green alpine valley, a chalet below and cloud sitting on the peaks",
-	},
-	{
-		src: "/gallery/city-square.webp",
-		width: 900,
-		height: 1600,
-		alt: "Gautam Kumawat standing on a city square, a grand brick department store and tram wires behind him",
+		ratio: "aspect-[4/5]",
 	},
 	{
 		src: "/gallery/palace-stairs.webp",
-		width: 900,
-		height: 1600,
 		alt: "Gautam Kumawat seated on the balustraded staircase of a white and gold palace",
+		ratio: "aspect-[1/1]",
 	},
 	{
-		src: "/gallery/mountain-train.webp",
-		width: 900,
-		height: 1600,
-		alt: "Gautam Kumawat seated in a mountain railway carriage, snow-covered slopes through the window",
-	},
-	{
-		src: "/gallery/budapest-anonymus.webp",
-		width: 900,
-		height: 1600,
-		alt: "Gautam Kumawat sitting on the plinth of the hooded Anonymus statue",
+		src: "/gallery/jungfraujoch.webp",
+		alt: "Gautam Kumawat beside the Jungfraujoch 'Top of Europe' sign, snow and rock behind him",
+		ratio: "aspect-[9/16]",
 	},
 	{
 		src: "/gallery/glass-towers.webp",
-		width: 900,
-		height: 1600,
 		alt: "Gautam Kumawat in front of a cluster of glass skyscrapers rising into haze",
+		ratio: "aspect-[3/4]",
 	},
 	{
 		src: "/gallery/palace-flag.webp",
-		width: 900,
-		height: 1600,
 		alt: "Gautam Kumawat on the steps of a gilded baroque palace, a flag flying from its roof",
+		ratio: "aspect-[1/1]",
 	},
 	{
 		src: "/gallery/rooftops.webp",
-		width: 900,
-		height: 1600,
 		alt: "Gautam Kumawat at a parapet above a city of red tiled rooftops",
-	},
-	{
-		src: "/gallery/moscow-embankment.webp",
-		width: 900,
-		height: 1600,
-		alt: "Gautam Kumawat on a flower-lined embankment, a tall tower block across the river behind him",
+		ratio: "aspect-[4/5]",
 	},
 	{
 		src: "/gallery/horse-statue.webp",
-		width: 900,
-		height: 1600,
 		alt: "Gautam Kumawat at the plinth of a bronze statue of a man wrestling a rearing horse",
+		ratio: "aspect-[9/16]",
 	},
 	{
 		src: "/gallery/city-dusk.webp",
-		width: 900,
-		height: 1600,
 		alt: "Gautam Kumawat on a city street at dusk, towers and moving traffic behind him",
-	},
-	{
-		src: "/gallery/budapest-parliament.webp",
-		width: 900,
-		height: 1600,
-		alt: "Gautam Kumawat on a river embankment at night, a lit parliament building across the water",
+		ratio: "aspect-[3/4]",
 	},
 ];
 
@@ -171,25 +122,27 @@ export function GallerySection() {
 		<section
 			id="gallery"
 			className="band relative scroll-mt-24 px-6 sm:px-10"
-			style={{ backgroundColor: INK }}
+			style={{ backgroundColor: PAPER }}
 		>
 			<div className="mx-auto w-full max-w-6xl">
 				{/* The running head the journey section opens with - a rule with the
 				    span at one end and the count at the other. Reused rather than
-				    reinvented, which is what makes it the page's grammar instead of
-				    a device that appears once. The count is read off the list so it
+				    reinvented, which makes it the page's grammar instead of a device
+				    that appears once. `--rule-paper` and the paper inks, because on
+				    white the white/20 rule and white/60 label of the dark sections
+				    would both be invisible. The count is read off the list so it
 				    cannot drift from what renders. */}
 				<Reveal>
-					<div className="flex items-center justify-between gap-6 border-t border-white/20 pt-5">
+					<div className="flex items-center justify-between gap-6 border-t border-[color:var(--rule-paper)] pt-5">
 						<p
-							className="text-[0.7rem] font-semibold uppercase text-white/60"
-							style={{ letterSpacing: "0.18em" }}
+							className="text-[0.7rem] font-semibold uppercase"
+							style={{ color: PAPER_INK_SOFT, letterSpacing: "0.18em" }}
 						>
 							Off the stage
 						</p>
 						<p
-							className="tnum text-[0.7rem] font-semibold uppercase text-white/35"
-							style={{ letterSpacing: "0.18em" }}
+							className="tnum text-[0.7rem] font-semibold uppercase"
+							style={{ color: PAPER_INK_SOFT, letterSpacing: "0.18em" }}
 						>
 							{FRAMES.length} frames
 						</p>
@@ -200,45 +153,47 @@ export function GallerySection() {
 				    the journey and the collage open with. */}
 				<div className="mt-9 lg:flex lg:items-end lg:justify-between lg:gap-20">
 					<Reveal>
-						<h2 className="display max-w-[11ch] text-balance text-[clamp(2.3rem,5vw,4.1rem)] text-white">
+						<h2
+							className="display max-w-[11ch] text-balance text-[clamp(2.3rem,5vw,4.1rem)]"
+							style={{ color: PAPER_INK }}
+						>
 							The rest of it
 						</h2>
 					</Reveal>
 
 					<Reveal delay={0.08}>
-						<p className="mt-5 max-w-[40ch] text-[0.95rem] leading-relaxed text-pretty text-white/60 sm:text-base lg:mt-0 lg:pb-3 lg:text-right">
-							The desk the work runs from, and the places away from it.
+						<p
+							className="mt-5 max-w-[40ch] text-[0.95rem] leading-relaxed text-pretty sm:text-base lg:mt-0 lg:pb-3 lg:text-right"
+							style={{ color: PAPER_INK_SOFT }}
+						>
+							Twenty-one countries, and not one of them for the conference room.
 						</p>
 					</Reveal>
 				</div>
 
 				{/* Masonry. `break-inside-avoid` is what stops a figure being split
 				    across a column break - without it the browser balances the
-				    columns by slicing an image in half. The gap is deliberately
-				    tight: the wall should read as one surface rather than as
-				    seventeen cards. */}
+				    columns by slicing a tile in half. */}
 				<RevealGroup
 					className="mt-12 columns-2 gap-3 sm:columns-3 sm:gap-4 lg:mt-16 lg:columns-4"
-					stagger={0.035}
+					stagger={0.05}
 				>
 					{FRAMES.map((frame) => (
 						<RevealItem
 							key={frame.src}
 							className="mb-3 break-inside-avoid sm:mb-4"
 						>
-							<figure className="group m-0 overflow-hidden rounded-xl ring-1 ring-white/10">
+							{/* A soft shadow rather than the ring these carried on ink. A
+							    hairline that read as a frame edge on near-black reads as a
+							    grey box on paper; a shadow lifts the photograph off the
+							    white instead, which is what the reference does. */}
+							<figure className="group m-0 overflow-hidden rounded-2xl shadow-[0_2px_10px_-2px_rgb(10_10_10/0.12),0_12px_28px_-12px_rgb(10_10_10/0.18)]">
 								<img
 									src={frame.src}
 									alt={frame.alt}
-									width={frame.width}
-									height={frame.height}
 									loading="lazy"
 									decoding="async"
-									// `h-auto` plus the intrinsic width/height is what makes
-									// this masonry rather than a grid: the browser reserves
-									// each frame's real height before the image lands, so the
-									// columns do not reflow as they load.
-									className="block h-auto w-full transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+									className={`block h-full w-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:scale-100 ${frame.ratio} ${frame.position ?? "object-center"}`}
 								/>
 							</figure>
 						</RevealItem>
