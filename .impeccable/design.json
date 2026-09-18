@@ -1,0 +1,250 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-18T00:00:00.000Z",
+  "title": "Design System: Gautam Kumawat",
+  "extensions": {
+    "colorMeta": {
+      "ink": {
+        "role": "neutral",
+        "displayName": "Stage Ink",
+        "canonical": "#0a0a0a",
+        "tonalRamp": ["#050505", "#0a0a0a", "#141414", "#1c1c1c", "#333333", "#595959", "#8c8c8c", "#f2f2f2"]
+      },
+      "ink-raise": {
+        "role": "neutral",
+        "displayName": "Raised Ink",
+        "canonical": "#1c1c1c",
+        "tonalRamp": ["#0a0a0a", "#141414", "#1c1c1c", "#262626", "#3d3d3d", "#666666", "#999999", "#f2f2f2"]
+      },
+      "ink-deep": {
+        "role": "neutral",
+        "displayName": "Deep Ink",
+        "canonical": "#050505",
+        "tonalRamp": ["#000000", "#050505", "#0a0a0a", "#171717", "#2e2e2e", "#545454", "#8a8a8a", "#f0f0f0"]
+      },
+      "signal": {
+        "role": "primary",
+        "displayName": "Signal Blue",
+        "canonical": "#1447e6",
+        "tonalRamp": ["#071a55", "#0a2482", "#0e30ad", "#1139c7", "#1447e6", "#4a72ef", "#8aa5f5", "#d5dffc"]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Daylight Paper",
+        "canonical": "#fafafa",
+        "tonalRamp": ["#171717", "#2e2e2e", "#4d4d4d", "#737373", "#a3a3a3", "#d4d4d4", "#ededed", "#fafafa"]
+      },
+      "paper-ink": {
+        "role": "neutral",
+        "displayName": "Press Ink",
+        "canonical": "#0a0a0a",
+        "tonalRamp": ["#000000", "#0a0a0a", "#1c1c1c", "#333333", "#595959", "#8c8c8c", "#c4c4c4", "#fafafa"]
+      },
+      "paper-ink-soft": {
+        "role": "neutral",
+        "displayName": "Press Ink Soft",
+        "canonical": "#737373",
+        "tonalRamp": ["#171717", "#333333", "#525252", "#737373", "#919191", "#b0b0b0", "#d4d4d4", "#f5f5f5"]
+      },
+      "type-primary": {
+        "role": "neutral",
+        "displayName": "Full White",
+        "canonical": "#ffffff",
+        "tonalRamp": ["#262626", "#404040", "#595959", "#808080", "#a6a6a6", "#cccccc", "#ebebeb", "#ffffff"]
+      },
+      "type-secondary": {
+        "role": "neutral",
+        "displayName": "Lead Copy White (80%)",
+        "canonical": "rgb(255 255 255 / 0.80)",
+        "tonalRamp": ["#1f1f1f", "#383838", "#525252", "#7a7a7a", "#a1a1a1", "#c9c9c9", "#e3e3e3", "#fafafa"]
+      },
+      "type-tertiary": {
+        "role": "neutral",
+        "displayName": "Label White (60%)",
+        "canonical": "rgb(255 255 255 / 0.60)",
+        "tonalRamp": ["#1a1a1a", "#303030", "#474747", "#6b6b6b", "#8f8f8f", "#b8b8b8", "#d6d6d6", "#f0f0f0"]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "rgb(255 255 255 / 0.14)",
+        "tonalRamp": ["#141414", "#1f1f1f", "#2b2b2b", "#3d3d3d", "#5c5c5c", "#8a8a8a", "#bdbdbd", "#f0f0f0"]
+      },
+      "rule-strong": {
+        "role": "neutral",
+        "displayName": "Nameplate Hairline",
+        "canonical": "rgb(255 255 255 / 0.32)",
+        "tonalRamp": ["#1c1c1c", "#2e2e2e", "#454545", "#5e5e5e", "#7d7d7d", "#a8a8a8", "#cfcfcf", "#f5f5f5"]
+      },
+      "rule-paper": {
+        "role": "neutral",
+        "displayName": "Press Grid Hairline",
+        "canonical": "color-mix(in oklab, #0a0a0a 16%, transparent)",
+        "tonalRamp": ["#0a0a0a", "#333333", "#595959", "#808080", "#a6a6a6", "#cccccc", "#e0e0e0", "#fafafa"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero wordmark and the page's own voice. Archivo at wdth 108 / wght 780." },
+      "display-wide": { "displayName": "Display Wide", "purpose": "The widest setting (wdth 125). One or two lines per page — the pull quote — never a section label." },
+      "display-tight": { "displayName": "Display Tight", "purpose": "Condensed (wdth 74). Nameplate names, collage titles, anything stacked in a narrow column." },
+      "headline": { "displayName": "Headline", "purpose": "Section headings, max 14ch, text-balance. Display face at a section-scale clamp." },
+      "figure": { "displayName": "Figure", "purpose": "Every number on the page. Display face plus tabular lining numerals so columns align on the cap line." },
+      "lead": { "displayName": "Lead", "purpose": "The opening paragraph of a movement. Max 46ch at white/80." },
+      "body": { "displayName": "Body", "purpose": "Supporting copy at max 38ch, white/70; long prose capped at 68ch with text-wrap: pretty." },
+      "label": { "displayName": "Label", "purpose": "Running heads, captions and figure labels. Uppercase, 0.16em (0.18em on running heads, 0.12em under figures)." }
+    },
+    "shadows": [
+      { "name": "action-rest", "value": "0 0 0 1px rgba(0,0,0,0.3), 0 36px 14px rgba(0,0,0,0.02), 0 20px 12px rgba(0,0,0,0.08), 0 9px 9px rgba(0,0,0,0.12), 0 2px 5px rgba(0,0,0,0.15)", "purpose": "The primary action at rest. The page's only shadow vocabulary." },
+      { "name": "action-hover", "value": "0 0 0 1px rgba(0,0,0,0.4), 0 12px 6px rgba(0,0,0,0.05), 0 8px 5px rgba(0,0,0,0.1), 0 4px 4px rgba(0,0,0,0.15), 0 1px 2px rgba(0,0,0,0.2)", "purpose": "The stack tightens as the object comes toward the pointer." },
+      { "name": "action-pressed", "value": "0 0 0 1px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.3)", "purpose": "The object sits down; the core takes an inset at the same moment." },
+      { "name": "plate-edge", "value": "0 0 0 1px rgb(255 255 255 / 0.10)", "purpose": "Not a shadow but the ring that does a shadow's job: a photograph on ink needs an edge or it bleeds into the ground. Omitted on plates that carry their own white ground." }
+    ],
+    "motion": [
+      { "name": "ease-out-expo", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "The house curve. Decisive: arrives and stays. Entrances, the hero sequence, the reveal primitive's page-level moments." },
+      { "name": "ease-out-quint", "value": "cubic-bezier(0.22, 1, 0.36, 1)", "purpose": "The softer sibling, for short moves and departures." },
+      { "name": "ease-reveal", "value": "cubic-bezier(0.22, 0.61, 0.36, 1)", "purpose": "The Reveal primitive's own curve, 0.6s, fired once at 25% in view." },
+      { "name": "ease-curtain", "value": "cubic-bezier(0.65, 0, 0.35, 1)", "purpose": "The one symmetric curve on the site: the preloader curtain's travelling edge, which spends its speed in the middle where most of the screen is." },
+      { "name": "duration-state", "value": "180ms", "purpose": "Default transition for background, colour, border and transform on buttons, links and panels." },
+      { "name": "stagger-group", "value": "0.045s–0.08s", "purpose": "Per-child delay in a RevealGroup; 0.045s for a dense grid, 0.08s for a short list." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" },
+      { "name": "measure", "value": "1152px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Action (fallback form)",
+      "kind": "button",
+      "refersTo": "button-primary-fallback",
+      "description": "The flat chrome pill every primary action renders as before its shader arrives, and what a headless render ships.",
+      "html": "<a class=\"ds-btn-primary\" href=\"#book\">Book a session<svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14\"/><path d=\"m12 5 7 7-7 7\"/></svg></a>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 8px; background: #171717; color: #fff; font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif; font-size: 0.875rem; font-weight: 600; padding: 12px 24px; border: none; border-radius: 100px; text-decoration: none; cursor: pointer; box-shadow: 0 0 0 1px rgba(0,0,0,0.3), 0 20px 12px rgba(0,0,0,0.08), 0 9px 9px rgba(0,0,0,0.12), 0 2px 5px rgba(0,0,0,0.15); transition: opacity 180ms ease, box-shadow 150ms cubic-bezier(0.4,0,0.2,1), transform 180ms ease; } .ds-btn-primary:hover { opacity: 0.9; box-shadow: 0 0 0 1px rgba(0,0,0,0.4), 0 12px 6px rgba(0,0,0,0.05), 0 4px 4px rgba(0,0,0,0.15); } .ds-btn-primary:focus-visible { outline: 2px solid #1447e6; outline-offset: 3px; } .ds-btn-primary:active { transform: translateY(1px) scale(0.98); box-shadow: 0 0 0 1px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.3); }"
+    },
+    {
+      "name": "Section Opening Rule",
+      "kind": "custom",
+      "refersTo": "section-ink",
+      "description": "How a section attaches to the page: a full-measure hairline whose lead segment is the page's one accent. Its closing twin takes the band out.",
+      "html": "<div class=\"ds-rule-lead\" aria-hidden=\"true\"><span class=\"ds-rule-lead__signal\"></span><span class=\"ds-rule-lead__rest\"></span></div>",
+      "css": ".ds-rule-lead { display: flex; height: 1px; width: 100%; } .ds-rule-lead__signal { width: clamp(3rem, 7vw, 6rem); background: #1447e6; } .ds-rule-lead__rest { flex: 1; background: rgb(255 255 255 / 0.15); }"
+    },
+    {
+      "name": "Running Head",
+      "kind": "nav",
+      "refersTo": "section-ink",
+      "description": "The other way a section opens: a span at the left and a count at the right, both sitting on one rule across the measure. Used instead of an eyebrow above the heading.",
+      "html": "<div class=\"ds-runninghead\"><p class=\"ds-runninghead__span\">2006 — 2026</p><p class=\"ds-runninghead__count\">Six stages</p></div>",
+      "css": ".ds-runninghead { display: flex; align-items: center; justify-content: space-between; gap: 24px; border-top: 1px solid rgb(255 255 255 / 0.20); padding-top: 20px; font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif; } .ds-runninghead__span, .ds-runninghead__count { margin: 0; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.18em; } .ds-runninghead__span { color: rgb(255 255 255 / 0.60); font-variant-numeric: tabular-nums lining-nums; } .ds-runninghead__count { color: rgb(255 255 255 / 0.35); }"
+    },
+    {
+      "name": "Figure Index Cell (rule form)",
+      "kind": "card",
+      "refersTo": "stat-cell",
+      "description": "The broadcast form of a statistic: a figure under its own hairline with an uppercase label beneath. The rule belongs to the cell, so a wrap never strands a divider.",
+      "html": "<dl class=\"ds-statindex\"><div class=\"ds-stat\"><dt class=\"ds-stat__figure\">41,000<span class=\"ds-stat__suffix\">+</span></dt><dd class=\"ds-stat__label\">Students taught</dd></div><div class=\"ds-stat\"><dt class=\"ds-stat__figure\">162</dt><dd class=\"ds-stat__label\">Countries</dd></div></dl>",
+      "css": ".ds-statindex { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 24px 32px; margin: 0; } .ds-stat { border-top: 1px solid rgb(255 255 255 / 0.16); padding-top: 16px; } .ds-stat__figure { margin: 0; font-family: 'Archivo', 'DM Sans', sans-serif; font-variation-settings: 'wdth' 108, 'wght' 780; font-variant-numeric: tabular-nums lining-nums; font-feature-settings: 'tnum' 1, 'lnum' 1; letter-spacing: -0.035em; line-height: 0.95; font-size: clamp(1.75rem, 3.1vw, 2.6rem); color: #fff; } .ds-stat__suffix { font-variation-settings: 'wght' 500; } .ds-stat__label { margin: 8px 0 0; font-family: 'DM Sans', sans-serif; font-size: 0.68rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.12em; color: rgb(255 255 255 / 0.55); }"
+    },
+    {
+      "name": "Figure Index Chip (chrome ring)",
+      "kind": "chip",
+      "refersTo": "stat-cell",
+      "description": "The icon form. A rotating conic-chrome ring around an ink fill — the same metal grammar as the primary action, without a second WebGL context per icon.",
+      "html": "<div class=\"ds-chip\"><span class=\"ds-chip__ring\" aria-hidden=\"true\"><span class=\"ds-chip__fill\"><svg viewBox=\"0 0 24 24\" width=\"18\" height=\"18\" fill=\"none\" stroke=\"#fff\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M4 4h16v12H5.17L4 17.17V4z\"/></svg></span></span><p class=\"ds-chip__figure\">500<span class=\"ds-chip__suffix\">K+</span></p><p class=\"ds-chip__label\">Newsletter</p></div>",
+      "css": "@property --lm-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; } .ds-chip { display: flex; flex-direction: column; align-items: center; text-align: center; } .ds-chip__ring { display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; margin-bottom: 16px; padding: 1.5px; border-radius: 9999px; background: conic-gradient(from var(--lm-angle), #5a5a5f 0%, #f5f5f5 10%, #8d8d92 22%, #1a1a1c 36%, #eaeaea 50%, #4a4a4e 64%, #fbfbfb 78%, #2a2a2e 90%, #5a5a5f 100%); animation: ds-lm-spin 6s linear infinite; } .ds-chip__fill { display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; border-radius: inherit; background: #0a0a0a; } @keyframes ds-lm-spin { to { --lm-angle: 360deg; } } .ds-chip__figure { margin: 0; font-family: 'Archivo', sans-serif; font-variation-settings: 'wdth' 108, 'wght' 780; font-variant-numeric: tabular-nums lining-nums; letter-spacing: -0.035em; font-size: clamp(1.5rem, 2.6vw, 2.15rem); color: #fff; } .ds-chip__suffix { font-variation-settings: 'wght' 500; } .ds-chip__label { margin: 6px 0 0; font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 500; color: rgb(255 255 255 / 0.55); } @media (prefers-reduced-motion: reduce) { .ds-chip__ring { animation: none; } }"
+    },
+    {
+      "name": "Photographic Plate",
+      "kind": "card",
+      "refersTo": "plate",
+      "description": "The page's unit of scale: a photograph at a stated share of the measure, cut to the frame's ratio in the build so object-cover crops nothing at rest.",
+      "html": "<figure class=\"ds-plate\"><img src=\"/about/studio-wide.webp\" alt=\"Gautam Kumawat in the studio he records in\" width=\"1800\" height=\"1012\" /></figure>",
+      "css": ".ds-plate { margin: 0; width: 72%; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 1rem; box-shadow: 0 0 0 1px rgb(255 255 255 / 0.10); } .ds-plate img { display: block; width: 100%; height: 100%; object-fit: cover; } @media (max-width: 639px) { .ds-plate { width: 100%; aspect-ratio: 3 / 4; } }"
+    },
+    {
+      "name": "Daylight Card",
+      "kind": "card",
+      "refersTo": "daylight-card",
+      "description": "A plate that carries its own white studio ground. No ring, no wash, no sheen — white on near-black draws its own edge, and a white/10 hairline on white is invisible.",
+      "html": "<figure class=\"ds-daylight\"><img src=\"/journey/02-agencies-wide.webp\" alt=\"Studio portrait of Gautam Kumawat\" width=\"1600\" height=\"800\" /></figure>",
+      "css": ".ds-daylight { position: relative; margin: 0; aspect-ratio: 2 / 1; overflow: hidden; border-radius: 1.5rem; } .ds-daylight img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }"
+    },
+    {
+      "name": "Press Wall Cell",
+      "kind": "card",
+      "refersTo": "press-cell",
+      "description": "The daylight grid: mastheads in their own brand colour on paper, ruled container-top-left plus cell-right-bottom so neighbours share one hairline. The outlet's name captions the mark on hover rather than replacing it.",
+      "html": "<div class=\"ds-presswall\"><div class=\"ds-presscell\"><img src=\"/press/the-hindu.svg\" alt=\"The Hindu\" /><span class=\"ds-presscell__name\" aria-hidden=\"true\">The Hindu</span></div><div class=\"ds-presscell\"><span class=\"ds-presscell__more\">and others</span></div></div>",
+      "css": ".ds-presswall { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); background: #fafafa; border-top: 1px solid rgb(10 10 10 / 0.16); border-left: 1px solid rgb(10 10 10 / 0.16); } .ds-presscell { position: relative; display: flex; align-items: center; justify-content: center; border-right: 1px solid rgb(10 10 10 / 0.16); border-bottom: 1px solid rgb(10 10 10 / 0.16); padding: 44px 28px; } .ds-presscell img { width: auto; max-width: 100%; height: 26px; object-fit: contain; } .ds-presscell__name { position: absolute; inset-inline: 0; bottom: 16px; text-align: center; font-family: 'DM Sans', sans-serif; font-size: 0.68rem; font-weight: 500; letter-spacing: 0.08em; color: #737373; opacity: 0; transition: opacity 300ms ease; pointer-events: none; } .ds-presscell:hover .ds-presscell__name { opacity: 1; } .ds-presscell__more { font-family: 'DM Sans', sans-serif; font-size: 0.72rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.16em; color: #737373; }"
+    },
+    {
+      "name": "Nameplate",
+      "kind": "custom",
+      "refersTo": "section-ink",
+      "description": "The broadcast lower-third: a caption sitting on a strong hairline with a short accent lead. Used only where a photograph needs the person in it identified.",
+      "html": "<div class=\"ds-nameplate\"><span class=\"ds-nameplate__label\">Speaking</span><span class=\"ds-nameplate__name\">Gautam Kumawat</span></div>",
+      "css": ".ds-nameplate { border-top: 1px solid rgb(255 255 255 / 0.32); padding-top: 12px; background: #050505; padding-inline: 20px; padding-bottom: 18px; } .ds-nameplate__label { display: block; font-family: 'DM Sans', sans-serif; font-size: 0.68rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.16em; color: rgb(255 255 255 / 0.55); } .ds-nameplate__name { display: block; margin-top: 16px; font-family: 'Archivo', sans-serif; font-variation-settings: 'wdth' 74, 'wght' 760; letter-spacing: -0.02em; line-height: 0.9; font-size: 1.7rem; color: #fff; }"
+    },
+    {
+      "name": "Grain Overlay",
+      "kind": "custom",
+      "refersTo": "section-ink",
+      "description": "The texture convention on a full-bleed ink field: fractal noise at 0.02, plain alpha and no blend mode, on a 180px tile behind the content.",
+      "html": "<div class=\"ds-grainfield\"><div class=\"ds-grain\" aria-hidden=\"true\"></div><p class=\"ds-grainfield__copy\">Ink field with grain.</p></div>",
+      "css": ".ds-grainfield { position: relative; isolation: isolate; overflow: hidden; background: #0a0a0a; padding: 48px 24px; } .ds-grain { position: absolute; inset: 0; z-index: -10; pointer-events: none; opacity: 0.02; background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\"); background-size: 180px 180px; } .ds-grainfield__copy { margin: 0; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; color: rgb(255 255 255 / 0.70); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The House Lights Drop",
+    "overview": "The page is a darkened auditorium with a lit stage in it. Near-black is the default room and almost everything lives there: the hero, the origin story, the journey, the collage, the book, the ask. Structure never comes from a panel or a card — it comes from hairline rules drawn across the full measure, the way broadcast graphics are ruled rather than boxed. Type is the loud element: one variable family, Archivo, driven on its width axis so a title card and a scoreboard come out of the same file. Colour is spent once. A single blue points, and it points at rules and at actions, not at everything.\n\nTwice the lights come up. The press wall and the travel gallery cut to a true off-white, because mastheads and documentary photographs are printed on paper and knocking them back to silhouettes on black hides the evidence instead of presenting it. Inside the ink, the reach card is a third daylight moment of a different kind: the plate keeps its own white studio sweep, so nothing is layered over it — no wash, no ring, no sheen, because a white hairline on white is invisible and white on near-black draws its own edge.\n\nDensity is varied on purpose. Bands pick one of three rhythm steps rather than repeating one padding pair, and the pacing inside a section is written as a sequence: thin rule, loud type, loud image, dense text, quiet close. Motion is weight arriving and settling — two easing curves for the whole site, one entrance primitive, nothing that bounces and nothing that drifts forever.",
+    "keyCharacteristics": [
+      "Near-black ground with deliberate cuts to paper, and one photographic cut to daylight inside the ink",
+      "One variable family (Archivo) across three width settings; DM Sans carries every non-display word",
+      "Hairline rules as the only structure — no bordered cards, no tinted panels",
+      "One blue, used as a pointer and a section accent, never as a highlight on every figure",
+      "Photography at full measure, built to its final ratio rather than cropped into it",
+      "Momentum motion: entrances play once, and reduced motion resolves to the finished state"
+    ],
+    "rules": [
+      { "name": "The One Accent Rule", "body": "The blue points; it does not decorate. A section gets one blue element — the opening rule's lead, or the primary action, not a scatter of both. No accent on figure suffixes, no accent as a hover state.", "section": "colors" },
+      { "name": "The Cut To Daylight Rule", "body": "Paper is a structural beat, not a theme. It is whole-section ground where the content is printed evidence or documentary photography (the press wall, the press strip's own band, the travel gallery), and nowhere else. A separate daylight moment lives inside the ink — the reach card's plate, which keeps its own white studio ground — and that one is a photograph keeping its background, not a section changing colour. Both are cuts; neither is an inconsistency to be smoothed.", "section": "colors" },
+      { "name": "The 90% Floor Rule", "body": "Where white type sits on the signal blue, secondary copy floors at 90% white (5.82:1), never the usual /60 or /70 — white at 70% composites to 4.11:1 and misses AA. The signal tone of the figure index encodes this.", "section": "colors" },
+      { "name": "The Width-Axis Rule", "body": "Weight and width are the hierarchy. Reach for a different wdth before reaching for a second typeface, a colour, or a decorative treatment.", "section": "typography" },
+      { "name": "The Tight-But-Not-Touching Rule", "body": "Display letter-spacing stays at or above −0.035em. Tighter than −0.04em the letters touch, which reads as cramped rather than as designed.", "section": "typography" },
+      { "name": "The Running Head Rule", "body": "A section opens with a rule, not with an eyebrow. Two forms exist and both are the page's grammar: the full-measure hairline with the blue lead segment (about, book), and the span-plus-count pair sitting on one rule across the measure (journey, gallery). A section says what it is in its heading; it does not label itself above it.", "section": "typography" },
+      { "name": "The Tabular Figure Rule", "body": "Every figure carries tabular-nums lining-nums. A figure without them is a defect, not a variant.", "section": "typography" },
+      { "name": "The Measure Rule", "body": "max-w-6xl inside px-6 sm:px-10. Anything that leaves the measure needs a reason written next to it, and its heading stays inside regardless.", "section": "layout" },
+      { "name": "The Hairline-Grid Rule", "body": "A grid of cells is ruled container-top-left plus cell-right-bottom, so neighbours share one hairline instead of stacking two — and the cell count is padded to complete the grid at every column count rather than leaving a ragged last row.", "section": "layout" },
+      { "name": "The Ruled, Not Carded Rule", "body": "Structure is a 1px hairline across the full measure. When a block needs separation, give it a rule or a tonal step — not a rounded panel with a white/10 border.", "section": "elevation" },
+      { "name": "The 0.02 Grain Rule", "body": "Grain is opacity-[0.02], plain alpha, -z-10, aria-hidden, on a 180px tile. It is not a dial to taste: anything heavier lifts the ground and breaks continuity with the sections either side.", "section": "elevation" },
+      { "name": "The Built-To-Ratio Rule", "body": "If a frame needs a ratio the source cannot give, rebuild the raster at that ratio. Do not crop twice — two crops deep there is no headroom left to bias with object-position.", "section": "shapes" },
+      { "name": "The Width Is A Cap Rule", "body": "Raster widths are the largest the layout can ask for at a 2× DPR, and width is a cap, not a resize target: withoutEnlargement means a source smaller than the cap ships at its own size rather than being upscaled into softness.", "section": "shapes" },
+      { "name": "The Art-Direction Rule", "body": "A plate that is a landscape composition on desktop changes ratio rather than shrinking on a phone — 16:9 at 390px is a 199px strip, which is not worth the scale a composition spends on it.", "section": "shapes" },
+      { "name": "The Never-Hidden Rule", "body": "Reveals enhance content that is already visible. No entrance may be the only thing that makes content appear — a stalled observer, a reduced-motion setting or a headless render must degrade to plain, complete content with true figures.", "section": "components" },
+      { "name": "The Momentum Rule", "body": "Two curves for the whole site: --ease-out-expo cubic-bezier(0.16,1,0.3,1) as the house curve, --ease-out-quint cubic-bezier(0.22,1,0.36,1) for short moves. Nothing bounces, and nothing moves forever — the one marquee pauses on hover and stops entirely under reduced motion.", "section": "components" }
+    ],
+    "dos": [
+      "Do hold content to max-w-6xl inside px-6 sm:px-10, and open the section with a rule — the blue-lead hairline, or the span/count running head.",
+      "Do set every heading and every figure in Archivo via .display / .display-wide / .display-tight, and every figure with .tnum.",
+      "Do spend the blue once per section, on a rule lead or a primary action.",
+      "Do cut to paper when the content is printed evidence or documentary photography, and let the marks keep their own brand colour from first paint.",
+      "Do give a photograph scale: full measure or a stated share of it (72%, 55%), with the file built to the frame's ratio.",
+      "Do wrap entrances in Reveal at 0.6s with a 0.04–0.16s delay ladder, and make sure the content reads without it.",
+      "Do floor secondary white type at 90% on the blue field.",
+      "Do size rasters to the largest width the layout can ask for at 2× DPR, capped with withoutEnlargement."
+    ],
+    "donts": [
+      "Don't put an eyebrow, kicker or all-caps label above a section heading. The heading says what the section is; a rule gives it something to hang from.",
+      "Don't build structure from rounded panels with white/10 borders. Rule it, or step the tone.",
+      "Don't layer a wash, ring, sheen or blend over a plate that carries its own white ground — those are arguments with the photograph, not treatments of it.",
+      "Don't raise the grain above 0.02, or give it a blend mode.",
+      "Don't tint a figure's suffix, highlight every number, or use the blue as a hover state.",
+      "Don't crop a plate twice; rebuild the raster at the ratio the frame needs.",
+      "Don't ship perpetual ambient motion — no always-on drift, no re-firing reveals, no animation that content depends on.",
+      "Don't set display type tighter than −0.04em, and don't introduce a second sans-serif to do what a width axis already does."
+    ]
+  }
+}

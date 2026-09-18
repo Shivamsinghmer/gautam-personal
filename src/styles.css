@@ -273,6 +273,17 @@ a:hover {
   color: #246f76;
 }
 
+/* The surfaces the page does not draw itself still carry its design. Selection
+   shipped as the browser's own blue, which belongs to no design system and is
+   the one colour on the page that had not been chosen - on a near-black ground
+   it is also the loudest thing a visitor can make appear. `--signal` is the
+   site's one accent, so selecting text now uses the same blue the rules and
+   buttons point with. */
+::selection {
+  background-color: var(--signal);
+  color: #ffffff;
+}
+
 code {
   font-size: 0.9em;
   border: 1px solid var(--line);

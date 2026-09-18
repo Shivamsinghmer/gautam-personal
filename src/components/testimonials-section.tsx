@@ -6,102 +6,66 @@ import {
 import { Reveal, ScatterText } from "#/components/ui/scroll-reveal";
 import { HERO_DEEP } from "#/lib/palette";
 
-const UNSPLASH = (id: string, w: number, h: number) =>
-	`https://images.unsplash.com/photo-${id}?w=${w}&h=${h}&q=80&auto=format&fit=crop`;
-
 /**
- * Placeholder quotes under generic designations rather than named individuals -
- * stand-ins for real testimonial copy from officers Gautam has trained. Swap
- * for the real thing before this ships.
+ * Six real people. Four gave quotes, verbatim, for this page; the two
+ * law-enforcement officers appear as attribution-only cards - photograph, name
+ * and role, and nothing in quotation marks - because neither has given
+ * publishable wording in writing. That split is the rule of this list:
  *
- * ⚠️ TWO ROWS NOW CARRY PHOTOGRAPHS OF REAL, IDENTIFIABLE PEOPLE, AND THEY ARE
- * THERE TO TEST THE LAYOUT WITH REAL PORTRAITS - NOTHING MORE.
+ * - Photo + name + role, no quote: fine. A face asserts no endorsement and a
+ *   caption claims no words.
+ * - Photo + name + invented quote: never. A real name beside words someone else
+ *   wrote is a fabricated endorsement, and these are the last two people to
+ *   publish one about (their files entered git history with invented quotes in
+ *   commit 1aae5b1 and were deliberately dropped).
  *
- * The quotes beside them are invented and the designations are generic on
- * purpose: nobody is named, so no real person is shown saying anything. Those
- * two facts are what keep this honest, and they have to stay true together. The
- * moment a real name is typed next to one of these invented quotes, the page is
- * publishing a fabricated endorsement by a former Deputy National Security
- * Advisor and a serving DG of Police - which is a defamation and false-
- * endorsement claim from people well placed to bring one, quite apart from
- * what it would do to the credibility this whole site exists to build.
- *
- * So: real quotes, or generic attributions. Never a real name on an invented
- * one. The image rights are a separate open question - both files came off
- * Wikipedia and Instagram rather than from the subjects.
+ * Add a quote to either officer card only when that person has supplied the
+ * exact words themselves and approved them for publication in writing.
  */
 const TESTIMONIALS: Omit<PerspectiveCarouselItem, "title">[] = [
 	{
-		src: "/testimonials/pankaj-kumar-singh.avif",
-		alt: "Portrait of a senior police officer",
-		name: "Deputy Superintendent of Police",
-		role: "State Police, Cyber Cell",
+		src: "/testimonials/vivek-hackw0rm.jpg",
+		alt: "Vivek, photographed in a Guy Fawkes mask and hooded jacket in the rain at night",
+		name: "Vivek",
+		role: "CEO, Hackw0rm",
 		quote:
-			"The training reshaped how our unit approaches digital evidence - practical, current, and built for the field, not a classroom.",
+			"Gautam didn't just rise, he uploaded himself into success: a mystery, a machine, a master of his craft.",
+	},
+	{
+		src: "/testimonials/santosh-pyasa.jpg",
+		alt: "Santosh Pyasa at a desk in a computer lab, wearing a headset",
+		name: "Santosh Pyasa",
+		role: "Journalist",
+		quote:
+			"I have known Gautam long before the world called him a hacker. He is living proof that when passion meets persistence, transformation begins.",
+	},
+	{
+		src: "/testimonials/abhay-sharma.jpg",
+		alt: "Portrait of Abhay Sharma seated by a window",
+		name: "Abhay Sharma",
+		role: "Mentor",
+		quote:
+			"Once Gautam decides on something, he pursues it with relentless dedication, working aggressively until commitment turns into achievement.",
+	},
+	{
+		src: "/testimonials/ashok-prajapati.jpg",
+		alt: "Official portrait of Ashok Prajapati in front of the United States and NASA flags",
+		name: "Ashok Prajapati",
+		role: "AST, NASA HQ",
+		quote:
+			"I was truly amazed by his outstanding cyber security capabilities at such a young age — expertise that surpasses even many seasoned professionals.",
+	},
+	{
+		src: "/testimonials/pankaj-kumar-singh.avif",
+		alt: "Official portrait of Pankaj Kumar Singh",
+		name: "Pankaj Kumar Singh",
+		role: "PSM MSM IPS",
 	},
 	{
 		src: "/testimonials/navdeep-singh-virk.jpg",
-		alt: "Portrait of a police training academy officer",
-		name: "Faculty",
-		role: "Police Training Academy",
-		quote:
-			"We've run this module for three consecutive batches now. Officers leave able to actually work a case, not just recite terms.",
-	},
-	{
-		src: UNSPLASH("1560250097-0b93528c311a", 480, 640),
-		alt: "Portrait of a cyber crime cell inspector",
-		name: "Inspector",
-		role: "Cyber Crime Cell",
-		quote:
-			"Sharpest breakdown of darknet investigation techniques I've sat through in over a decade on the force.",
-	},
-	{
-		src: UNSPLASH("1607746882042-944635dfe10e", 480, 640),
-		alt: "Portrait of a special task force officer",
-		name: "Senior Officer",
-		role: "Special Task Force",
-		quote:
-			"Turned a room of skeptical veterans into engaged students within the first hour. That alone says a lot.",
-	},
-	{
-		src: UNSPLASH("1500648767791-00dcc994a43e", 480, 640),
-		alt: "Portrait of a law enforcement training coordinator",
-		name: "Training Coordinator",
-		role: "Law Enforcement Academy",
-		quote:
-			"Consistently the highest-rated guest session in our annual training calendar, year after year.",
-	},
-	{
-		src: UNSPLASH("1544005313-94ddf0286df2", 480, 640),
-		alt: "Portrait of a district cyber cell officer",
-		name: "Officer",
-		role: "District Cyber Cell",
-		quote:
-			"Clear, methodical, and refreshingly honest about what actually works in the field versus what looks good on a slide.",
-	},
-	{
-		src: UNSPLASH("1472099645785-5658abf4ff4e", 480, 640),
-		alt: "Portrait of a forensics unit lead",
-		name: "Unit Lead",
-		role: "Digital Forensics",
-		quote:
-			"He does not hand you tools and wish you luck - he walks the whole chain of custody with you until it holds up.",
-	},
-	{
-		src: UNSPLASH("1494790108377-be9c29b29330", 480, 640),
-		alt: "Portrait of a prosecution liaison officer",
-		name: "Prosecution Liaison",
-		role: "Economic Offences Wing",
-		quote:
-			"Our conviction rate on cyber-enabled fraud moved after this training. That is the only review that matters.",
-	},
-	{
-		src: UNSPLASH("1568602471122-7832951cc4c5", 480, 640),
-		alt: "Portrait of a cyber security analyst",
-		name: "Lead Analyst",
-		role: "Security Operations Centre",
-		quote:
-			"Rare to find someone who can hold a room of engineers and a room of investigators with the same material.",
+		alt: "Official portrait of Navdeep Singh Virk",
+		name: "Navdeep Singh Virk",
+		role: "IPS, ADGP of Haryana Police",
 	},
 ];
 
@@ -170,7 +134,7 @@ export function TestimonialsSection() {
 						autoPlayMs={5000}
 						showControls={false}
 						slideWidth={size.width}
-						rotationStep={38}
+						rotationStep={28}
 						inactiveScale={0.86}
 						items={TESTIMONIALS.map((t) => ({ ...t, title: t.name ?? "" }))}
 					/>

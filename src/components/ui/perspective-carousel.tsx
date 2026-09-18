@@ -2,8 +2,8 @@
 
 import {
 	animate as animateMotionValue,
-	motion,
 	type MotionValue,
+	motion,
 	motionValue,
 	type Transition,
 	useAnimationFrame,
@@ -132,7 +132,27 @@ export function PerspectiveCarousel({
 	const safeSlideWidth = Math.max(96, slideWidth);
 	const safeInactiveScale = clamp(inactiveScale, 0.5, 1);
 	/** How many cards either side of the active one stay visible. */
-	const visibleArc = Math.min(3, Math.floor((items.length - 1) / 2));
+	const visibleArc = Math.min(3, Math.floor(items.length / 2));
+	/**
+	 * `floor(n / 2)`, not `floor((n - 1) / 2)`. On a ring the arc has to stop
+	 * short of the point where two indices would claim the same slot, and for an
+	 * odd count those two formulas agree. For an even count they do not: the card
+	 * directly opposite the active one is a single unique index, so it can be
+	 * shown, and the conservative form threw it away. At four items that was the
+	 * difference between an arc of 1 and an arc of 2 - three cards eligible
+	 * instead of all four, and in continuous mode, where the offsets are
+	 * fractional, often only two actually on screen.
+	 *
+	 * Fade across the outer half-step rather than switching at the boundary. In
+	 * continuous mode the offsets drift through the arc edge every cycle, so a
+	 * hard `> visibleArc` test pops a card out whole. The ramp touches only the
+	 * outermost half-step; everything inside the arc stays fully opaque.
+	 */
+	const arcOpacity = React.useCallback(
+		(offset: number) =>
+			clamp((visibleArc + 0.5 - Math.abs(offset)) / 0.5, 0, 1),
+		[visibleArc],
+	);
 
 	const rootRef = React.useRef<HTMLDivElement>(null);
 	/**
@@ -243,7 +263,7 @@ export function PerspectiveCarousel({
 			// snapping the instant it crosses some threshold.
 			const closeness = clamp(1 - Math.abs(offset), 0, 1);
 			m.scale.set(safeInactiveScale + (1 - safeInactiveScale) * closeness);
-			m.opacity.set(Math.abs(offset) > visibleArc ? 0 : 1);
+			m.opacity.set(arcOpacity(offset));
 		});
 
 		const rounded =
@@ -419,13 +439,13 @@ export function PerspectiveCarousel({
 													// Cards beyond the visible arc are hidden, so the one
 													// that wraps from one end of the ring to the other does
 													// it out of sight rather than flying across the frame.
-													opacity: Math.abs(offset) > visibleArc ? 0 : 1,
+													opacity: arcOpacity(offset),
 												},
 												transition,
 												style: { transformStyle: "preserve-3d" },
 											})}
 								>
-									{item.quote ? (
+									{item.quote || item.name ? (
 										// Card form: a 5:6 portrait with the words laid over it.
 										// The text sits on the picture rather than beneath it, so
 										// the card is one object instead of an image with a panel
@@ -466,10 +486,17 @@ export function PerspectiveCarousel({
 											/>
 
 											<figure className="absolute inset-x-0 bottom-0 m-0 p-5">
-												<blockquote className="text-[0.9rem] leading-relaxed text-white">
-													&ldquo;{item.quote}&rdquo;
-												</blockquote>
-												<figcaption className="mt-3 border-t border-white/20 pt-3">
+												{item.quote ? (
+													<blockquote className="text-[0.9rem] leading-relaxed text-white">
+														&ldquo;{item.quote}&rdquo;
+													</blockquote>
+												) : null}
+												<figcaption
+													className={cn(
+														"border-t border-white/20 pt-3",
+														item.quote ? "mt-3" : "mt-1",
+													)}
+												>
 													<span className="block text-sm font-semibold text-white">
 														{item.name ?? item.title}
 													</span>
