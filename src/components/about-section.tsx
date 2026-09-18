@@ -110,7 +110,7 @@ export function AboutSection() {
 					<div>
 						{/* 3:4 at every size now. The column is roughly 460px wide, and
 						    16:9 inside it is a 260px band - a letterbox, not a portrait.
-						    The uncropped frame stands up in a narrow column the way the
+						    The centered crop stands up in a narrow column the way the
 						    wide cut stood up across a full measure, and it is the file's
 						    own ratio, so `object-cover` crops nothing. The ring is the
 						    page's own hairline, the same one the gallery and collage
@@ -122,7 +122,7 @@ export function AboutSection() {
 									src="/about/studio.webp"
 									alt="Gautam Kumawat at his studio desk, hands steepled, a boom microphone, a CRT monitor and a green-lit wall behind him"
 									width={1000}
-									height={1334}
+									height={1333}
 									loading="lazy"
 									decoding="async"
 									draggable={false}

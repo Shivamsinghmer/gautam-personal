@@ -59,13 +59,19 @@ const TESTIMONIALS: Omit<PerspectiveCarouselItem, "title">[] = [
 		src: "/testimonials/pankaj-kumar-singh.avif",
 		alt: "Official portrait of Pankaj Kumar Singh",
 		name: "Pankaj Kumar Singh",
-		role: "PSM MSM IPS",
+		role: "PSM MSM IPS", 
+		quote:
+			"Gautam is defined by a rare blend of intense curiosity and quiet precision. always three steps ahead, effortlessly spotting patterns that others overlook..",
+
 	},
 	{
 		src: "/testimonials/navdeep-singh-virk.jpg",
 		alt: "Official portrait of Navdeep Singh Virk",
 		name: "Navdeep Singh Virk",
-		role: "IPS, ADGP of Haryana Police",
+		role: "IPS, ADGP of Haryana Police", 
+		quote:
+			" I am delighted to note that the efforts made by Gautam in  course on “Cyber Crime Investigation & Cyber Security”  in simple and professional manner have been extraordinary. ",
+
 	},
 ];
 
@@ -103,11 +109,11 @@ export function TestimonialsSection() {
 			<div className="mx-auto max-w-6xl">
 				<Reveal>
 					<p className="text-center text-xs font-semibold uppercase tracking-[0.28em] text-white/40">
-						What people say
+						From Those Who Know
 					</p>
 				</Reveal>
 				<h2 className="mt-4 text-center text-4xl font-bold text-white sm:text-5xl">
-					<ScatterText text="About me" spread={26} tilt={26} />
+					<ScatterText text="About Gautam" spread={26} tilt={26} />
 				</h2>
 			</div>
 

@@ -55,18 +55,27 @@ mkdirSync(OUT, { recursive: true });
  */
 const JOBS = [
 	/**
-	 * The one plate the section renders, at every size: the uncropped 3:4 frame.
+	 * The one plate the section renders, at every size: a centered 3:4 window
+	 * of the source, at 75% of its width.
 	 *
-	 * A 16:9 cut shipped here for a while, for a full-measure plate and then a
-	 * 72% one. The section puts the photograph in a column of its own now -
-	 * roughly 460px at the widest - and 16:9 inside that is a 260px band, a
-	 * letterbox rather than a portrait. The frame's own ratio stands up in a
-	 * narrow column, and cropping nothing is the honest version anyway.
+	 * The full frame carries dead air the column never needed - ceiling plant
+	 * and AC hardware above, desk foreground below - with the subject standing
+	 * in the middle of it. The section puts the photograph in a column of its
+	 * own, roughly 460px at the widest, and wants him in that column, not the
+	 * room around him. So the derivative is a centered 1050x1400 extract
+	 * (left 175, top 233 of the 1400x1867 original), still exactly 3:4, so the
+	 * section's frame and the file stay the same shape and `object-cover`
+	 * crops nothing.
 	 *
 	 * 1000px covers that column at 2x with room to spare, and is a downscale
-	 * from the 1400px source rather than an upscale.
+	 * from the extract rather than an upscale.
 	 */
-	{ out: "studio.webp", src: "photos/about-studio.jpg", width: 1000 },
+	{
+		out: "studio.webp",
+		src: "photos/about-studio.jpg",
+		width: 1000,
+		extract: { left: 175, top: 233, width: 1050, height: 1400 },
+	},
 ];
 
 for (const job of JOBS) {

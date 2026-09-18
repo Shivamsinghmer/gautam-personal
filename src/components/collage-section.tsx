@@ -86,9 +86,33 @@ export function CollageSection() {
 			    full-section ground the layer is here to provide. `screen` means the
 			    inset costs nothing visually - the margin it leaves is the plate's
 			    own black, which contributes nothing to the blend either way. */}
+			{/* Masked at the top and bottom edges, because the plate's black is
+			    not black there.
+
+			    The note below says the corners read 0-1. That holds for the left
+			    and right edges (1.1 and 0.8 mean) and not for the top and bottom,
+			    which average 5.8 and 5.0. Screened at 0.5 over a ground of 10 that
+			    composites the field inside this box to about 12.7 - a step of
+			    nearly three levels - and because the layer is inset 6%, the step
+			    landed as a hard horizontal line partway into the section with flat
+			    ink above it. On a near-black ground, three levels across a straight
+			    edge is a seam you can see, and it read as the section boundary
+			    being wrong rather than as a layer edge.
+
+			    The fade rolls the layer to nothing over the outer eighth, so the
+			    lift arrives gradually and there is no edge to catch. Vertical only:
+			    the side edges contribute about half a level, which is under the
+			    threshold where a boundary is visible, and masking them too would
+			    narrow the figure for nothing. */}
 			<div
 				aria-hidden="true"
 				className="pointer-events-none absolute inset-x-[8%] inset-y-[6%] z-0 hidden lg:block"
+				style={{
+					maskImage:
+						"linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%)",
+					WebkitMaskImage:
+						"linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%)",
+				}}
 			>
 				{/* `object-cover` and `object-top`: cover scales until the box's
 				    width is met and crops the excess height, which is what reaches

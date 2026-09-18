@@ -41,20 +41,15 @@ const LiquidMetalButton = lazy(() =>
  *
  * ## The photograph
  *
- * `02-agencies.webp`, out of the journey section's graded set - a studio
- * headshot on a white ground, and a plate with its own background rather than
- * a cut-out.
+ * `reach.jpg`, a 3:2 plate (1280x853) supplied for this card. It replaces
+ * `02-agencies-wide.webp`, the journey set's studio headshot that used to sit
+ * here - about keeps its cut-out to itself, and this section gets its own
+ * photograph instead of borrowing the journey section's.
  *
- * Two things follow from that. First, it ends a duplicate: the card used to
- * run `gautam-figure.png`, which is also the about section's cut-out, and
- * public/ holds exactly two cut-outs, both from the same shoot, so two
- * sections that each wanted a free-standing figure had to share one. About
- * keeps it to itself now. Second, the frame holds a rectangle, so everything
- * that used to sit behind a cut-out figure had to go - see the inline note.
- *
- * The white ground is kept deliberately. It makes this the one cut to daylight
- * on the page outside the press wall, which means this section no longer
- * carries a saturated blue surface; the accent here is the shader button.
+ * The card and the file are the same shape, which is why there is no
+ * `object-position` to tune. The plate keeps whatever ground it was shot on,
+ * so there is nothing layered over it: no wash, no blend, no ring, no sheen.
+ * White on near-black draws its own edge.
  *
  * ⚠️ PLACEHOLDER FIGURES. The four counts below are taken from the reference
  * design that inspired the original layout - they are NOT Gautam's real
@@ -122,49 +117,24 @@ export function ReachSection() {
 					</figure>
 				</Reveal>
 
-				<div className="mt-8 grid gap-8 sm:mt-10 lg:grid-cols-[55%_minmax(0,1fr)] lg:items-center lg:gap-14">
+				<div className="mt-8 grid gap-8 sm:mt-10 lg:grid-cols-[47%_minmax(0,1fr)] lg:items-center lg:gap-14">
 					<Reveal direction="right">
-						{/* 2:1 at 55% of the measure, where this was 4:3 inside a fixed
-						    22rem column - the proportion and the share the reference for
-						    this block carries.
-
-						    The fixed cap it replaces was there for a reason worth
-						    restating: an `fr`-sized column once rendered this card at
-						    574x431 and that alone was most of what pushed the section past
-						    one screen. This is wider than that (634px) and still costs
-						    less height, because 2:1 is so much shallower than 4:3: 317px
-						    against 431. The section runs a little past one screen as a
-						    result, which is the trade the width asked for.
-
-						    A ratio, not a crop. See the reach job in
-						    build-journey-images.mjs: 2:1 cannot be cropped out of this
-						    photograph without taking the top of his head off, so the plate
-						    is built at 2:1 by extending the studio sweep instead. The card
-						    and the file are the same shape, which is why there is no
-						    `object-position` here to tune. */}
-						<figure className="relative m-0 aspect-[2/1] overflow-hidden rounded-[1.5rem]">
-							{/* The plate keeps its own white studio ground, so this card is the
-							    page's one cut to daylight outside the press wall. That is why
-							    there is nothing layered over it: the blue wash this card used to
-							    carry turned the white to a pale periwinkle, and a multiply blend
-							    turned it into a flat blue field - both of them arguments with the
-							    photograph rather than treatments of it. The section still gets
-							    its accent from the shader button directly below.
-
-							    No ring and no sheen for the same reason. A white/10 hairline is
-							    invisible on white, and the old radial highlight was white light
-							    drawn on a white ground. White on near-black draws its own edge.
-
-							    The plate is `02-agencies-wide.webp`, built for this card. It
-							    used to be `02-agencies.webp` - an 800x1000 frame already cut
-							    out of the square original with `top` gravity - cropped a second
-							    time to the card's ratio, and two crops deep there is no
-							    headroom left to bias with `object-position`. */}
+						{/* 3:2 at 47% of the measure - the file's own ratio
+						    (1280x853), so `object-cover` crops nothing and there
+						    is no `object-position` to tune. Kept a touch narrower
+						    than the reference's 55% so the plate sits inside the
+						    section instead of leading it; the shallower height
+						    also pays back into the one-screen budget. */}
+						<figure className="relative m-0 aspect-[3/2] overflow-hidden rounded-[1.5rem]">
+							{/* The plate keeps whatever ground it was shot on, so
+							    there is nothing layered over it: no wash, no blend,
+							    no ring, no sheen. The section gets its accent from
+							    the shader button directly below. */}
 							<img
-								src="/journey/02-agencies-wide.webp"
-								alt="Studio portrait of Gautam Kumawat"
-								width={1600}
-								height={800}
+								src="/reach.jpg"
+								alt="Photograph of Gautam Kumawat"
+								width={1280}
+								height={853}
 								loading="lazy"
 								decoding="async"
 								className="absolute inset-0 h-full w-full object-cover"
