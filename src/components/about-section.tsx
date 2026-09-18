@@ -33,11 +33,11 @@ const Signature = lazy(() =>
  *   once. Off the veil, the same body copy now measures 11:1 on bare ink, and
  *   the page's photographs are carried by the three sections built to carry
  *   them (journey, collage, press) rather than by a fourth doing it badly.
- * - **One figure instead of eight.** The cut-out has a real alpha channel, so
- *   he stands on the section's closing rule rather than sitting inside another
- *   bordered rectangle - the composition holds him instead of framing him. It
- *   is also the only photograph in the section, which is what lets it be the
- *   thing you look at.
+ * - **One photograph instead of eight.** Being the only picture in the section
+ *   is what lets it be the thing you look at. It was a cut-out for a long time,
+ *   standing on the closing rule with no frame around it; it is a framed
+ *   photograph of the room he records in now, and the treatment changed with
+ *   the asset rather than being imposed on it - see the note at the figure.
  * - **The hover cards are gone.** Three phrases in the prose opened floating
  *   previews on hover: no keyboard path, no touch path, and the previews were
  *   generic stock on a site whose rule is to show the real asset. The phrases
@@ -65,20 +65,21 @@ export function AboutSection() {
 		offset: ["start end", "end start"],
 	});
 	/**
-	 * The figure drifts against the sheet as the section passes - one slow move
+	 * The picture drifts inside its frame as the section passes - one slow move
 	 * across the whole section, not an ambient wiggle, and nothing at all under
 	 * reduced motion.
 	 *
-	 * It is a scale from his feet rather than a translation. Translating him
-	 * broke the one idea the composition is built on: a +-4% drift is +-18px at
-	 * this size, so he spent most of the scroll hovering above the closing rule
-	 * or sunk through it. Scaled from `50% 100%`, the contact point cannot move,
-	 * and the depth cue survives.
+	 * Never below 1. This ran 1.04 -> 0.98 when the subject was a cut-out on
+	 * transparency, where scaling under 1 simply made him smaller. He sits in a
+	 * clipped frame now, and anything under 1 shrinks the picture inside its own
+	 * box - which does not read as a drift, it reads as the ground showing
+	 * through at the edges. Staying above 1 means the frame is always
+	 * over-filled and only the crop moves.
 	 */
 	const figureScale = useTransform(
 		scrollYProgress,
 		[0, 1],
-		reduceMotion ? [1, 1] : [1.04, 0.98],
+		reduceMotion ? [1, 1] : [1.06, 1],
 	);
 
 	return (
@@ -180,53 +181,59 @@ export function AboutSection() {
 						</div>
 					</div>
 
-					{/* The figure. `items-end` on the cell with no bottom margin is the
-					    whole trick: the asset is trimmed to his silhouette, so the box
-					    ending on the closing rule means he is standing on it. */}
+					{/* The photograph. `items-end` still bottom-aligns the cell so the
+					    frame lands flush on the section's closing rule, but what lands
+					    there is now an edge rather than a pair of shoes - see below. */}
 					<div className="flex items-end justify-center lg:col-start-1 lg:row-start-2 lg:justify-start lg:pt-14">
-						{/* Sized to the figure, not to the cell. The glow below is
-						    positioned against this box: hung on the cell instead, its
-						    bright centre landed in the empty half of the column and read
-						    as a smudge on the ground rather than as light under him. */}
-						<div className="relative w-[min(56vw,240px)] sm:w-[min(44vw,320px)] lg:w-[min(28vw,300px)]">
-							{/* A floor light. A cut-out on flat ink reads as pasted on
-							    without one; this is a pool under him, not a glow around
-							    him. */}
-							<div
-								aria-hidden="true"
-								className="pointer-events-none absolute inset-x-[-30%] bottom-0 h-2/3"
-								style={{
-									background:
-										"radial-gradient(50% 100% at 50% 100%, rgb(255 255 255 / 0.09) 0%, rgb(255 255 255 / 0.03) 45%, transparent 78%)",
-								}}
-							/>
-							<Reveal direction="none" delay={0.1} className="relative">
-								<motion.img
-									src="/about/figure.webp"
-									alt="Gautam Kumawat, reading from the tablet in his hand"
-									width={396}
-									height={593}
-									loading="lazy"
-									decoding="async"
-									draggable={false}
-									// The caps come from the source: figure.webp is 396px
-									// across and there is no more of it anywhere in public/,
-									// so a width past that is the browser inventing detail.
-									// Between sm and lg he is the only thing in a full-width
-									// row, so he takes the larger cap and stands in the
-									// middle of it - right-aligned at 768 he left a 380px
-									// void beside him.
-									className="block h-auto w-full origin-bottom select-none"
-									style={{ scale: figureScale }}
-								/>
+						{/* A frame, where this used to be a bare cut-out.
+
+						    The old asset was a silhouette on transparency, so the element's
+						    box and his outline were the same thing and the section could
+						    stand him on a line. It also carried a radial pool of light
+						    underneath, because a cut-out on flat ink reads as pasted on
+						    without one. The replacement is an ordinary rectangular
+						    photograph of the room he records in: there is no silhouette to
+						    stand on anything, and a floor glow under a rectangle is light
+						    pooling beneath a picture frame. Both went with it.
+
+						    What replaces them is the treatment the page already gives a
+						    photograph on ink - rounded corners and a white/10 hairline, the
+						    same as the gallery and collage frames.
+
+						    The width caps are raised because the reason for them is gone:
+						    they existed because the cut-out was 396px across and there was
+						    no more resolution anywhere in public/. This source is 1400px. */}
+						<div className="w-[min(62vw,280px)] sm:w-[min(46vw,340px)] lg:w-[min(32vw,400px)]">
+							<Reveal direction="none" delay={0.1}>
+								<figure className="m-0 overflow-hidden rounded-2xl ring-1 ring-white/10">
+									{/* The slow drift the cut-out had, moved inside the frame.
+									    On the cut-out it scaled him from his feet so the
+									    contact point with the rule could not move; there is no
+									    contact point now, so it is a push within a fixed frame
+									    instead - the frame holds still and the picture moves
+									    inside it, which is the only version of this that does
+									    not wobble the layout. */}
+									<motion.img
+										src="/about/studio.webp"
+										alt="Gautam Kumawat at his studio desk, hands steepled, a boom microphone and a green-lit wall behind him"
+										width={1000}
+										height={1334}
+										loading="lazy"
+										decoding="async"
+										draggable={false}
+										className="block h-auto w-full select-none"
+										style={{ scale: figureScale }}
+									/>
+								</figure>
 							</Reveal>
 						</div>
 					</div>
 				</div>
 
-				{/* The rule the figure stands on. Kept rather than dropped because the
-				    figure above is a trimmed cut-out landing on this line - without it
-				    he ends in mid-air on bare ink. */}
+				{/* The closing rule. It was kept originally because a trimmed cut-out
+				    ended in mid-air on bare ink without it; the framed photograph above
+				    does not need catching in the same way, but the rule still closes the
+				    section and the figure column still lands on it. */}
 				<div aria-hidden="true" className="border-t border-white/15" />
 			</div>
 		</section>
