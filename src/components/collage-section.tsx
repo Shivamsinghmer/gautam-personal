@@ -77,15 +77,30 @@ export function CollageSection() {
 			    sit on. Hung on the section instead, `inset-0` covers the whole
 			    thing, heading included.
 
-			    `lg:block` only. Below that the cards stack into a single column and
-			    there is no composition left for him to stand in the middle of. */}
+			    `lg:block` only, and the breakpoint is the one that matters rather
+			    than a guess: the twelve-column field and its `col-start-1` /
+			    `col-start-9` placements are also `lg`, so that is the exact width
+			    at which a centre gutter exists for him to stand in. Below it the
+			    cards run one column on a phone and two from `sm`, and in neither
+			    case is there a middle - a figure behind a flush 2x2 is a
+			    photograph under the cards, not a composition around him. */}
 			{/* Inset rather than flush to the section's edges. Covering the box
 			    exactly made him the largest thing on the page and put the plate's
 			    glow right behind the heading; pulling the box in ~8% horizontally
 			    and 6% vertically takes the figure down a step without giving up the
 			    full-section ground the layer is here to provide. `screen` means the
 			    inset costs nothing visually - the margin it leaves is the plate's
-			    own black, which contributes nothing to the blend either way. */}
+			    own black, which contributes nothing to the blend either way.
+
+			    The width is capped, and that cap is the whole point of the
+			    element. This was `inset-x-[8%]`, which sizes the figure off the
+			    *viewport* while the cards are sized off the measure - the two
+			    agree up to about 1280px and then diverge fast. At 1920 the layer
+			    came out 1613px wide against a 1152px measure, overhanging the
+			    cards by 230px a side: the man the composition is built around had
+			    walked out of it. 84% keeps the old behaviour everywhere it was
+			    right, and 67rem freezes the proportion it had at 1280 - about 93%
+			    of the measure - for every screen above that. */}
 			{/* Masked at the top and bottom edges, because the plate's black is
 			    not black there.
 
@@ -113,7 +128,7 @@ export function CollageSection() {
 			    narrow the figure for nothing. */}
 			<div
 				aria-hidden="true"
-				className="pointer-events-none absolute inset-x-[8%] inset-y-[6%] z-0 hidden lg:block"
+				className="pointer-events-none absolute inset-y-[6%] left-1/2 z-0 hidden w-[min(84%,67rem)] -translate-x-1/2 lg:block"
 				style={{
 					maskImage:
 						"linear-gradient(to bottom, transparent 0%, #000 12%, #000 88%, transparent 100%)",

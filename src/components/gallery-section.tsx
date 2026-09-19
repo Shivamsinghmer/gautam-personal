@@ -57,10 +57,21 @@ import { PAPER, PAPER_INK, PAPER_INK_SOFT } from "#/lib/palette";
  *
  * One screen is a desktop composition and it does not survive translation: ten
  * photographs inside a phone screen are ten postage stamps. So the height
- * constraint is `lg`-only. Below it the same five columns wrap two-up and
- * flow at their own height, with the tiles falling back from flex ratios to
- * aspect ratios - `mobileRatio` is what they use when there is no fixed height
- * to divide.
+ * constraint is `lg`-only.
+ *
+ * Below it the columns turn on their side: each one becomes a full-width row
+ * of its own two tiles, and the five rows stack. This was five columns wrapped
+ * two-up, which is an odd number in an even grid - the fifth landed alone in
+ * the left half with the right half of the screen empty beside it, and that
+ * hole was the first thing you saw on a phone. Rotating rather than wrapping
+ * has no remainder to strand, and it keeps the pairing the columns were
+ * composed as.
+ *
+ * The tiles keep `grow` in the row, so it sets their *widths* here where it
+ * sets their heights at `lg` - a 5 against a 4 is a 56/44 split. The height
+ * comes from the row (`mobileHeight`) rather than from each tile, and
+ * `object-cover` absorbs the difference; see the field's own note for why the
+ * tiles' aspect ratios could not do that job.
  *
  * ## The white
  *
@@ -83,8 +94,6 @@ interface Tile {
 	alt: string;
 	/** Share of its column's height at `lg`. Varied so columns break unevenly. */
 	grow: number;
-	/** Height when there is no column height to divide - below `lg`. */
-	mobileRatio: string;
 	/** Crop bias, where centring would lose the subject. */
 	position?: string;
 }
@@ -92,92 +101,100 @@ interface Tile {
 /** `offset` drops the column's start and shortens what its tiles divide. */
 interface Column {
 	offset: string;
+	/**
+	 * The row's height below `lg`, where this column lies on its side.
+	 *
+	 * The tiles carried their own aspect ratios here first, and two tiles with
+	 * different widths *and* different ratios land at wildly different heights:
+	 * the 9/16 beside the 1/1 in column two came out 391px against 110px and
+	 * left a white hole most of a row deep under the short one. Giving the row
+	 * the height and letting `object-cover` do the rest means the widths can
+	 * still vary - which is the rhythm - without the bottoms disagreeing.
+	 *
+	 * Varied row to row so five stacked rows do not read as a table.
+	 */
+	mobileHeight: string;
 	tiles: Tile[];
 }
 
 const COLUMNS: Column[] = [
 	{
+		mobileHeight: "h-[30svh]",
 		offset: "lg:pt-0 lg:pb-[6svh]",
 		tiles: [
 			{
 				src: "/gallery/eiffel-tower.webp",
 				alt: "Gautam Kumawat beneath the Eiffel Tower, lit gold against a night sky",
 				grow: 5,
-				mobileRatio: "aspect-[3/4]",
 			},
 			{
 				src: "/gallery/alpine-valley.webp",
 				alt: "Gautam Kumawat at a railing above a green alpine valley, a chalet below and cloud sitting on the peaks",
 				grow: 4,
-				mobileRatio: "aspect-[4/5]",
 			},
 		],
 	},
 	{
+		mobileHeight: "h-[26svh]",
 		offset: "lg:pt-[8svh]",
 		tiles: [
 			{
 				src: "/gallery/st-basils.webp",
 				alt: "Gautam Kumawat with both arms thrown wide in front of Saint Basil's Cathedral and its painted domes",
 				grow: 6,
-				mobileRatio: "aspect-[9/16]",
 			},
 			{
 				src: "/gallery/city-dusk.webp",
 				alt: "Gautam Kumawat on a city street at dusk, towers and moving traffic behind him",
 				grow: 3,
-				mobileRatio: "aspect-[1/1]",
 			},
 		],
 	},
 	{
+		mobileHeight: "h-[33svh]",
 		offset: "lg:pt-0 lg:pb-[13svh]",
 		tiles: [
 			{
 				src: "/gallery/jungfraujoch.webp",
 				alt: "Gautam Kumawat beside the Jungfraujoch 'Top of Europe' sign, snow and rock behind him",
 				grow: 4,
-				mobileRatio: "aspect-[4/5]",
 			},
 			{
 				src: "/gallery/palace-stairs.webp",
 				alt: "Gautam Kumawat seated on the balustraded staircase of a white and gold palace",
 				grow: 5,
-				mobileRatio: "aspect-[3/4]",
 			},
 		],
 	},
 	{
+		mobileHeight: "h-[27svh]",
 		offset: "lg:pt-[11svh] lg:pb-[3svh]",
 		tiles: [
 			{
 				src: "/gallery/glass-towers.webp",
 				alt: "Gautam Kumawat in front of a cluster of glass skyscrapers rising into haze",
 				grow: 5,
-				mobileRatio: "aspect-[3/4]",
 			},
 			{
 				src: "/gallery/rooftops.webp",
 				alt: "Gautam Kumawat at a parapet above a city of red tiled rooftops",
 				grow: 4,
-				mobileRatio: "aspect-[1/1]",
 			},
 		],
 	},
 	{
+		mobileHeight: "h-[31svh]",
 		offset: "lg:pt-[4svh] lg:pb-[9svh]",
 		tiles: [
 			{
 				src: "/gallery/palace-flag.webp",
 				alt: "Gautam Kumawat on the steps of a gilded baroque palace, a flag flying from its roof",
 				grow: 4,
-				mobileRatio: "aspect-[4/5]",
 			},
 			{
 				src: "/gallery/horse-statue.webp",
 				alt: "Gautam Kumawat at the plinth of a bronze statue of a man wrestling a rearing horse",
 				grow: 5,
-				mobileRatio: "aspect-[9/16]",
 			},
 		],
 	},
@@ -251,13 +268,13 @@ export function GallerySection() {
 				    shows. Below `lg` the height comes off and the columns wrap
 				    two-up at their own height. */}
 				<RevealGroup
-					className="mt-12 flex flex-wrap gap-3 sm:gap-4 lg:mt-16 lg:h-svh lg:flex-nowrap"
+					className="mt-12 flex flex-col gap-3 sm:gap-4 lg:mt-16 lg:h-svh lg:flex-row"
 					stagger={0.05}
 				>
 					{COLUMNS.map((column) => (
 						<RevealItem
 							key={column.tiles[0].src}
-							className={`flex basis-[calc(50%-0.375rem)] flex-col gap-3 sm:basis-[calc(50%-0.5rem)] sm:gap-4 lg:h-full lg:basis-0 lg:grow ${column.offset}`}
+							className={`flex items-stretch gap-3 sm:gap-4 ${column.mobileHeight} lg:h-full lg:basis-0 lg:grow lg:flex-col ${column.offset}`}
 						>
 							{column.tiles.map((tile) => (
 								<figure
@@ -266,7 +283,7 @@ export function GallerySection() {
 									// share of the column rather than its own intrinsic
 									// height. Below lg there is no column height to divide, so
 									// the aspect class carries it instead.
-									className={`group m-0 overflow-hidden rounded-2xl shadow-[0_2px_10px_-2px_rgb(10_10_10/0.12),0_12px_28px_-12px_rgb(10_10_10/0.18)] lg:min-h-0 lg:basis-0 ${tile.mobileRatio} lg:aspect-auto`}
+									className="group m-0 h-full min-w-0 basis-0 overflow-hidden rounded-2xl shadow-[0_2px_10px_-2px_rgb(10_10_10/0.12),0_12px_28px_-12px_rgb(10_10_10/0.18)] lg:h-auto lg:min-h-0"
 									style={{ flexGrow: tile.grow }}
 								>
 									<img

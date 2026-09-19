@@ -246,14 +246,33 @@ function Home() {
 					/>
 				</div>
 
-				{/* Left-side headline, vertically centered. Only this copy and the
-				    background wordmark remain in the hero - the identifier,
-				    credential lines, closing line and CTA were removed. */}
+				{/* Left-side headline. Only this copy and the background wordmark
+				    remain in the hero - the identifier, credential lines, closing
+				    line and CTA were removed.
+
+				    Centred from `sm`. Below it the h1 grows to fill this column
+				    instead, so the two halves can sit at opposite ends of the
+				    screen - see the note on the h1.
+
+				    `30svh` on a phone, not `pt-24`. The top half only has to clear
+				    the floating nav, but sitting right under it read as a second
+				    navigation row rather than as the opening of a sentence. Pushed
+				    down it belongs to the picture instead: it lands in the gap
+				    between the nav and the crown of his head, close enough to the
+				    figure to be part of the frame and still clear of his hair.
+
+				    A share of the screen rather than a fixed 16rem, because what
+				    it has to clear is the head in a photograph that is sized in
+				    viewport units too. 256px is a comfortable 30% of an 844pt
+				    phone and a crowding 40% of a 640pt one, where it landed in his
+				    hair; `svh` keeps the same relationship at both. `pb-28` stays
+				    fixed, because the audio toggle it holds off is itself pinned a
+				    fixed distance from the foot. */}
 				<div // `self-stretch`, because `h-full` resolves to auto against a
 					// `min-h-svh` parent - the column was shrink-wrapping its content
 					// and being centred, so `mt-auto` had no space to push into and the
 					// claim landed across his face.
-					className="pointer-events-none relative z-20 mx-auto flex w-full max-w-[104rem] flex-col justify-center self-stretch pt-24 pb-10 text-left sm:pt-28 sm:pb-14"
+					className="pointer-events-none relative z-20 mx-auto flex w-full max-w-[104rem] flex-col justify-end self-stretch pt-24 pb-28 text-left max-sm:pt-[30svh] max-sm:text-center sm:justify-center sm:pt-28 sm:pb-14"
 				>
 					{/* The line is split across the composition rather than stacked in
 					    one corner: "A Man On" holds the left edge, "A Mission" the
@@ -261,10 +280,20 @@ function Home() {
 					    is about. Read left to right, he is literally in the middle of
 					    it.
 
-					    Only from `sm`. At 375px the two halves want ~345px of a 327px
-					    container, so below that they stack on the left as before -
-					    flanking a figure that already fills a phone screen would put
-					    display type across his chest.
+					    That is the `sm` arrangement. A phone has no left and right to
+					    play with - at 375px the two halves want ~345px of a 327px
+					    container - so the split turns through ninety degrees and
+					    becomes top and bottom. "A Man On" sits above the figure, in
+					    the clear dark air under the nav; "A Mission" sits on the
+					    photograph itself, over his shoulder where the plate's mask
+					    has already faded it to near-black. The same idea either way:
+					    the man is in the middle of the sentence.
+
+					    "A Mission" is set larger there, and only there (48px against
+					    38.4px). Two halves of one line want one size when they share
+					    a baseline, but stacked at opposite ends of a screen they are
+					    read as two separate beats - and the second one, the one on
+					    the photograph, is the half that carries the claim.
 
 					    The delays now clear the curtain rather than riding it. The
 					    overlay takes 0.95s to lift (`gk-curtain-lift`), and these used
@@ -274,7 +303,7 @@ function Home() {
 					    of the frame are a single beat, and a beat lands better after
 					    the thing it follows than underneath it. */}
 					<h1
-						className="display flex w-full flex-col gap-1 text-[clamp(2.4rem,7vw,4.8rem)] sm:flex-row sm:items-center sm:justify-between sm:gap-10 sm:text-[clamp(2.4rem,5.2vw,5.2rem)]"
+						className="display flex w-full grow flex-col justify-between gap-1 text-[clamp(2.4rem,7vw,4.8rem)] sm:grow-0 sm:flex-row sm:items-center sm:justify-between sm:gap-10 sm:text-[clamp(2.4rem,5.2vw,5.2rem)]"
 						style={{ color: TYPE }}
 					>
 						{/* Staggered off the shared baseline - the left half lifted, the
@@ -293,7 +322,7 @@ function Home() {
 							<span>A Man On</span>
 						</span>
 						<span
-							className="gk-line sm:translate-y-6 sm:text-right lg:translate-y-10"
+							className="gk-line max-sm:text-[clamp(3rem,12vw,3.6rem)] sm:translate-y-6 sm:text-right lg:translate-y-10"
 							style={{ ["--gk-delay" as string]: "1.18s" }}
 						>
 							<span>A Mission</span>
@@ -335,7 +364,16 @@ function Home() {
 					<StatIndex
 						variant="chip"
 						start={revealed}
-						className="grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-3 sm:gap-x-10 lg:grid-cols-5 lg:gap-x-8"
+						// Wrapped flex, not a grid, and `justify-center` is the whole
+						// reason. Five items never divide evenly into two or three
+						// columns, so a grid strands the remainder hard against the
+						// left edge: on a phone "Sessions" sat alone in the left cell
+						// with the right half of the band empty beside it, which reads
+						// as a missing sixth stat rather than as the end of five. A
+						// wrap centres whatever is left over at every width. The
+						// bases are the column widths a grid would have given, minus
+						// each item's share of the gaps.
+						className="flex flex-wrap justify-center gap-x-8 gap-y-10 [&>div]:basis-[calc(50%-1rem)] sm:gap-x-10 sm:[&>div]:basis-[calc(33.333%-1.667rem)] lg:gap-x-8 lg:[&>div]:basis-[calc(20%-1.6rem)]"
 						items={[
 							{ value: 162, label: "Countries", icon: Globe },
 							{ value: 7, suffix: "+", label: "Years", icon: CalendarRange },
