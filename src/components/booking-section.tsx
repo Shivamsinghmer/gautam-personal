@@ -1,5 +1,6 @@
 import { BookingInvite } from "#/components/booking-invite";
 import { PressStrip } from "#/components/press-strip";
+import { Reveal } from "#/components/ui/scroll-reveal";
 
 import { HERO_DEEP } from "#/lib/palette";
 
@@ -11,9 +12,14 @@ import { HERO_DEEP } from "#/lib/palette";
  * of CTAs, since only one of the three offers survived.
  *
  * The section heading went with them. `BookingInvite` opens on its own <h2>,
- * and a centred "Three Ways to Book Gautam" above a left-right composition was
- * announcing a layout that no longer exists. One heading, on the copy column,
- * where the eye lands after the photograph.
+ * and a second heading above it was announcing a layout that no longer exists.
+ *
+ * The order is now poster, room, mastheads: a centred ask on the measure, the
+ * stage photograph full-bleed underneath it as the section's floor, then the
+ * coverage. The photograph used to sit beside the ask at half a measure, which
+ * made the strongest argument in the section the quieter half of a two-column
+ * row. It is the widest element on the page now and it shares a row with
+ * nothing.
  *
  * The animated bar comb that used to fill the section's floor is gone: on a
  * dark, near-black field it read as a busy stripe pattern rather than as the
@@ -24,7 +30,7 @@ export function BookingSection() {
 	return (
 		<section
 			id="book"
-			className="relative isolate scroll-mt-24 overflow-hidden px-6 pt-16 pb-36 sm:px-10 sm:pt-24 sm:pb-72"
+			className="relative isolate scroll-mt-24 overflow-hidden px-6 pt-16 pb-16 sm:px-10 sm:pt-24 sm:pb-20"
 			style={{ backgroundColor: HERO_DEEP }}
 		>
 			{/* The hand-off from the hero, which fades down to DEEP - this section
@@ -70,9 +76,61 @@ export function BookingSection() {
 
 			<div className="relative mx-auto w-full max-w-6xl">
 				<BookingInvite />
+			</div>
 
-				{/* The mastheads, across the whole measure rather than pinned to the
-				    width of the photograph above them. */}
+			{/* The room, as the section's floor.
+
+			    Full bleed, which means out past this section's own gutters
+			    (`-mx-6 sm:-mx-10`) rather than inside the measure the copy above
+			    sits on. That is the point of it: the ask is a centred poster on the
+			    measure, and then the thing being asked about runs edge to edge
+			    underneath with no margin holding it in. It is the widest element on
+			    the page.
+
+			    Art-directed by ratio rather than by a second file. The plate is
+			    2004x785 - about 2.55:1 - which is a 150px strip at phone width, so
+			    the frame tightens as the viewport narrows and `object-cover` takes
+			    the crop in toward the speaker and the centre screen. The full sweep,
+			    with both wing screens and the depth of the hall, is the reward for a
+			    wide viewport. */}
+			<Reveal direction="none" className="relative z-0 mt-16 sm:mt-20">
+				<figure className="relative m-0 -mx-6 sm:-mx-10">
+					<img
+						src="/book/stage.webp"
+						alt="Gautam Kumawat on stage in front of a full auditorium, flanked by three screens reading People. Technology. A Safer Tomorrow."
+						width={2004}
+						height={785}
+						loading="lazy"
+						decoding="async"
+						className="block aspect-[4/3] w-full object-cover object-center sm:aspect-[2/1] lg:aspect-[2004/785]"
+					/>
+
+					{/* The plate's own ceiling is already near-black, so a short ramp
+					    out of the field above is enough to stop the top edge reading as
+					    a pasted-in rectangle. Alpha-zero DEEP rather than
+					    `transparent`, so the ramp's midpoint never drags toward true
+					    black and band. */}
+					<div
+						aria-hidden="true"
+						className="pointer-events-none absolute inset-x-0 top-0 h-[22%]"
+						style={{
+							background: `linear-gradient(to bottom, ${HERO_DEEP} 0%, ${HERO_DEEP}00 100%)`,
+						}}
+					/>
+					{/* And a shorter one at the foot, so the audience settles into the
+					    ground the mastheads sit on instead of stopping on a line. */}
+					<div
+						aria-hidden="true"
+						className="pointer-events-none absolute inset-x-0 bottom-0 h-[18%]"
+						style={{
+							background: `linear-gradient(to top, ${HERO_DEEP} 0%, ${HERO_DEEP}00 100%)`,
+						}}
+					/>
+				</figure>
+			</Reveal>
+
+			<div className="relative mx-auto w-full max-w-6xl">
+				{/* The mastheads, across the whole measure. */}
 				<PressStrip className="mt-16 sm:mt-20" />
 			</div>
 		</section>

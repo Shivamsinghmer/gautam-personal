@@ -89,15 +89,22 @@ export function CollageSection() {
 			{/* Masked at the top and bottom edges, because the plate's black is
 			    not black there.
 
-			    The note below says the corners read 0-1. That holds for the left
-			    and right edges (1.1 and 0.8 mean) and not for the top and bottom,
-			    which average 5.8 and 5.0. Screened at 0.5 over a ground of 10 that
-			    composites the field inside this box to about 12.7 - a step of
-			    nearly three levels - and because the layer is inset 6%, the step
-			    landed as a hard horizontal line partway into the section with flat
-			    ink above it. On a near-black ground, three levels across a straight
-			    edge is a seam you can see, and it read as the section boundary
-			    being wrong rather than as a layer edge.
+			    The note below says the corners read 0-1, and the sides do: this
+			    plate measures 0 flat on both after encoding. The horizontal edges
+			    are the problem. The previous plate averaged 5.8 across the top and
+			    5.0 across the bottom, which screened at 0.5 over a ground of 10
+			    composites to about 12.7, and because the layer is inset 6% that
+			    three-level step landed as a hard horizontal line partway into the
+			    section with flat ink above it - a seam that read as the section
+			    boundary being wrong rather than as a layer edge.
+
+			    This plate is cleaner at the top (1.26) and much worse at the
+			    bottom (26.5, where his torso runs off the frame) - roughly a
+			    13-level lift if it met the field directly. Cropping it away would
+			    cut him off at the waist and flattening it to black would draw a
+			    line across his jacket, so the fade below is doing more work now
+			    than it was built for, and it is the right treatment either way: a
+			    figure composited onto a field should dissolve into it.
 
 			    The fade rolls the layer to nothing over the outer eighth, so the
 			    lift arrives gradually and there is no edge to catch. Vertical only:
@@ -128,7 +135,7 @@ export function CollageSection() {
 				    0.9 the middle of the section composited to 213, which is the
 				    washed-out grey this page is meant to be rid of. */}
 				<img
-					src="/collage/middle.jpg"
+					src="/collage/middle.webp"
 					alt=""
 					loading="lazy"
 					decoding="async"

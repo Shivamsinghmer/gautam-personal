@@ -3,22 +3,13 @@ import { gsap } from "gsap";
 import { SplitText } from "gsap/SplitText";
 import { useLenis } from "lenis/react";
 import type { ReactNode } from "react";
-import { Fragment, lazy, Suspense, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ClientOnly } from "#/components/ui/deferred";
 import { ensureMotionCoreEase, registerPluginOnce } from "#/lib/gsap";
 import { cn } from "#/lib/utils";
 
-const LiquidMetalButton = lazy(() =>
-	import("#/components/liquid-metal-button").then((m) => ({
-		default: m.LiquidMetalButton,
-	})),
-);
-
 /**
- * What stands in for the shader button before - or instead of - the canvas:
- * the same label, the same action, styled flat. The nav's primary action must
- * never be waiting on a WebGL library to arrive.
+ * The nav's primary action: a plain static pill. No shader, no canvas.
  */
 function PlainPrimaryButton({
 	label,
@@ -424,35 +415,12 @@ export function FloatingMenu({
 									"flex shrink-0 items-center",
 									classes?.primaryButton,
 								)}
-							>
-								{/* The one shader on the page that is always on screen, since
-								    the menu is fixed. It stays - but its library is no longer
-								    part of the first chunk, and the fallback is a real button
-								    so the nav works from the first paint rather than after
-								    a shader compiles. */}
-								<ClientOnly
-									fallback={
-										<PlainPrimaryButton
-											label={primaryButton.label}
-											onClick={goToPrimary}
-										/>
-									}
-								>
-									<Suspense
-										fallback={
-											<PlainPrimaryButton
-												label={primaryButton.label}
-												onClick={goToPrimary}
-											/>
-										}
-									>
-										<LiquidMetalButton
-											label={primaryButton.label}
-											onClick={goToPrimary}
-										/>
-									</Suspense>
-								</ClientOnly>
-							</div>
+						>
+							<PlainPrimaryButton
+								label={primaryButton.label}
+								onClick={goToPrimary}
+							/>
+						</div>
 						) : null}
 					</div>
 				</div>

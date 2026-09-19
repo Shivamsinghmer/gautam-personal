@@ -56,10 +56,10 @@ const TESTIMONIALS: Omit<PerspectiveCarouselItem, "title">[] = [
 			"I was truly amazed by his outstanding cyber security capabilities at such a young age — expertise that surpasses even many seasoned professionals.",
 	},
 	{
-		src: "/testimonials/pankaj-kumar-singh.avif",
+		src: "/testimonials/pankaj-kumar-singh.jpeg",
 		alt: "Official portrait of Pankaj Kumar Singh",
 		name: "Pankaj Kumar Singh",
-		role: "PSM MSM IPS", 
+		role: "Dy NSA, DG BSF", 
 		quote:
 			"Gautam is defined by a rare blend of intense curiosity and quiet precision. always three steps ahead, effortlessly spotting patterns that others overlook..",
 

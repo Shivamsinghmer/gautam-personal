@@ -47,7 +47,7 @@ const OUT = "public/journey";
  * So this script feeds two sections, and deleting that row breaks reach.
  */
 const JOBS = [
-	{ in: "public/collage/middle.jpg", out: "01-case-work.webp", position: "attention" },
+	{ in: "photos/collage-middle.png", out: "01-case-work.webp", position: "attention" },
 	{ in: "public/gautam.png", out: "02-agencies.webp", position: "top", grade: "mono" },
 	// "left", not "attention". The subject is the man at the lectern, and he
 	// stands in the left third of a wide frame - sharp's attention heuristic

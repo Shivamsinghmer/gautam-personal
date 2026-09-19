@@ -3,7 +3,6 @@ import { lazy, Suspense } from "react";
 import { LiquidMetalButtonFallback } from "#/components/liquid-metal-button";
 import { ClientOnly } from "#/components/ui/deferred";
 import { Reveal } from "#/components/ui/scroll-reveal";
-import { INK_DEEP } from "#/lib/palette";
 
 const LiquidMetalButton = lazy(() =>
 	import("#/components/liquid-metal-button").then((m) => ({
@@ -12,113 +11,83 @@ const LiquidMetalButton = lazy(() =>
 );
 
 /**
- * The booking invitation.
+ * The booking invitation: the ask, centred, above the room it is asking about.
  *
- * The room on the left, the ask on the right. The photograph does the arguing:
- * a full auditorium is a stronger case for booking him than any sentence about
- * being engaging, so the image gets real size and the copy stays short beside
- * it.
+ * ## Why this is centred when nothing else on the page is
  *
- * What changed:
+ * Every other section here is ruled and left-aligned - an opening hairline,
+ * type hung on the measure's left edge, evidence beside it. That grammar is
+ * for reading. This is the last thing before the footer and it asks for one
+ * thing, so it is built as a poster instead: heading, one paragraph, one
+ * button, on the centre line, with nothing else competing. A centred stack has
+ * no second column to look at, which is the entire reason to use it here and
+ * the reason not to use it anywhere else.
  *
- * - **The two floating panels** that used to hang off the photograph's corners
- *   are down to one, and it is a nameplate rather than a card. The first held
- *   "41,000+ students / 162 countries", which by this point in the page is the
- *   third time those two figures have been stated - the hero indexes them and
- *   the about copy says them in a sentence. Repeating a number does not make
- *   it larger.
- * - **What is left is the lower-third**: a short signal rule, the name, the
- *   role. It is the one place on the page that motif appears, on the one
- *   photograph that needs the person in it identified, which is what keeps it
- *   a piece of art direction instead of a decoration applied to every frame.
- *   Drawn as a rule above the type, never as a coloured stripe down the side
- *   of a box.
- * - **The formats block is gone.** "Keynotes / Workshops" restated what the
- *   paragraph above already says, under the heading that already says it.
- * - **The mastheads moved out.** They used to be joined flush to the underside
- *   of the photograph so the room and the coverage of that room read as one
- *   block. The idea was sound and the width was not: half a page is not enough
- *   room for eleven marks, and they scrolled past too small to be recognised.
- *   `PressStrip` now runs them across the full measure below this composition,
- *   which is where the section had space going spare anyway.
+ * ## What it replaced
+ *
+ * A two-column composition: the auditorium photograph on the left with a
+ * nameplate hung in its corner, the heading and ask on the right. The
+ * photograph argued well and the arrangement made it argue quietly - half a
+ * measure wide, one of two things to look at, and the ask reading as a caption
+ * beside it. The room is now the section's floor at full bleed and it does not
+ * share a row with anything.
+ *
+ * The nameplate came out with it. It identified the man in the photograph,
+ * which mattered when he was a figure on a stage in a half-width frame; the
+ * heading above is in the first person and the section is named for him, so a
+ * lower-third repeating it was labelling a photograph the page has already
+ * introduced.
  */
-
 export function BookingInvite({ className }: { className?: string }) {
 	return (
 		<div
-			className={`grid w-full items-center gap-14 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.02fr)] lg:gap-20 ${className ?? ""}`}
+			className={`mx-auto w-full max-w-[52rem] text-center ${className ?? ""}`}
 		>
-			{/* ── The room ────────────────────────────────────────────────────── */}
-			<Reveal direction="right" className="relative">
-				<figure className="relative m-0">
-					<img
-						src="/collage/t1.webp"
-						alt="A full auditorium of students watching Gautam Kumawat speak from the stage"
-						loading="lazy"
-						decoding="async"
-						className="aspect-[4/3] w-full object-cover"
-					/>
-
-					{/* The nameplate. Solid, not frosted: glass over a photograph is
-					    decoration, and this carries text that has to stay readable
-					    over whatever is behind it. */}
-					<figcaption
-						className="absolute bottom-0 left-0 px-6 py-5 sm:px-7 sm:py-6"
-						style={{ backgroundColor: INK_DEEP }}
+			<Reveal>
+				<h2 className="display text-balance text-[clamp(2.3rem,4.6vw,3.7rem)] text-white">
+					Book me for{" "}
+					{/* The one underlined phrase. Emphasis by rule and weight rather
+					    than a second colour of text. */}
+					<span
+						className="decoration-[5px] underline-offset-[10px]"
+						style={{
+							textDecorationLine: "underline",
+							textDecorationColor: "#ffffff",
+						}}
 					>
-						<span
-							aria-hidden="true"
-							className="block h-[3px] w-10"
-							style={{ backgroundColor: "#ffffff" }}
-						/>
-						<span className="display-tight mt-4 block text-[1.4rem] text-white sm:text-[1.7rem]">
-							Gautam Kumawat
-						</span>
-						<span
-							className="mt-2 block text-[0.68rem] font-medium uppercase text-white/55"
-							style={{ letterSpacing: "0.14em" }}
-						>
-							Cybersecurity trainer &amp; investigator
-						</span>
-					</figcaption>
-				</figure>
+						your event
+					</span>
+					.
+				</h2>
 			</Reveal>
 
-			{/* ── The ask ─────────────────────────────────────────────────────── */}
-			<div>
-				<Reveal>
-					<h2 className="display text-[clamp(2.3rem,4.6vw,3.7rem)] text-white">
-						Book me for{" "}
-						{/* The one underlined phrase, in the accent. Emphasis by rule and
-						    weight rather than a second colour of text. */}
-						<span
-							className="decoration-[5px] underline-offset-[10px]"
-							style={{
-								textDecorationLine: "underline",
-								textDecorationColor: "#ffffff",
-							}}
-						>
-							your event
-						</span>
-						.
-					</h2>
-				</Reveal>
+			<Reveal delay={0.08}>
+				{/* `mx-auto` with a character cap rather than a full-width block:
+				    centred text that runs the whole measure is a paragraph the eye
+				    has to re-find the start of on every line. */}
+				<p className="mx-auto mt-7 max-w-[54ch] text-pretty text-base leading-relaxed text-white/70 sm:text-[1.0625rem]">
+					Seven years of casework, told to the room in front of me. No slide
+					deck of generic threats — the material is rebuilt for whoever is
+					sitting there, whether that is a hall of first-years or a room of
+					serving officers.
+				</p>
+			</Reveal>
 
-				<Reveal delay={0.08}>
-					<p className="prose-measure mt-7 max-w-[46ch] text-base leading-relaxed text-white/70 sm:text-[1.0625rem]">
-						Seven years of casework, told to the room in front of me. No slide
-						deck of generic threats — the material is rebuilt for whoever is
-						sitting there, whether that is a hall of first-years or a room of
-						serving officers.
-					</p>
-				</Reveal>
-
-				<Reveal delay={0.14}>
-					<div className="mt-9 flex flex-wrap items-center gap-x-8 gap-y-4">
-						{/* The same shader button the hero and nav carry, so the page's
-						    primary action reads as one design wherever it lands rather
-						    than as a fill-and-radius recipe copied into each section. */}
-						<ClientOnly
+			<Reveal delay={0.14}>
+				{/* The same shader button the hero and nav carry, so the page's
+				    primary action reads as one design wherever it lands rather than
+				    as a fill-and-radius recipe copied into each section. */}
+				<div className="mt-9 flex justify-center">
+					<ClientOnly
+						fallback={
+							<LiquidMetalButtonFallback
+								label="Check availability"
+								href="#book"
+								icon={ArrowRight}
+							/>
+						}
+					>
+						<Suspense
 							fallback={
 								<LiquidMetalButtonFallback
 									label="Check availability"
@@ -127,25 +96,15 @@ export function BookingInvite({ className }: { className?: string }) {
 								/>
 							}
 						>
-							<Suspense
-								fallback={
-									<LiquidMetalButtonFallback
-										label="Check availability"
-										href="#book"
-										icon={ArrowRight}
-									/>
-								}
-							>
-								<LiquidMetalButton
-									label="Check availability"
-									href="#book"
-									icon={ArrowRight}
-								/>
-							</Suspense>
-						</ClientOnly>
-					</div>
-				</Reveal>
-			</div>
+							<LiquidMetalButton
+								label="Check availability"
+								href="#book"
+								icon={ArrowRight}
+							/>
+						</Suspense>
+					</ClientOnly>
+				</div>
+			</Reveal>
 		</div>
 	);
 }
