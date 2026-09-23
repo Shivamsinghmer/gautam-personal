@@ -80,7 +80,13 @@ export function AboutSection() {
 	return (
 		<section
 			id="about"
-			className="band relative scroll-mt-24 overflow-hidden px-6 sm:px-10"
+			// Not `band`. That class sets `padding-block` from `--band` in
+			// styles.css, and styles.css is unlayered, so it beats any Tailwind
+			// padding utility no matter how specific - `lg:py-14` next to it did
+			// nothing at all. The clamp here is `--band`'s own value, so every
+			// width below `lg` is byte-for-byte what the token gave; `lg` is the
+			// only place it changes.
+			className="relative scroll-mt-24 overflow-hidden px-6 py-[clamp(3.25rem,9vw,8.5rem)] sm:px-10 lg:py-12"
 			style={{ backgroundColor: INK }}
 		>
 			<div className="mx-auto w-full max-w-6xl">
@@ -95,7 +101,28 @@ export function AboutSection() {
 					</div>
 				</Reveal>
 
-				{/* Two columns, and they do different jobs: the left one is the
+				{/* One screen at `lg`, and that is what set the numbers here. The
+				    section ran 1126px against a 900px viewport; the padding token
+				    was 259px of it, the story column 737px. The cuts, in order of
+				    what they cost: the band's own padding capped at `lg` (-163),
+				    the lead-in and close tightened (-64), the story's rhythm from
+				    `gap-7` to `gap-5` (-32), and the plate column from 0.82fr to
+				    0.65fr (-91 of plate height). 869px.
+
+				    0.65fr rather than 0.68fr for the signature's sake. It does not
+				    mount until it is scrolled near, so it is invisible while you
+				    measure and then arrives and pushes: its box is `fontSize * 3`
+				    tall, up to ~93px at this width, and at 0.68fr that tipped the
+				    left column past the right and took the section to ~894. The
+				    extra three points keep the two columns level whatever the mark
+				    measures, so the section's height stops depending on a lazily
+				    loaded SVG.
+
+				    All of it is `lg`-only. A phone cannot hold this in a screen
+				    and should not try - ten paragraphs' worth of compression to
+				    fit 844px would be unreadable.
+
+				    Two columns, and they do different jobs: the left one is the
 				    person, the right one is the story. Everything written sits in
 				    the right column in the order it was written, and the photograph
 				    holds the left on its own, signed underneath.
@@ -104,7 +131,7 @@ export function AboutSection() {
 				    height instead of being pulled down the length of a text column
 				    it has no reason to match. Below `lg` the two stack and the
 				    picture leads, which is the same reading order. */}
-				<div className="grid gap-x-[clamp(2rem,5vw,4.5rem)] gap-y-10 pt-12 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1fr)] lg:items-start lg:pt-16">
+				<div className="grid gap-x-[clamp(2rem,5vw,4.5rem)] gap-y-10 pt-12 lg:grid-cols-[minmax(0,0.65fr)_minmax(0,1fr)] lg:items-start lg:pt-8">
 					{/* The person. The plate and the hand that signs it, and nothing
 					    else in the column. */}
 					<div>
@@ -162,7 +189,7 @@ export function AboutSection() {
 					    first and last movements are set at lead size and the two in the
 					    middle at body size, so a single column still has a shape:
 					    loud, dense, dense, quiet. */}
-					<div className="flex flex-col gap-7">
+					<div className="flex flex-col gap-7 lg:gap-5">
 						<Reveal>
 							<h2 className="display max-w-[16ch] text-balance text-[clamp(2.2rem,4.4vw,3.4rem)] text-white">
 								An 8km walk to 21 countries.
@@ -211,7 +238,7 @@ export function AboutSection() {
 					</div>
 				</div>
 
-				<div className="mt-12 lg:mt-16" />
+				<div className="mt-12 lg:mt-8" />
 
 				{/* The closing rule, which takes the section out the way the blue one
 				    brought it in. */}

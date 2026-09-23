@@ -41,15 +41,15 @@ const LiquidMetalButton = lazy(() =>
  *
  * ## The photograph
  *
- * `reach.jpg`, a 3:2 plate (1280x853) supplied for this card. It replaces
+ * `reach.jpg`, a 1444x1304 plate supplied for this card. It replaces
  * `02-agencies-wide.webp`, the journey set's studio headshot that used to sit
  * here - about keeps its cut-out to itself, and this section gets its own
  * photograph instead of borrowing the journey section's.
  *
- * The card and the file are the same shape, which is why there is no
- * `object-position` to tune. The plate keeps whatever ground it was shot on,
- * so there is nothing layered over it: no wash, no blend, no ring, no sheen.
- * White on near-black draws its own edge.
+ * It has been swapped once since: the first `reach.jpg` was a 3:2 studio
+ * headshot on white, and the card was cut to match it exactly. This one is
+ * near-square, full-length and shot on black, which changed both decisions -
+ * the card's ratio and its edge. See the inline notes for each.
  *
  * ⚠️ PLACEHOLDER FIGURES. The four counts below are taken from the reference
  * design that inspired the original layout - they are NOT Gautam's real
@@ -117,24 +117,51 @@ export function ReachSection() {
 					</figure>
 				</Reveal>
 
-				<div className="mt-8 grid gap-8 sm:mt-10 lg:grid-cols-[47%_minmax(0,1fr)] lg:items-center lg:gap-14">
+				<div className="mt-8 grid gap-8 sm:mt-10 lg:grid-cols-[44%_minmax(0,1fr)] lg:items-center lg:gap-14">
 					<Reveal direction="right">
-						{/* 3:2 at 47% of the measure - the file's own ratio
-						    (1280x853), so `object-cover` crops nothing and there
-						    is no `object-position` to tune. Kept a touch narrower
-						    than the reference's 55% so the plate sits inside the
-						    section instead of leading it; the shallower height
-						    also pays back into the one-screen budget. */}
-						<figure className="relative m-0 aspect-[3/2] overflow-hidden rounded-[1.5rem]">
-							{/* The plate keeps whatever ground it was shot on, so
-							    there is nothing layered over it: no wash, no blend,
-							    no ring, no sheen. The section gets its accent from
-							    the shader button directly below. */}
+						{/* 4:3 at 44% of the measure. The plate is 1444x1304 - near
+						    square - and the figure inside it is full-length, head to
+						    shoes, so the ratio is chosen by what a crop can afford to
+						    lose rather than by matching the file.
+
+						    3:2 was the old card, cut for a 1280x853 plate, and it
+						    does technically hold this one: head at row 209 and shoes
+						    at 1120 span 911px inside a 963px window. 52px of total
+						    slack is the problem - centred, that is ~10px of air above
+						    his hair at the rendered size, which is a tangent crop,
+						    the frame edge resting on his head. 4:3 opens the window
+						    to 1083 rows for 98px of air, keeps the smoke at his feet,
+						    and costs about 45px of height. 5:4 buys more air than the
+						    picture needs and spends 72px for it.
+
+						    44%, down from 47%, and the reference's 55% before that. A
+						    taller ratio on the same column width is height the section
+						    does not have: at 47% this came to 406px and pushed the
+						    whole section to 921px against a 900px viewport, breaking
+						    the one-screen fit the rest of the block is tuned around.
+						    Three points of width buys 26px of height back for 34px of
+						    plate, which is the cheaper side of that trade. It also
+						    keeps the plate sitting inside the section rather than
+						    leading it. */}
+						<figure className="relative m-0 aspect-[4/3] overflow-hidden rounded-[1.5rem] ring-1 ring-white/10">
+							{/* Nothing layered over the plate: no wash, no blend, no
+							    sheen. The section gets its accent from the shader
+							    button directly below.
+
+							    The ring is new, and the ground is why. The plate that
+							    used to sit here was shot on white and drew its own
+							    edge against the section. This one is shot on black -
+							    its four edges measure 9 to 27 against a field of 10 -
+							    so without a hairline the frame has no boundary at all
+							    and the 1.5rem radius rounds nothing visible. Same
+							    white/10 the gallery, collage and about frames carry.
+							    `object-cover` still has no `object-position` to tune:
+							    the crop is centred on purpose, see above. */}
 							<img
 								src="/reach.jpg"
-								alt="Photograph of Gautam Kumawat"
-								width={1280}
-								height={853}
+								alt="Gautam Kumawat seated in an office chair in a dark suit, lit against a black ground with smoke drifting across the floor"
+								width={1444}
+								height={1304}
 								loading="lazy"
 								decoding="async"
 								className="absolute inset-0 h-full w-full object-cover"
