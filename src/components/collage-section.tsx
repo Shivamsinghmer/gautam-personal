@@ -150,7 +150,7 @@ export function CollageSection() {
 				    0.9 the middle of the section composited to 213, which is the
 				    washed-out grey this page is meant to be rid of. */}
 				<img
-					src="/collage/middle.webp"
+					src="/collage/middle.png"
 					alt=""
 					loading="lazy"
 					decoding="async"

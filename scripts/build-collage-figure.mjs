@@ -45,8 +45,8 @@ const info = await sharp("photos/collage-middle.png")
 	.rotate() // EXIF before it is stripped on write.
 	.resize({ width: 1870, withoutEnlargement: true })
 	.webp({ quality: 88 })
-	.toFile(`${OUT}/middle.webp`);
+	.toFile(`${OUT}/middle.png`);
 
 console.log(
-	`middle.webp  ${info.width}x${info.height}  ${Math.round(info.size / 1024)}KB`,
+	`middle.png  ${info.width}x${info.height}  ${Math.round(info.size / 1024)}KB`,
 );
