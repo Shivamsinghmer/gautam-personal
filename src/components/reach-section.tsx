@@ -58,7 +58,7 @@ const LiquidMetalButton = lazy(() =>
  */
 const CHANNELS = [
 	{ value: 175, suffix: "K+", label: "Facebook", icon: Facebook },
-	{ value: 62, suffix: "K+", label: "Instagram", icon: Instagram },
+	{ value: 90, suffix: "K+", label: "Instagram", icon: Instagram },
 	{ value: 12, suffix: "K+", label: "LinkedIn", icon: Linkedin },
 	{ value: 500, suffix: "K+", label: "Newsletter", icon: Mail },
 ];
