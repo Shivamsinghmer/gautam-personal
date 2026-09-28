@@ -3,7 +3,7 @@ import { Building2, CalendarRange, Globe, Mic2, Newspaper } from "lucide-react";
 import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { AboutSection } from "#/components/about-section";
 import { AnimatedFooter } from "#/components/animated-footer";
-import { BookSection } from "#/components/book-section";
+// import { BookSection } from "#/components/book-section";
 import { BookingSection } from "#/components/booking-section";
 import { CollageSection } from "#/components/collage-section";
 import { FeaturedInSection } from "#/components/featured-in-section";
@@ -65,7 +65,7 @@ const FOOTER_NAME_FALLBACK = (
 );
 
 const QUOTE =
-	"The internet doesn't wait for you to be ready. My job is to make sure you already are.";
+	"You have to take a risk or you will be doing the same shit for the rest of your life.";
 
 function Home() {
 	// The canvas is swapped in on the client only. Server-rendered markup keeps
@@ -351,16 +351,11 @@ function Home() {
 					    few sections down, and losing it here is what lets the row land
 					    on five across evenly instead of six with an empty seat.
 
-					    Four are real: the ones the page already stood behind. "Media
-					    outlets" is simply a count of the mastheads rendered in the strip
-					    directly below this band, so it cannot drift from what the page
-					    shows.
-
-					    ⚠️ "Sessions" is a PLACEHOLDER. There is no source behind 250
-					    anywhere in this project; it exists because the row was asked to
-					    be six wide and nothing verifiable was left to fill it. It reads
-					    as a factual claim on a real person's site, so replace it with
-					    the true figure - or cut it back further - before this ships. */}
+					    Years, agencies, media outlets and sessions are the figures
+					    supplied for this row. "Media outlets" used to be a count of the
+					    mastheads in the strip below, so it could not drift from what the
+					    page shows; it is the supplied 30+ now, which is more outlets than
+					    the strip carries - the strip is a selection, not the full list. */}
 					<StatIndex
 						variant="chip"
 						start={revealed}
@@ -376,10 +371,15 @@ function Home() {
 						className="flex flex-wrap justify-center gap-x-8 gap-y-10 [&>div]:basis-[calc(50%-1rem)] sm:gap-x-10 sm:[&>div]:basis-[calc(33.333%-1.667rem)] lg:gap-x-8 lg:[&>div]:basis-[calc(20%-1.6rem)]"
 						items={[
 							{ value: 162, label: "Countries", icon: Globe },
-							{ value: 7, suffix: "+", label: "Years", icon: CalendarRange },
-							{ value: 30, suffix: "+", label: "Agencies", icon: Building2 },
-							{ value: 11, label: "Media outlets", icon: Newspaper },
-							{ value: 250, suffix: "+", label: "Sessions", icon: Mic2 },
+							{ value: 17, suffix: "+", label: "Years", icon: CalendarRange },
+							{ value: 100, suffix: "+", label: "Agencies", icon: Building2 },
+							{
+								value: 30,
+								suffix: "+",
+								label: "Media outlets",
+								icon: Newspaper,
+							},
+							{ value: 1700, suffix: "+", label: "Sessions", icon: Mic2 },
 						]}
 					/>
 				</div>
@@ -402,7 +402,9 @@ function Home() {
 
 			<TestimonialsSection />
 
-			<BookSection />
+			{/* The book section is off the page for now, not deleted - put this
+			    back to show it again. */}
+			{/* <BookSection /> */}
 
 			<BookingSection />
 

@@ -22,8 +22,14 @@ export interface Press {
 }
 
 /**
- * Eleven outlets. Logos are sourced from Wikimedia Commons (public domain /
- * freely-licensed uploads) and, for Thrive, its own site CDN.
+ * Nine outlets. Logos are sourced from Wikimedia Commons (public domain /
+ * freely-licensed uploads), for Thrive its own site CDN, and for Dainik
+ * Jagran a file supplied directly - flattened on white, so its ground was
+ * keyed out to transparency to sit on the paper band without a box.
+ *
+ * Republic TV, Zee News and ABP News were taken off and Dainik Jagran added.
+ * Their logo files are still in public/logos/, referenced by nothing, so they
+ * can come back without a re-download.
  */
 export const PRESS: Press[] = [
 	{
@@ -69,22 +75,12 @@ export const PRESS: Press[] = [
 		size: "h-8 sm:h-10",
 	},
 	{
-		name: "Republic TV",
-		src: "/logos/republic-tv.svg",
-		tile: true,
+		name: "Dainik Jagran",
+		src: "/logos/dainik-jagran.png",
+		// A stacked mark - the sun above, the wordmark below - so the wordmark is
+		// only the lower third of the box. Taller than the wordmark-only entries
+		// so the name reads at about their weight rather than the sun doing it.
 		size: "h-10 sm:h-12",
-	},
-	{
-		name: "Zee News",
-		src: "/logos/zee-news.svg",
-		mono: true,
-		size: "h-7 sm:h-9",
-	},
-	{
-		name: "ABP News",
-		src: "/logos/abp-news.svg",
-		mono: true,
-		size: "h-9 sm:h-11",
 	},
 	{
 		name: "Thriveglobal",

@@ -70,13 +70,17 @@ export function FeaturedInSection() {
 					</Reveal>
 				</div>
 
-				{/* Twelve cells, not eleven. Eleven logos leave a ragged last row at
-				    every column count; the closing line completes the grid at 2, 3
-				    and 4 across and gives the wall somewhere to end. The rules are
+				{/* Ten cells: nine logos and the closing line. The count sets the
+				    columns, not the other way round - a ruled grid with a short last
+				    row reads as a missing logo rather than as the end of the list.
+				    Ten completes at 2 and 5 across and at nothing in between, so
+				    this runs two-up until `lg` and five across from there. It was
+				    twelve cells over 2, 3 and 4 while there were eleven outlets;
+				    if the list changes again, the columns have to change with it. The rules are
 				    drawn container-top-left plus cell-right-bottom, which is what
 				    keeps a single hairline between neighbours instead of two. */}
 				<RevealGroup
-					className="mt-12 grid grid-cols-2 border-t border-l border-[color:var(--rule-paper)] sm:mt-16 sm:grid-cols-3 lg:grid-cols-4"
+					className="mt-12 grid grid-cols-2 border-t border-l border-[color:var(--rule-paper)] sm:mt-16 lg:grid-cols-5"
 					stagger={0.045}
 				>
 					{PRESS.map((press) => (

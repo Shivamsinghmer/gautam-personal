@@ -51,16 +51,19 @@ const LiquidMetalButton = lazy(() =>
  * near-square, full-length and shot on black, which changed both decisions -
  * the card's ratio and its edge. See the inline notes for each.
  *
- * ⚠️ PLACEHOLDER FIGURES. The four counts below are taken from the reference
- * design that inspired the original layout - they are NOT Gautam's real
- * audience numbers. They read as factual claims on a real person's site, so
- * replace every `value` with the true figure before this goes anywhere public.
+ * Facebook (190K+) and Email (700K+) are supplied figures. "Email" was
+ * "Newsletter"; renamed to match what the count actually is.
+ *
+ * ⚠️ Instagram (62K+) and LinkedIn (12K+) are STILL PLACEHOLDERS, taken from
+ * the reference design that inspired the original layout - they are not
+ * Gautam's real numbers. They read as factual claims on a real person's site,
+ * so replace them with the true figures before this goes anywhere public.
  */
 const CHANNELS = [
-	{ value: 175, suffix: "K+", label: "Facebook", icon: Facebook },
+	{ value: 190, suffix: "K+", label: "Facebook", icon: Facebook },
 	{ value: 90, suffix: "K+", label: "Instagram", icon: Instagram },
 	{ value: 12, suffix: "K+", label: "LinkedIn", icon: Linkedin },
-	{ value: 500, suffix: "K+", label: "Newsletter", icon: Mail },
+	{ value: 700, suffix: "K+", label: "Email", icon: Mail },
 ];
 
 export function ReachSection() {
