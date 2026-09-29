@@ -1,7 +1,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { lazy, Suspense } from "react";
 import { ClientOnly, InView } from "#/components/ui/deferred";
-import { Reveal } from "#/components/ui/scroll-reveal";
+import { Reveal, ScrollFillBlock } from "#/components/ui/scroll-reveal";
 import { INK, SIGNAL } from "#/lib/palette";
 
 /**
@@ -196,45 +196,54 @@ export function AboutSection() {
 							</h2>
 						</Reveal>
 
-						<Reveal delay={0.06}>
-							<p className="max-w-[46ch] text-pretty text-[1.0625rem] leading-[1.6] text-white/80 sm:text-[1.25rem]">
-								Gautam Kumawat grew up walking 8km to school, studying by the
-								light of a homemade oil lamp. Privilege wasn't part of the story
-								— <strong className={TERM}>determination</strong> was.
-							</p>
-						</Reveal>
-
-						<Reveal delay={0.1}>
-							<p className="max-w-[60ch] text-pretty text-base leading-[1.75] text-white/80 sm:text-[1.0625rem]">
-								At 12, curiosity about how phones worked led him into hacking,
-								self-taught and relentless. By 16, he was working with{" "}
-								<strong className={TERM}>global law enforcement</strong> on
-								cybercrime investigations — a path that's since grown into{" "}
-								<strong className={TERM}>3,000+ cases solved</strong>. His work
-								drew national and global media attention, with features in Times
-								of India, Economic Times, India Today, Hindustan Times, The
-								Hindu, and Thrive Global.
-							</p>
-						</Reveal>
-
-						<Reveal delay={0.14}>
-							<p className="max-w-[60ch] text-pretty text-base leading-[1.75] text-white/80 sm:text-[1.0625rem]">
-								But the numbers are only half the story. Gautam meditates 2
-								hours a day (Vipassana, for over a decade), draws inspiration
-								from Vivekananda and Bhagat Singh, and finds balance through
-								MMA, golf, and horseback riding — with a bit of mind-reading
-								magic thrown in to keep wonder alive.
-							</p>
-						</Reveal>
-
-						<Reveal delay={0.18}>
-							<p className="max-w-[46ch] text-pretty text-[1.0625rem] leading-[1.6] text-white/80 sm:text-[1.25rem]">
-								He's flown planes, built companies, left comfort behind for
-								harder problems, and traveled to 21 countries in search of
-								truth, not just business. His life is proof that anyone, from
-								anywhere, can build a life without limits.
-							</p>
-						</Reveal>
+						{/* The four movements fill from dim to white as one edge moving
+						    through them in reading order - see `ScrollFillBlock`. They were
+						    four separate fills first, and with two paragraphs on screen the
+						    two filled at once, each half-lit. One block, one progress. The
+						    fill is the entrance, so there is no `Reveal` stacked on it, and
+						    the bold terms keep their weight as the distinction now that
+						    colour no longer separates them from the prose. */}
+						<ScrollFillBlock
+							className="flex flex-col gap-7 lg:gap-5"
+							paragraphs={[
+								{
+									className:
+										"max-w-[46ch] text-pretty text-[1.0625rem] leading-[1.6] text-white sm:text-[1.25rem]",
+									strongClassName: TERM,
+									segments: [
+										"Gautam Kumawat grew up walking 8km to school, studying by the light of a homemade oil lamp. Privilege wasn't part of the story — ",
+										{ strong: "determination" },
+										" was.",
+									],
+								},
+								{
+									className:
+										"max-w-[60ch] text-pretty text-base leading-[1.75] text-white sm:text-[1.0625rem]",
+									strongClassName: TERM,
+									segments: [
+										"At 12, curiosity about how phones worked led him into hacking, self-taught and relentless. By 16, he was working with ",
+										{ strong: "global law enforcement" },
+										" on cybercrime investigations — a path that's since grown into ",
+										{ strong: "3,000+ cases solved" },
+										". His work drew national and global media attention, with features in Times of India, Economic Times, India Today, Hindustan Times, The Hindu, and Thrive Global.",
+									],
+								},
+								{
+									className:
+										"max-w-[60ch] text-pretty text-base leading-[1.75] text-white sm:text-[1.0625rem]",
+									segments: [
+										"But the numbers are only half the story. Gautam meditates 2 hours a day (Vipassana, for over a decade), draws inspiration from Vivekananda and Bhagat Singh, and finds balance through MMA, golf, and horseback riding — with a bit of mind-reading magic thrown in to keep wonder alive.",
+									],
+								},
+								{
+									className:
+										"max-w-[46ch] text-pretty text-[1.0625rem] leading-[1.6] text-white sm:text-[1.25rem]",
+									segments: [
+										"He's flown planes, built companies, left comfort behind for harder problems, and traveled to 21 countries in search of truth, not just business. His life is proof that anyone, from anywhere, can build a life without limits.",
+									],
+								},
+							]}
+						/>
 					</div>
 				</div>
 

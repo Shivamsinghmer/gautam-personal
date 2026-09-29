@@ -1,13 +1,14 @@
 "use client";
 
 import {
+	type MotionValue,
 	motion,
 	useReducedMotion,
 	useScroll,
 	useTransform,
 } from "framer-motion";
 import type { ReactNode } from "react";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { cn } from "#/lib/utils";
 
 /**
@@ -239,5 +240,167 @@ function Character({
 		>
 			{char === " " ? " " : char}
 		</motion.span>
+	);
+}
+
+/** A run of prose for the fill: plain text, or a term set in bold. */
+export type FillSegment = string | { strong: string };
+
+/** One paragraph in a `ScrollFillBlock`. */
+export interface FillParagraph {
+	segments: FillSegment[];
+	className?: string;
+	/** Classes for the bold terms. */
+	strongClassName?: string;
+}
+
+type Token = { text: string; strong: boolean; slot: number };
+
+/** Split prose into words and spaces, numbering the words from `from`. */
+function tokenize(segments: FillSegment[], from: number) {
+	const out: Token[] = [];
+	let slot = from;
+	for (const seg of segments) {
+		const strong = typeof seg !== "string";
+		const text = strong ? seg.strong : seg;
+		for (const part of text.split(/(\s+)/)) {
+			if (!part) continue;
+			const space = /^\s+$/.test(part);
+			out.push({ text: space ? " " : part, strong, slot: space ? -1 : slot++ });
+		}
+	}
+	return { out, next: slot };
+}
+
+/**
+ * Paragraphs that fill from dim to white, word by word, as a single edge.
+ *
+ * ## One progress for the whole block
+ *
+ * This first shipped with a scroll progress per paragraph, and that is wrong
+ * the moment two paragraphs share the screen: each runs its own clock, so they
+ * fill in parallel and every one of them sits half-lit at once - the eye has
+ * no line to follow. Here there is one `useScroll` on the wrapper and one
+ * word count running through every paragraph, so the edge finishes the first
+ * paragraph before it touches the second. It reads in the order it is read.
+ *
+ * The fill runs from the block's top reaching 85% down the screen to its
+ * bottom reaching the middle - a scroll distance of the block's height plus a
+ * third of the viewport - which lands each line at about the point it is being
+ * read.
+ *
+ * ## What moves
+ *
+ * Only opacity, over text already in its final colour, so a scroll that stops
+ * halfway leaves nothing in an in-between grey that the design never chose.
+ * Screen readers get every word either way; under `prefers-reduced-motion`
+ * the block renders plain and fully lit.
+ */
+export function ScrollFillBlock({
+	paragraphs,
+	className,
+	floor = 0.18,
+}: {
+	paragraphs: FillParagraph[];
+	/** Classes for the wrapper that holds the paragraphs. */
+	className?: string;
+	/** Opacity of a word before its turn - dim enough to read as unfilled. */
+	floor?: number;
+}) {
+	const ref = useRef<HTMLDivElement>(null);
+	const still = useReducedMotion();
+	const { scrollYProgress } = useScroll({
+		target: ref,
+		offset: ["start 0.85", "end 0.5"],
+	});
+
+	// Word slots numbered continuously across paragraphs - the whole point.
+	const { rows, total } = useMemo(() => {
+		let next = 0;
+		const rows = paragraphs.map((p) => {
+			const t = tokenize(p.segments, next);
+			next = t.next;
+			return t.out;
+		});
+		return { rows, total: next };
+	}, [paragraphs]);
+
+	return (
+		<div ref={ref} className={className}>
+			{paragraphs.map((p, pi) => (
+				// biome-ignore lint/suspicious/noArrayIndexKey: a fixed list of paragraphs that never reorders
+				<p key={pi} className={p.className}>
+					{rows[pi].map((t, ti) => {
+						if (t.slot < 0) return " ";
+						if (still) {
+							return t.strong ? (
+								// biome-ignore lint/suspicious/noArrayIndexKey: tokens derive from fixed prose
+								<strong key={ti} className={p.strongClassName}>
+									{t.text}
+								</strong>
+							) : (
+								t.text
+							);
+						}
+						return (
+							<FillWord
+								// biome-ignore lint/suspicious/noArrayIndexKey: tokens derive from fixed prose
+								key={ti}
+								progress={scrollYProgress}
+								// A slice of the one progress, overlapping the next words so
+								// the fill reads as a travelling edge rather than words
+								// switching on one at a time.
+								range={[t.slot / total, Math.min(1, (t.slot + 2.5) / total)]}
+								floor={floor}
+								strong={t.strong}
+								className={t.strong ? p.strongClassName : undefined}
+							>
+								{t.text}
+							</FillWord>
+						);
+					})}
+				</p>
+			))}
+		</div>
+	);
+}
+
+/** A single paragraph with the same fill. */
+export function ScrollFillText({
+	segments,
+	className,
+	strongClassName,
+	floor,
+}: FillParagraph & { floor?: number }) {
+	return (
+		<ScrollFillBlock
+			paragraphs={[{ segments, className, strongClassName }]}
+			floor={floor}
+		/>
+	);
+}
+
+function FillWord({
+	children,
+	progress,
+	range,
+	floor,
+	strong,
+	className,
+}: {
+	children: string;
+	progress: MotionValue<number>;
+	range: [number, number];
+	floor: number;
+	strong: boolean;
+	className?: string;
+}) {
+	const opacity = useTransform(progress, range, [floor, 1]);
+	return strong ? (
+		<motion.strong className={className} style={{ opacity }}>
+			{children}
+		</motion.strong>
+	) : (
+		<motion.span style={{ opacity }}>{children}</motion.span>
 	);
 }
