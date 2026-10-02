@@ -190,13 +190,18 @@ export function Signature({
 					fill="none"
 					variants={variants}
 					transition={{
+						// `stagger`, the same as the mask above. This was a hard-coded
+						// 0.2, so the outline ran on its own slower clock: at the
+						// preloader's 0.11 the fill finished at 2.15s while the last
+						// letter's outline was still drawing until 3.3s, and anything
+						// timed off "the writing is done" left in the middle of it.
 						pathLength: {
-							delay: delay + i * 0.2,
+							delay: delay + i * stagger,
 							duration,
 							ease: "easeInOut",
 						},
 						opacity: {
-							delay: delay + i * 0.2 + 0.01,
+							delay: delay + i * stagger + 0.01,
 							duration: 0.01,
 						},
 					}}

@@ -18,7 +18,7 @@ const Signature = lazy(() =>
 
 /**
  * Preloader: the Componentry `Signature` component writing the name across a
- * flat field, then the overlay leaves.
+ * flat field, then the field parting down the middle like a pair of gates.
  *
  * The drawing is entirely `Signature`'s - its outline-tracing mask, its
  * per-glyph stagger, its easing, its font. Nothing here reaches into it. This
@@ -49,14 +49,18 @@ const DURATION = 0.72;
  * being written.
  */
 const STAGGER = 0.11;
-/** Beat after the last stroke lands, before the curtain starts to lift. */
-const HOLD = 0.3;
 /**
- * The curtain lift. Must match `gk-curtain-lift` in styles.css - this is the
- * timer that unmounts the overlay, so if it runs short the curtain is cut off
- * mid-travel.
+ * Beat after the last stroke lands, before the gates part. Long enough for the
+ * finished name to register as finished - at 0.3 the doors were already moving
+ * by the time the eye reached the end of the word.
  */
-const FADE = 1.05;
+const HOLD = 0.55;
+/**
+ * The gates opening. Must match `gk-gate-open` in styles.css - this is the
+ * timer that unmounts the overlay, so if it runs short the doors are cut off
+ * mid-swing.
+ */
+const OPEN = 1.15;
 
 /**
  * When the writing finishes, counted from the first stroke. Derived rather than
@@ -205,39 +209,90 @@ export function SignaturePreloader({
 		const t = window.setTimeout(() => {
 			setActive(false);
 			finish.current?.();
-		}, FADE * 1000);
+		}, OPEN * 1000);
 		return () => window.clearTimeout(t);
 	}, [leaving]);
 
 	if (!active) return null;
 
 	return (
-		// The exit is CSS, not an inline opacity transition - see `.gk-curtain`
-		// in styles.css. It is a clip-path edge travelling up and off, with the
-		// mark carried away ahead of it, which needs two elements moving on
-		// different curves; a single `transition` on this node cannot express
-		// that, and the flat fade it used to run is what made the page appear
-		// rather than arrive.
+		// Two layers, and the exit is entirely the second one.
+		//
+		// The writing layer is what you watch: the field and the mark being
+		// traced. Under it sit the two gate leaves - the same field and the same
+		// mark, already fully drawn, each leaf clipped to one half of the screen.
+		// They are mounted from the start, not at the end, because the mark is
+		// produced at runtime from a font: a copy mounted at the moment of
+		// leaving would be blank for the frames it takes to build its outlines.
+		//
+		// When it is time to go, the writing layer is dropped in the same commit
+		// the leaves start to move. Both draw the identical, finished mark at the
+		// identical position, so the hand-off has no visible frame; what you see
+		// is the name split down its middle and carried apart on two doors. The
+		// mark never fades - that was the point of the rewrite. The old exit was a
+		// clip-path edge lifting off the top with the signature dissolving ahead
+		// of it.
 		<output
 			aria-label={TEXT}
 			data-leaving={leaving ? "true" : "false"}
 			onPointerDown={() => setLeaving(true)}
-			className="gk-curtain fixed inset-0 z-[100] flex cursor-pointer items-center justify-center"
+			className="gk-gate fixed inset-0 z-[100] cursor-pointer"
+		>
+			<GateLeaf side="left" />
+			<GateLeaf side="right" />
+
+			{leaving ? null : (
+				<div
+					className="absolute inset-0 flex items-center justify-center"
+					style={{ backgroundColor: FIELD }}
+				>
+					<Suspense fallback={null}>
+						<Signature
+							text={TEXT}
+							color={INK}
+							fontSize={MARK_SIZE}
+							duration={DURATION}
+							stagger={STAGGER}
+							onReady={() => setMarkReady(true)}
+							className={MARK_CLASS}
+						/>
+					</Suspense>
+				</div>
+			)}
+		</output>
+	);
+}
+
+/** Shared by the writing layer and both leaves, so all three draw one mark. */
+const MARK_SIZE = 64;
+const MARK_CLASS = "h-auto w-[min(86vw,900px)]";
+
+/**
+ * One door. Full-screen and clipped to its half, rather than a half-width box,
+ * so the mark inside it is laid out against the whole viewport exactly as the
+ * writing layer lays it out - the two halves meet at the seam with no shift.
+ * Opening is a translate of half its own width, which takes its visible half
+ * clean off its edge of the screen.
+ */
+function GateLeaf({ side }: { side: "left" | "right" }) {
+	return (
+		<div
+			aria-hidden="true"
+			className={`gk-gate__leaf gk-gate__leaf--${side} absolute inset-0 flex items-center justify-center`}
 			style={{ backgroundColor: FIELD }}
 		>
-			<div className="gk-curtain__mark">
-				<Suspense fallback={null}>
-					<Signature
-						text={TEXT}
-						color={INK}
-						fontSize={64}
-						duration={DURATION}
-						stagger={STAGGER}
-						onReady={() => setMarkReady(true)}
-						className="h-auto w-[min(86vw,900px)]"
-					/>
-				</Suspense>
-			</div>
-		</output>
+			<Suspense fallback={null}>
+				<Signature
+					text={TEXT}
+					color={INK}
+					fontSize={MARK_SIZE}
+					duration={0}
+					className={MARK_CLASS}
+				/>
+			</Suspense>
+			{/* The leaf's inner edge, so the seam reads as two doors parting
+			    rather than as a picture being cut in half. */}
+			<span className="gk-gate__edge" />
+		</div>
 	);
 }

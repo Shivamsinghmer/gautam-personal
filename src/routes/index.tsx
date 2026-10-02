@@ -295,13 +295,13 @@ function Home() {
 					    read as two separate beats - and the second one, the one on
 					    the photograph, is the half that carries the claim.
 
-					    The delays now clear the curtain rather than riding it. The
-					    overlay takes 0.95s to lift (`gk-curtain-lift`), and these used
-					    to start at 0.72s so the words arrived through the travelling
-					    edge - deliberate then, because the old copy was a four-block
-					    cascade that wanted to overlap the reveal. Two words either side
-					    of the frame are a single beat, and a beat lands better after
-					    the thing it follows than underneath it. */}
+					    The delays clear the preloader's gates rather than riding them.
+					    The doors take 1.15s to part (`gk-gate-open-*`) and open from
+					    the centre outward, so the edges of the screen - where these two
+					    halves sit on desktop - are the last thing uncovered; at 1.05s
+					    the leaves are almost fully home. Two words either side of the
+					    frame are a single beat, and a beat lands better after the thing
+					    it follows than underneath it. */}
 					<h1
 						className="display flex w-full grow flex-col justify-between gap-1 text-[clamp(2.4rem,7vw,4.8rem)] sm:grow-0 sm:flex-row sm:items-center sm:justify-between sm:gap-10 sm:text-[clamp(2.4rem,5.2vw,5.2rem)]"
 						style={{ color: TYPE }}

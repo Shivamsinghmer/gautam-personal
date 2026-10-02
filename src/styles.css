@@ -771,64 +771,77 @@ body {
 
    The mark leaves first and faster (an exit is ~75% of an entrance), so the
    name is gone before the edge reaches it and the two never cross. */
-.gk-curtain {
-  clip-path: inset(0 0 0 0);
+/* The preloader's exit: the field parting down the middle like a pair of
+   gates, each leaf carrying its half of the signature off its own edge.
+   See SignaturePreloader.tsx for why the leaves are full-screen and clipped
+   rather than half-width. */
+.gk-gate__leaf--left {
+  clip-path: inset(0 50% 0 0);
+}
+.gk-gate__leaf--right {
+  clip-path: inset(0 0 0 50%);
 }
 
-/* Not an ease-out, and this is the one place on the site that wants a
-   symmetric curve. An expo puts ~87% of the travel in the first third, which
-   on a full-height edge means the screen is uncovered almost at once and then
-   a thin strip across the top creeps away for another half-second - the exact
-   "sticking" read this rewrite exists to remove. Ease-in-out-cubic spends the
-   speed in the middle, where most of the screen is, and arrives at the top
-   edge without a tail. */
-.gk-curtain[data-leaving='true'] {
-  animation: gk-curtain-lift 0.95s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+/* A hairline down each leaf's inner edge. It only exists on the leaves, and
+   the leaves only show once the writing layer has gone, so it appears at the
+   instant the gates unlatch - a seam through the name a beat before it
+   splits. */
+.gk-gate__edge {
+  position: absolute;
+  inset-block: 0;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgb(255 255 255 / 0.14) 20%,
+    rgb(255 255 255 / 0.14) 80%,
+    transparent
+  );
+}
+.gk-gate__leaf--left .gk-gate__edge {
+  left: calc(50% - 1px);
+}
+.gk-gate__leaf--right .gk-gate__edge {
+  left: 50%;
 }
 
-.gk-curtain[data-leaving='true'] .gk-curtain__mark {
-  animation: gk-curtain-mark-out 0.42s var(--ease-out-quint) forwards;
+/* Ease-in-out quint, and a gate is the case it is for: heavy doors start slow,
+   swing through the middle, and settle as they reach the frame. An ease-out
+   would throw them open from the first frame, which reads as a wipe, not as
+   something with weight being pushed. */
+.gk-gate[data-leaving='true'] .gk-gate__leaf--left {
+  animation: gk-gate-open-left 1.15s cubic-bezier(0.83, 0, 0.17, 1) forwards;
+}
+.gk-gate[data-leaving='true'] .gk-gate__leaf--right {
+  animation: gk-gate-open-right 1.15s cubic-bezier(0.83, 0, 0.17, 1) forwards;
 }
 
-@keyframes gk-curtain-lift {
-  from {
-    clip-path: inset(0 0 0 0);
-  }
+@keyframes gk-gate-open-left {
   to {
-    clip-path: inset(0 0 100% 0);
+    transform: translate3d(-50%, 0, 0);
   }
 }
-
-/* Up and back, not just out: the mark recedes as it goes, so it reads as
-   being carried away with the curtain rather than dissolving in place. */
-@keyframes gk-curtain-mark-out {
-  from {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
+@keyframes gk-gate-open-right {
   to {
-    opacity: 0;
-    transform: translate3d(0, -8%, 0) scale(0.97);
+    transform: translate3d(50%, 0, 0);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* No travelling edge, no drift - the overlay simply clears. Short, because
-     under this setting it is an obstacle between the visitor and the page,
-     not choreography. */
-  .gk-curtain[data-leaving='true'] {
-    animation: gk-curtain-fade 0.2s linear forwards;
-  }
-  .gk-curtain[data-leaving='true'] .gk-curtain__mark {
-    animation: none;
+  /* No travel - the overlay simply clears. Short, because under this setting
+     it is an obstacle between the visitor and the page, not choreography. */
+  .gk-gate[data-leaving='true'] .gk-gate__leaf--left,
+  .gk-gate[data-leaving='true'] .gk-gate__leaf--right {
+    animation: gk-gate-fade 0.2s linear forwards;
   }
 }
 
-@keyframes gk-curtain-fade {
+@keyframes gk-gate-fade {
   to {
     opacity: 0;
   }
 }
+
 
 @media (prefers-reduced-motion: reduce) {
   [data-preloader='done'] .gk-reveal {
