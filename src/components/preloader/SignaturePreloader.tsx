@@ -8,9 +8,9 @@ import {
 } from "react";
 
 /**
- * Lazy, so opentype.js is not on the path to first paint. The overlay is a
- * flat field either way; the mark simply arrives into it a beat later, well
- * inside the hold this component already schedules.
+ * Lazy, so the traced signature (about 11KB compressed) is not on the path to
+ * first paint. The overlay is a flat field either way; the mark arrives into
+ * it a beat later, well inside the hold this component already schedules.
  */
 const Signature = lazy(() =>
 	import("#/components/signature").then((m) => ({ default: m.Signature })),
@@ -39,16 +39,17 @@ const TEXT = "Gautam Kumawat";
 const FIELD = "#0a0a0a";
 const INK = "#ffffff";
 
-/** Passed to Signature: how long a single character's stroke takes. */
-const DURATION = 0.72;
 /**
- * Seconds between characters. 0.11, not the component's 0.2 default: the mark
- * is fourteen characters, so the stagger - not the stroke - is what sets the
- * length of the wait, and at 0.2 the last stroke landed at 3.6s. Fast enough
- * that the hand reads as confident, slow enough that you can still watch it
- * being written.
+ * Seconds the signature takes to write, first stroke to last.
+ *
+ * One number now, where it used to be a per-letter stroke time and a stagger
+ * between letters. That pair existed because the mark was set in a font, one
+ * glyph at a time. It is his own hand now, written along the pen's path at a
+ * constant speed, so the only thing to choose is how long the whole thing
+ * takes. 2.2s is the length the font version settled on: fast enough that the
+ * hand reads as confident, slow enough to watch it being written.
  */
-const STAGGER = 0.11;
+const DURATION = 2.2;
 /**
  * Beat after the last stroke lands, before the gates part. Long enough for the
  * finished name to register as finished - at 0.3 the doors were already moving
@@ -62,26 +63,17 @@ const HOLD = 0.55;
  */
 const OPEN = 1.15;
 
-/**
- * When the writing finishes, counted from the first stroke. Derived rather than
- * written down, because it is a consequence of Signature's own schedule: it
- * delays character i by i * STAGGER and runs each for `duration`, over every
- * character in the string - the space included, since it is pushed as an empty
- * path and still takes a turn.
- */
-const WRITE_END = (TEXT.length - 1) * STAGGER + DURATION;
+/** When the writing finishes, counted from the first stroke. */
+const WRITE_END = DURATION;
 
 /**
  * How long to wait for the mark before giving up on it.
  *
- * A failsafe, not a normal-path timeout, and the distinction matters: the
- * outlines are produced at runtime (opentype.js is a lazy chunk, and it then
- * fetches and parses the .otf), so on a cold start the first stroke can land
- * well over a second in. At 2s this fired *before* the font arrived and lifted
- * the curtain on an empty field - the "signature is not showing" bug. The font
- * is preloaded from the document head now, which is the actual fix; this only
- * covers the case where it never arrives at all, and 5s is long enough that a
- * slow connection still gets to see the mark it waited for.
+ * A failsafe for the lazy chunk never arriving. It mattered more when the mark
+ * was built at runtime from a font - opentype.js then fetching and parsing an
+ * .otf could put the first stroke well over a second in - and the signature is
+ * static data now, but a chunk can still fail to load, and the page must not
+ * stay locked behind the overlay if it does.
  */
 const MARK_WAIT_CAP = 5000;
 
@@ -161,13 +153,13 @@ export function SignaturePreloader({
 	 * When to leave.
 	 *
 	 * Its own effect, and keyed on `markReady`, because the clock has to start
-	 * at the first stroke rather than at mount. Timed from mount it was counting
-	 * through the several hundred milliseconds opentype.js spends fetching and
-	 * parsing the font - time when the field is simply empty - and then cutting
-	 * the writing off before the last characters had landed.
+	 * at the first stroke rather than at mount: the mark arrives in a lazy chunk,
+	 * and time spent fetching it is time the field is simply empty. (When the
+	 * mark was built from a font this gap ran to over a second and cut the
+	 * writing off before it finished.)
 	 *
-	 * Until the mark is ready the only thing scheduled is the cap, so a font
-	 * that never resolves still releases the page.
+	 * Until the mark is ready the only thing scheduled is the cap, so a chunk
+	 * that never arrives still releases the page.
 	 */
 	useEffect(() => {
 		if (!active || skipped.current) return;
@@ -248,11 +240,8 @@ export function SignaturePreloader({
 				>
 					<Suspense fallback={null}>
 						<Signature
-							text={TEXT}
 							color={INK}
-							fontSize={MARK_SIZE}
 							duration={DURATION}
-							stagger={STAGGER}
 							onReady={() => setMarkReady(true)}
 							className={MARK_CLASS}
 						/>
@@ -264,7 +253,6 @@ export function SignaturePreloader({
 }
 
 /** Shared by the writing layer and both leaves, so all three draw one mark. */
-const MARK_SIZE = 64;
 const MARK_CLASS = "h-auto w-[min(86vw,900px)]";
 
 /**
@@ -282,13 +270,7 @@ function GateLeaf({ side }: { side: "left" | "right" }) {
 			style={{ backgroundColor: FIELD }}
 		>
 			<Suspense fallback={null}>
-				<Signature
-					text={TEXT}
-					color={INK}
-					fontSize={MARK_SIZE}
-					duration={0}
-					className={MARK_CLASS}
-				/>
+				<Signature color={INK} duration={0} className={MARK_CLASS} />
 			</Suspense>
 			{/* The leaf's inner edge, so the seam reads as two doors parting
 			    rather than as a picture being cut in half. */}

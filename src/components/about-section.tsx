@@ -5,9 +5,9 @@ import { Reveal, ScrollFillBlock } from "#/components/ui/scroll-reveal";
 import { INK, SIGNAL } from "#/lib/palette";
 
 /**
- * opentype.js parses a font file to draw the mark, which is ~340kB - far too
- * much to put in the first chunk for a flourish at the foot of one panel. It
- * loads only as the panel comes near.
+ * The signature is his traced hand (about 11KB compressed). Not much, but still
+ * no reason to put it in the first chunk for a flourish at the foot of one
+ * panel, so it loads only as the panel comes near.
  */
 const Signature = lazy(() =>
 	import("#/components/signature").then((m) => ({ default: m.Signature })),
@@ -173,9 +173,7 @@ export function AboutSection() {
 								<InView rootMargin="400px" once>
 									<Suspense fallback={null}>
 										<Signature
-											text="Gautam Kumawat"
 											color="#f4fbf8"
-											fontSize={40}
 											duration={0}
 											className="h-auto w-[min(76%,260px)] opacity-90"
 										/>

@@ -75,26 +75,6 @@ export const Route = createRootRoute({
 				href: "/hero.png",
 				fetchPriority: "high",
 			},
-			// The preloader's mark is drawn from this file's outlines at runtime -
-			// opentype.js fetches and parses it, and there is nothing on screen
-			// until it resolves. Left to the component it was requested only after
-			// the lazy chunk had loaded, which on a cold start put the first stroke
-			// as late as 2.6s in: long enough that the overlay was timing out over
-			// an empty field. Requested here it starts during document parse,
-			// alongside the hero plate, and the writing begins on time.
-			//
-			// `as: "fetch"`, not `as: "font"`. Nothing here declares an @font-face
-			// for this file - opentype.js pulls the bytes over a same-origin XHR
-			// and reads the outlines itself. A font preload is fetched in CORS
-			// mode and would never match that request: the browser downloads the
-			// 177KB twice and then warns that the preload went unused. Declared as
-			// a plain same-origin fetch, it is the same request opentype makes, so
-			// the XHR is served from cache.
-			{
-				rel: "preload",
-				as: "fetch",
-				href: "/LastoriaBoldRegular.otf",
-			},
 		],
 	}),
 	shellComponent: RootDocument,
