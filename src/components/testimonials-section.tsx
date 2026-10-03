@@ -59,7 +59,7 @@ const TESTIMONIALS: Omit<PerspectiveCarouselItem, "title">[] = [
 		src: "/testimonials/pankaj-kumar-singh.jpeg",
 		alt: "Official portrait of Pankaj Kumar Singh",
 		name: "Pankaj Kumar Singh",
-		role: "Dy NSA, DG BSF", 
+		role: "Former Dy NSA, DG BSF, ADG CID CB", 
 		quote:
 			"Gautam is defined by a rare blend of intense curiosity and quiet precision. always three steps ahead, effortlessly spotting patterns that others overlook..",
 
